@@ -15,6 +15,7 @@
       <div class="max-w-7xl mx-auto px-5 md:px-4">
         <RouterView />
       </div>
+      <div>몰래 추가</div>
     </main>
 
     <footer
