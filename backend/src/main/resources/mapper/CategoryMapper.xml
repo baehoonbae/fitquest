@@ -9,4 +9,8 @@
         INSERT INTO category (user_id, title, is_public, color)
         VALUES (#{userId}, #{title}, #{isPublic}, #{color})
     </insert>
+
+    <select id="getCategoryByUserIdAndCategoryId" resultType="com.web.fitquest.model.category.Category">
+        select id,user_id userId, title,is_public isPublic, color from category where user_id = #{userId} and id = #{categoryId}
+    </select>
 </mapper>

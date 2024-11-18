@@ -29,4 +29,9 @@ public class CategoryServiceImpl implements CategoryService {
     public boolean addCategory(Category category) {
         return categoryMapper.addCategory(category) > 0;
     }
+
+    @Override
+    public Optional<Category> getCategoryByUserIdAndCategoryId(int userId, int categoryId) {
+        return Optional.ofNullable(categoryMapper.getCategoryByUserIdAndCategoryId(userId, categoryId));
+    }
 }
