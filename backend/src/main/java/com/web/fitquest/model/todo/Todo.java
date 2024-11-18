@@ -17,7 +17,8 @@ import lombok.ToString;
 public class Todo {
     private int id;
     private int userId;
-    private int categoryId;
-    private int isDone;
+    @NonNull private Integer categoryId;
+    @NonNull private Integer isDone;
+    @NonNull private String content;
     @NonNull private String date;
 }

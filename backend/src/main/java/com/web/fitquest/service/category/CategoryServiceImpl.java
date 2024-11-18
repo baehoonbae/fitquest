@@ -1,19 +1,28 @@
 package com.web.fitquest.service.category;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.web.fitquest.mapper.category.CategoryMapper;
 import com.web.fitquest.model.category.Category;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
+@RequiredArgsConstructor
+@Transactional
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryMapper categoryMapper;
 
-    @Autowired
-    public CategoryServiceImpl(CategoryMapper categoryMapper) {
-        this.categoryMapper = categoryMapper;
+    @Override
+    public Optional<List<Category>> getCategoryList(int userId) {
+        return Optional.ofNullable(categoryMapper.getCategoryList(userId));
     }
 
     @Override
