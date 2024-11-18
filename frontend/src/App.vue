@@ -26,17 +26,17 @@
         <Footer />
       </div>
     </footer>
-    <div>ㅎㅇㅎㅇ</div>
-    <div>ㅎㅇㅎㅇ</div>
-    <div>ㅎㅇㅎㅇ</div>
-    <div>ㅎㅇㅎㅇ</div>
-    <div>ㅎㅇㅎㅇ</div>
-    <div>ㅎㅇㅎㅇ</div>
-    <div>ㅎㅇㅎㅇ</div>
-    <div>ㅎㅇㅎㅇ</div>
-    <div>ㅎㅇㅎㅇ</div>
-    <div>ㅎㅇㅎㅇ</div>
-    <div>ㅎㅇㅎㅇ</div>
+    <div>ㅎㅇ</div>
+    <div>ㅎㅇ</div>
+    <div>ㅎㅇ</div>
+    <div>ㅎㅇ</div>
+    <div>ㅎㅇ</div>
+    <div>ㅎㅇ</div>
+    <div>ㅎㅇ</div>
+    <div>ㅎㅇ</div>
+    <div>ㅎㅇ</div>
+    <div>ㅎㅇ</div>
+    <div>ㅎㅇ</div>
   </div>
 </template>
 
