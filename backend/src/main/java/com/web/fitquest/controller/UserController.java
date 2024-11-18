@@ -2,7 +2,6 @@ package com.web.fitquest.controller;
 
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -26,24 +25,19 @@ import com.web.fitquest.service.token.TokenService;
 import com.web.fitquest.service.user.UserService;
 import com.web.fitquest.util.JwtUtil;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 
 @RestController
 @RequestMapping("/api/user")
+@RequiredArgsConstructor
 @Slf4j
 public class UserController {
 
     private final UserService userService;
     private final TokenService tokenService;
     private final JwtUtil jwtUtil;
-
-    @Autowired
-    public UserController(UserService userService, TokenService tokenService, JwtUtil jwtUtil) {
-        this.userService = userService;
-        this.tokenService = tokenService;
-        this.jwtUtil = jwtUtil;
-    }
 
     @PostMapping("/regist")
     public ResponseEntity<?> regist(@RequestBody User user) {

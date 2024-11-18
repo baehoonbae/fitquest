@@ -3,7 +3,6 @@ package com.web.fitquest.controller;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,19 +16,16 @@ import com.web.fitquest.model.todo.Todo;
 import com.web.fitquest.requests.TodoRequest;
 import com.web.fitquest.service.todo.TodoService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/todo")
+@RequiredArgsConstructor
 @Slf4j
 public class TodoController {
 
-    private TodoService todoService;
-
-    @Autowired
-    public TodoController(TodoService todoService) {
-        this.todoService = todoService;
-    }
+    private final TodoService todoService;
 
     @GetMapping("/{date}/{userId}")
     public ResponseEntity<?> getTodoList(@PathVariable String date, @PathVariable int userId) {
