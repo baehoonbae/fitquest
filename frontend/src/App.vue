@@ -15,7 +15,10 @@
       <div class="max-w-7xl mx-auto px-5 md:px-4">
         <RouterView />
       </div>
-      <div>몰래 추가</div>
+      <div>djfgberjbvejrbvjrke</div>
+      <div>
+        몰래몰래 zzzz
+      </div>
     </main>
 
     <footer
@@ -26,13 +29,6 @@
         <Footer />
       </div>
     </footer>
-    <div>ㅎㅇㅎㅇ</div>
-    <div>ㅎㅇㅎㅇ</div>
-    <div>ㅎㅇㅎㅇ</div>
-    <div>ㅎㅇㅎㅇ</div>
-    <div>ㅎㅇㅎㅇ</div>
-    <div>ㅎㅇㅎㅇ</div>
-    <div>ㅎㅇㅎㅇ</div>
     <div>ㅎㅇㅎㅇ</div>
     <div>ㅎㅇㅎㅇ</div>
     <div>ㅎㅇㅎㅇ</div>
