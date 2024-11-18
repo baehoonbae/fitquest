@@ -17,17 +17,6 @@
         <Footer />
       </div>
     </footer>
-    <div>ㅎㅇㅎㅇ</div>
-    <div>ㅎㅇㅎㅇ</div>
-    <div>ㅎㅇㅎㅇ</div>
-    <div>ㅎㅇㅎㅇ</div>
-    <div>ㅎㅇㅎㅇ</div>
-    <div>ㅎㅇㅎㅇ</div>
-    <div>ㅎㅇㅎㅇ</div>
-    <div>ㅎㅇㅎㅇ</div>
-    <div>ㅎㅇㅎㅇ</div>
-    <div>ㅎㅇㅎㅇ</div>
-    <div>ㅎㅇㅎㅇ</div>
   </div>
 </template>
 
