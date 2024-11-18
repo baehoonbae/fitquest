@@ -10,4 +10,5 @@ public interface TodoService {
     boolean addTodo(Todo todo);
     boolean updateTodo(Todo todo);
     Optional<List<Todo>> getTodoListByYearAndUserId(Todo todo);
+    Optional<Todo> getTodoById(int id);
 }

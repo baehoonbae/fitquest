@@ -12,4 +12,5 @@ public interface TodoMapper {
     int addTodo(Todo todo);
     int updateTodo(Todo todo);
     List<Todo> getTodoListByYearAndUserId(Todo todo);
+    Todo getTodoById(int id);
 }

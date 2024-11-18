@@ -78,7 +78,7 @@ export const useTodoStore = defineStore("todo", () => {
         }
       );
       if (response.data) {
-        await fetchTodos(authStore.user.id);
+        await fetchTodos(todoData.date);
         return { success: true };
       }
     } catch (error) {
@@ -88,9 +88,31 @@ export const useTodoStore = defineStore("todo", () => {
     }
   };
 
+  const fetchTodo = async (todoId) => {
+    try {
+      const accessToken = authStore.getToken();
+      const response = await axios.get(
+        `http://localhost:8097/fitquest/api/todo/${todoId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      if (response.data) {
+        todo.value = response.data;
+      }
+    } catch (error) {
+      throw new Error(
+        error.response?.data?.message || "할일 조회에 실패했습니다."
+      );
+    }
+  };
+
   return {
     todos,
     todo,
+    fetchTodo,
     fetchTodos,
     fetchAddTodo,
     fetchTodoUpdate,

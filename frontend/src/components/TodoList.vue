@@ -36,17 +36,13 @@
               'border-bottom': `2px solid ${categoryStore.category.color}`,
             }"
           />
-          <EllipsisHorizontalIcon
-            class="w-[21.5px] h-[21.5px]"
-          ></EllipsisHorizontalIcon>
+          <EllipsisHorizontalIcon class="w-[21.5px] h-[21.5px]" />
         </div>
       </div>
       <div v-else>
         <button @click="toggleMenu(todo.id)" class="flex">
           <div class="w-[344px] text-sm text-left">{{ todo.content }}</div>
-          <EllipsisHorizontalIcon
-            class="w-[21.5px] h-[21.5px]"
-          ></EllipsisHorizontalIcon>
+          <EllipsisHorizontalIcon class="w-[21.5px] h-[21.5px]" />
         </button>
       </div>
     </div>
@@ -69,7 +65,6 @@ import { useCategoryStore } from "@/stores/category";
 import { useAuthStore } from "@/stores/auth";
 
 const authStore = useAuthStore();
-const userId = authStore.user.id;
 const props = defineProps({
   categoryId: {
     type: Number,
@@ -117,7 +112,7 @@ const closeMenu = () => {
 const handleDone = async (id) => {
   try {
     const todo = todoStore.todos.find((t) => t.id === id);
-    todo.isDone = !todo.isDone;
+    todo.isDone = (todo.isDone + 1) % 2;
     await todoStore.fetchTodoUpdate(todo);
   } catch (error) {
     console.error("할 일 수정 실패:", error);

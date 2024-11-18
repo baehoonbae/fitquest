@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex justify-around">
+    <div class="flex flex-col md:flex-row justify-around">
       <!-- 달력 -->
       <Calendar />
       <CategoryList />

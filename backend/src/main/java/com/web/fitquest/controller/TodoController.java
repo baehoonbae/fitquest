@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.web.fitquest.model.todo.Todo;
@@ -74,6 +73,17 @@ public class TodoController {
             Todo todo = new Todo(0, todoRequest.getUserId(), 0, 0, "", year + "-01-01");
             Optional<List<Todo>> opTodoList = todoService.getTodoListByYearAndUserId(todo);
             return opTodoList.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("서버 오류 발생");
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getTodo(@PathVariable int id) {
+        try {
+            Optional<Todo> opTodo = todoService.getTodoById(id);
+            return opTodo.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body("서버 오류 발생");

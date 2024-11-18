@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen flex flex-col">
-    <header v-if="!hideLayout" class="fixed top-0 left-0 right-0 bg-white z-50">
+    <header v-if="!hideLayout" class="fixed top-0 left-0 right-0 bg-white z-45">
       <div class="max-w-5xl mx-auto px-5 md:px-4">
         <Header />
       </div>
@@ -12,7 +12,7 @@
       </div>
     </main>
 
-    <footer v-if="!hideLayout" class="fixed bottom-0 left-0 right-0 bg-white z-50">
+    <footer v-if="!hideLayout" class="fixed bottom-0 left-0 right-0 bg-white z-45">
       <div class="max-w-7xl mx-auto px-5 md:px-4">
         <Footer />
       </div>

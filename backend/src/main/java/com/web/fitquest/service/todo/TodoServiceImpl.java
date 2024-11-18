@@ -40,4 +40,9 @@ public class TodoServiceImpl implements TodoService {
         return Optional.ofNullable(todoMapper.getTodoListByYearAndUserId(todo));
     }
 
+    @Override
+    public Optional<Todo> getTodoById(int id) {
+        return Optional.ofNullable(todoMapper.getTodoById(id));
+    }
+
 }
