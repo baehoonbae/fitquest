@@ -109,6 +109,25 @@ export const useTodoStore = defineStore("todo", () => {
     }
   };
 
+  const fetchDeleteTodo = async (todoId) => {
+    try {
+      const accessToken = authStore.getToken();
+      const response = await axios.delete(`http://localhost:8097/fitquest/api/todo/${todoId}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      if (response.data) {
+        await fetchTodos(todo.value.date);
+        return { success: true };
+      }
+    } catch (error) {
+      throw new Error(
+        error.response?.data?.message || "할일 삭제에 실패했습니다."
+      );
+    }
+  }
+
   return {
     todos,
     todo,
@@ -116,5 +135,6 @@ export const useTodoStore = defineStore("todo", () => {
     fetchTodos,
     fetchAddTodo,
     fetchTodoUpdate,
+    fetchDeleteTodo,
   };
 });

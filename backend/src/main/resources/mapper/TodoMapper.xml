@@ -37,4 +37,8 @@
     <select id="getTodoById" resultType="com.web.fitquest.model.todo.Todo">
         select id, user_id userId, category_id categoryId, is_done isDone, content, date from todo where id = #{id}
     </select>
+    
+    <delete id="deleteTodo">
+        delete from todo where id = #{id}
+    </delete>
 </mapper>

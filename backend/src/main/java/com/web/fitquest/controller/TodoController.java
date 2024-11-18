@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +28,7 @@ public class TodoController {
 
     private final TodoService todoService;
 
+    // 날짜와 userId에 해당하는 모든 todo를 가져온다.
     @GetMapping("/{date}/{userId}")
     public ResponseEntity<?> getTodoList(@PathVariable String date, @PathVariable int userId) {
         try {
@@ -39,6 +41,7 @@ public class TodoController {
         }
     }
 
+    // todo를 추가한다.
     @PostMapping("")
     public ResponseEntity<?> addTodo(@RequestBody Todo todo) {
         try {
@@ -50,6 +53,7 @@ public class TodoController {
         }
     }
 
+    // todo를 수정한다.
     @PutMapping("/{id}")
     public ResponseEntity<?> updateTodo(@PathVariable int id, @RequestBody Todo todo) {
         try {
@@ -75,11 +79,24 @@ public class TodoController {
         }
     }
 
+    // id에 해당하는 todo를 가져온다.
     @GetMapping("/{id}")
     public ResponseEntity<?> getTodo(@PathVariable int id) {
         try {
             Optional<Todo> opTodo = todoService.getTodoById(id);
             return opTodo.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("서버 오류 발생");
+        }
+    }
+
+    // id에 해당하는 todo를 삭제한다.
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteTodo(@PathVariable int id) {
+        try {
+            boolean success = todoService.deleteTodo(id);
+            return success ? ResponseEntity.ok().body("todo 삭제 성공") : ResponseEntity.notFound().build();
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body("서버 오류 발생");
