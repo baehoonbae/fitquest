@@ -3,19 +3,25 @@ package com.web.fitquest.service.board;
 import java.util.List;
 import java.util.Optional;
 
-import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.web.fitquest.mapper.board.BoardMapper;
 import com.web.fitquest.model.board.Board;
-import com.web.fitquest.model.searchCondition.SearchCondition;;
+import com.web.fitquest.model.searchCondition.SearchCondition;
+
+import lombok.RequiredArgsConstructor;;
 
 @Service
-@MapperScan(basePackages = { "com.web.fitquest.**.mapper" })
 public class BoardServiceImpl implements BoardService {
 
-    private BoardMapper boardMapper;
+    private final BoardMapper boardMapper;
+
+	@Autowired
+    public BoardServiceImpl(BoardMapper boardMapper) {
+        this.boardMapper = boardMapper;
+    }
 
 	@Override
 	@Transactional
