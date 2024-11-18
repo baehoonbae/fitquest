@@ -1,59 +1,33 @@
 <template>
   <div v-for="todo in todoStore.todos" :key="todo.id">
-    <div
-      v-if="todo.categoryId === props.categoryId"
-      class="flex items-center gap-2 pt-[15px] pl-[0.7px]"
-    >
-      <div
-        class="relative w-[24px] h-[24px] cursor-pointer"
-        @click="handleDone(todo.id)"
-      >
-        <svg
-          v-if="todo.isDone"
-          class="w-[21.5px] h-[21.5px] text-black"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
+    <div v-if="todo.categoryId === props.categoryId" class="flex items-center gap-1.5 pt-3.5">
+      <div class="relative w-[19px] h-[19px] cursor-pointer" @click="handleDone(todo.id)">
+        <svg v-if="todo.isDone" class="w-[19px] h-[19px] text-black" viewBox="0 0 20 20" fill="currentColor">
           <rect width="18" height="18" x="1" y="1" rx="4" fill="currentColor" />
-          <path
-            fill="white"
-            d="M13.293 7.293a1 1 0 0 1 1.414 1.414l-5 5a1 1 0 0 1-1.414 0l-2.5-2.5a1 1 0 0 1 1.414-1.414L9 11.586l4.293-4.293z"
-          />
+          <path fill="white"
+            d="M13.293 7.293a1 1 0 0 1 1.414 1.414l-5 5a1 1 0 0 1-1.414 0l-2.5-2.5a1 1 0 0 1 1.414-1.414L9 11.586l4.293-4.293z" />
         </svg>
-        <div
-          v-else
-          class="w-[21.5px] h-[21.5px] rounded border bg-[#dadddf] border-gray-300"
-        ></div>
+        <div v-else class="w-[19px] h-[19px] rounded border bg-[#dadddf] border-gray-300"></div>
       </div>
-      <div v-if="contentUpdateMode && todo.id === selectedTodoId">
+      <div v-if="contentUpdateMode && todo.id === selectedTodoId" class="flex-1">
         <div class="flex" @click.stop>
-          <input
-            type="text"
-            placeholder="할 일 입력"
-            class="pb-2 w-[344px] text-sm outline-none caret-blue-500"
-            v-model="newTodoContent"
-            :style="{
+          <input type="text" placeholder="할 일 입력" class="pb-1.5 w-full text-xs outline-none caret-blue-500"
+            v-model="newTodoContent" :style="{
               'border-bottom': `2px solid ${categoryStore.category.color}`,
-            }"
-          />
-          <EllipsisHorizontalIcon class="w-[21.5px] h-[21.5px]" />
+            }" />
+          <EllipsisHorizontalIcon class="w-[19px] h-[19px] flex-shrink-0" />
         </div>
       </div>
-      <div v-else>
-        <button @click="toggleMenu(todo.id)" class="flex">
-          <div class="w-[344px] text-sm text-left">{{ todo.content }}</div>
-          <EllipsisHorizontalIcon class="w-[21.5px] h-[21.5px]" />
+      <div v-else class="flex-1">
+        <button @click="toggleMenu(todo.id)" class="flex w-full">
+          <div class="w-full text-xs text-left truncate">{{ todo.content }}</div>
+          <EllipsisHorizontalIcon class="w-[19px] h-[19px] flex-shrink-0" />
         </button>
       </div>
     </div>
   </div>
-  <TodoMenu
-    v-if="!contentUpdateMode && selectedTodoId !== null"
-    :selectedTodoId="selectedTodoId"
-    @close="closeMenu"
-    @edit="handleContent"
-    @delete="goDelete"
-  />
+  <TodoMenu v-if="!contentUpdateMode && selectedTodoId !== null" :selectedTodoId="selectedTodoId" @close="closeMenu"
+    @edit="handleContent" @delete="goDelete" />
 </template>
 
 <script setup>
@@ -98,7 +72,7 @@ const goUpdate = async () => {
 
 const goDelete = async (id) => {
   try {
-    await todoStore.fetchTodoDelete(id);
+    await todoStore.fetchDeleteTodo(id);
     closeMenu();
   } catch (error) {
     console.error("할 일 삭제 실패:", error);

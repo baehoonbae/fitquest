@@ -1,27 +1,34 @@
 <template>
-  <div class="w-auto max-w-[400px]">
-    <div class="space-y-5">
+  <div>
+    <div class="space-y-4">
       <div v-for="category in categoryStore.categories" :key="category.id">
         <div
-          class="flex items-center justify-between bg-gray-100 rounded-[18px] py-2 px-3 cursor-pointer hover:bg-gray-200 w-fit"
+          class="flex items-center bg-gray-100 rounded-[16px] py-1.5 px-2.5 cursor-pointer hover:bg-gray-200 w-fit"
           @click.stop="openTodoForm(category)">
-          <div class="flex items-center gap-2 flex-1 overflow-hidden">
-            <GlobeAltIcon v-if="category.isPublic" class="w-4 h-4 text-gray-400 flex-shrink-0" />
-            <LockClosedIcon v-else class="w-4 h-4 text-gray-400 flex-shrink-0" />
-            <span class="text-sm font-bold truncate" :style="{ color: category.color }">{{ truncateText(category.title)
-              }}</span>
+          <div class="flex items-center gap-1.5">
+            <GlobeAltIcon v-if="category.isPublic" class="w-3.5 h-3.5 text-gray-400" />
+            <LockClosedIcon v-else class="w-3.5 h-3.5 text-gray-400" />
+            <span class="text-xs font-bold" :style="{ color: category.color }">
+              {{ truncateText(category.title) }}
+            </span>
           </div>
-          <span class="text-gray-400 ml-2 flex-shrink-0">+</span>
+          <span class="text-gray-400 ml-1.5">+</span>
         </div>
-        <div class="mb-8">
+        <div class="mb-7">
           <TodoList :categoryId="category.id" />
-          <div v-if="selectedCategory && selectedCategory.id === category.id" class="mt-4 space-y-2 mb-8">
-            <div class="flex items-center gap-2 pl-[0.7px]">
-              <input class="w-[21.5px] h-[21.5px] rounded border bg-[#dadddf] border-gray-300"/>
-              <input type="text" placeholder="할 일 입력" class="pb-2 w-[344px] text-sm outline-none caret-blue-500"
+          <div v-if="selectedCategory && selectedCategory.id === category.id" class="mt-3.5 mb-7">
+            <div class="flex items-center gap-1.5">
+              <input class="w-[19px] h-[19px] rounded border bg-[#dadddf] border-gray-300"/>
+              <input 
+                type="text" 
+                placeholder="할 일 입력" 
+                class="pb-1.5 w-full text-xs outline-none caret-blue-500"
                 :ref="el => { if (selectedCategory?.id === category.id) todoInput = el }"
-                :style="{ 'border-bottom': `2px solid ${selectedCategory.color}` }" v-model="todo.content" @click.stop
-                @keyup.enter="handleAddTodo(todo)" />
+                :style="{ 'border-bottom': `2px solid ${selectedCategory.color}` }" 
+                v-model="todo.content" 
+                @click.stop
+                @keyup.enter="handleAddTodo(todo)" 
+              />
             </div>
           </div>
         </div>
