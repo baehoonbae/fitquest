@@ -163,10 +163,10 @@ public class UserController {
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getUserInfo(@PathVariable Integer id) {
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getUserInfo(@PathVariable Integer userId) {
         try {
-            Optional<User> opUser = userService.getUserInfo(id);
+            Optional<User> opUser = userService.getUserInfo(userId);
             return opUser
                     .map(user -> new ResponseEntity<>(user, HttpStatus.OK))
                     .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -176,8 +176,8 @@ public class UserController {
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateUserInfo(@PathVariable Integer id, @RequestBody User user) {
+    @PutMapping("/{userId}")
+    public ResponseEntity<?> updateUserInfo(@PathVariable Integer userId, @RequestBody User user) {
         try {
             boolean success = userService.updateUser(user);
             if(success) {
