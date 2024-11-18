@@ -49,5 +49,4 @@ public class TodoServiceImpl implements TodoService {
     public boolean deleteTodo(int id) {
         return todoMapper.deleteTodo(id) > 0;
     }
-
 }

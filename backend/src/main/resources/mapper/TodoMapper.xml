@@ -3,17 +3,20 @@
 
 <mapper namespace="com.web.fitquest.mapper.todo.TodoMapper">
     <select id="getTodoList" resultType="com.web.fitquest.model.todo.Todo"> 
-        SELECT id,user_id userId,category_id categoryId,is_done isDone,content,date FROM todo WHERE
+        SELECT id,user_id userId,category_id categoryId,is_done isDone,content,date,todo_order todoOrder FROM todo WHERE
         user_id = #{userId} AND date = #{date} 
     </select>
 
     <insert id="addTodo"> 
-        insert into todo (user_id, category_id, content, date) 
-        values (#{userId}, #{categoryId}, #{content}, #{date}) 
+        insert into todo (user_id, category_id, content, date, todo_order) 
+        values (#{userId}, #{categoryId}, #{content}, #{date}, #{todoOrder}) 
     </insert>
 
     <update id="updateTodo"> 
         update todo set 
+        <if test="userId!=null">
+            user_id = #{userId},
+        </if>
         <if test="categoryId!=null">
             category_id = #{categoryId},
         </if>
@@ -24,7 +27,10 @@
             content = #{content},
         </if>
         <if test="date!=null">
-            date = #{date}
+            date = #{date},
+        </if>
+        <if test="todoOrder!=null">
+            todo_order = #{todoOrder}
         </if>
         where id = #{id} 
     </update>
@@ -35,10 +41,11 @@
     </select>
 
     <select id="getTodoById" resultType="com.web.fitquest.model.todo.Todo">
-        select id, user_id userId, category_id categoryId, is_done isDone, content, date from todo where id = #{id}
+        select id, user_id userId, category_id categoryId, is_done isDone, content, date, todo_order todoOrder from todo where id = #{id}
     </select>
-    
+
     <delete id="deleteTodo">
         delete from todo where id = #{id}
     </delete>
+
 </mapper>

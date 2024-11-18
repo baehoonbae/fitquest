@@ -32,7 +32,7 @@ public class TodoController {
     @GetMapping("/{date}/{userId}")
     public ResponseEntity<?> getTodoList(@PathVariable String date, @PathVariable int userId) {
         try {
-            Todo todo = new Todo(0, userId, 0, 0, "", date);
+            Todo todo = new Todo(0, userId, 0, 0, "", date, 0);
             Optional<List<Todo>> opTodoList = todoService.getTodoList(todo);
             return opTodoList.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
@@ -70,7 +70,7 @@ public class TodoController {
     @GetMapping("/statistics/{year}")
     public ResponseEntity<?> getStatistics(@PathVariable int year, @RequestBody TodoRequest todoRequest) {
         try {
-            Todo todo = new Todo(0, todoRequest.getUserId(), 0, 0, "", year + "-01-01");
+            Todo todo = new Todo(0, todoRequest.getUserId(), 0, 0, "", year + "-01-01", 0);
             Optional<List<Todo>> opTodoList = todoService.getTodoListByYearAndUserId(todo);
             return opTodoList.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
