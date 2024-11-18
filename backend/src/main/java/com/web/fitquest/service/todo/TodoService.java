@@ -7,8 +7,14 @@ import com.web.fitquest.model.todo.Todo;
 
 public interface TodoService {
     Optional<List<Todo>> getTodoList(Todo todo);
+
     boolean addTodo(Todo todo);
+
     boolean updateTodo(Todo todo);
+
     Optional<List<Todo>> getTodoListByYearAndUserId(Todo todo);
+
     Optional<Todo> getTodoById(int id);
+
+    boolean deleteTodo(int id);
 }

@@ -21,4 +21,5 @@ public class Todo {
     @NonNull private Integer isDone;
     @NonNull private String content;
     @NonNull private String date;
+    @NonNull private Integer todoOrder;
 }

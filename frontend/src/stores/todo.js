@@ -9,7 +9,7 @@ export const useTodoStore = defineStore("todo", () => {
   const todo = ref({});
   const authStore = useAuthStore();
 
-  // 카테고리 목록 조회(일자별로)
+  // 투두 목록 조회(일자별로)
   const fetchTodos = async (date) => {
     const userId = authStore.user.id;
     const accessToken = authStore.getToken();
@@ -40,7 +40,11 @@ export const useTodoStore = defineStore("todo", () => {
     if (!todoData.content?.trim()) {
       throw new Error("할일 내용을 입력해주세요");
     }
-
+    const categoryTodos = todos.value.filter(todo => todo.categoryId === todoData.categoryId);
+    const maxOrder = categoryTodos.length > 0
+      ? Math.max(...categoryTodos.map(t => t.todoOrder || 0))
+      : -1;
+    todoData.todoOrder = maxOrder + 1;
     try {
       const accessToken = authStore.getToken();
       const response = await axios.post(
@@ -78,7 +82,9 @@ export const useTodoStore = defineStore("todo", () => {
         }
       );
       if (response.data) {
-        await fetchTodos(todoData.date);
+        setTimeout(async () => {
+          await fetchTodos(todoData.date);
+        }, 100);
         return { success: true };
       }
     } catch (error) {
@@ -109,6 +115,25 @@ export const useTodoStore = defineStore("todo", () => {
     }
   };
 
+  const fetchDeleteTodo = async (todoId) => {
+    try {
+      const accessToken = authStore.getToken();
+      const response = await axios.delete(`http://localhost:8097/fitquest/api/todo/${todoId}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      if (response.data) {
+        await fetchTodos(todo.value.date);
+        return { success: true };
+      }
+    } catch (error) {
+      throw new Error(
+        error.response?.data?.message || "할일 삭제에 실패했습니다."
+      );
+    }
+  }
+
   return {
     todos,
     todo,
@@ -116,5 +141,6 @@ export const useTodoStore = defineStore("todo", () => {
     fetchTodos,
     fetchAddTodo,
     fetchTodoUpdate,
+    fetchDeleteTodo,
   };
 });
