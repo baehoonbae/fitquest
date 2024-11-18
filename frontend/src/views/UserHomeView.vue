@@ -1,10 +1,10 @@
 <template>
-  <div class="max-w-[900px] mx-auto px-4 flex flex-col gap-6">
+  <div class="max-w-[900px] mx-auto px-4 flex flex-col gap-2">
     <div class="flex flex-col md:flex-row gap-6">
       <div class="md:w-1/2">
         <Calendar />
       </div>
-      <div class="md:w-1/2 min-h-[300px] max-h-[calc(100vh-25rem)] overflow-y-auto scrollbar-custom">
+      <div class="md:w-1/2 min-h-[450px] max-h-[calc(100vh-25rem)] overflow-y-auto scrollbar-custom">
         <CategoryList />
       </div>
     </div>

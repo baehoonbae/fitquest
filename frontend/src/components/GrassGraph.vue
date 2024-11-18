@@ -1,5 +1,5 @@
 <template>
-    <div class="mt-6">
+    <div>
         <h3 class="text-lg font-semibold mb-4">활동 그래프</h3>
         <div class="grass-graph overflow-x-auto">
             <div class="min-w-[800px]">
@@ -56,7 +56,7 @@ const getActivityColor = (level) => {
     const colors = {
         0: 'bg-gray-100',
         1: 'bg-[#c6e48b]',
-        2: 'bg-[#7bc96f]', 
+        2: 'bg-[#7bc96f]',
         3: 'bg-[#239a3b]',
         4: 'bg-[#196127]'
     };

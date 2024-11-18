@@ -2,8 +2,7 @@
   <div>
     <div class="space-y-4">
       <div v-for="category in categoryStore.categories" :key="category.id">
-        <div
-          class="flex items-center bg-gray-100 rounded-[16px] py-1.5 px-2.5 cursor-pointer hover:bg-gray-200 w-fit"
+        <div class="flex items-center bg-gray-100 rounded-[16px] py-1.5 px-2.5 cursor-pointer hover:bg-gray-200 w-fit"
           @click.stop="openTodoForm(category)">
           <div class="flex items-center gap-1.5">
             <GlobeAltIcon v-if="category.isPublic" class="w-3.5 h-3.5 text-gray-400" />
@@ -15,20 +14,16 @@
           <span class="text-gray-400 ml-1.5">+</span>
         </div>
         <div class="mb-7">
-          <TodoList :categoryId="category.id" />
+          <TodoList :categoryId="category.id" @dragstart="handleDragStart" @dragend="handleDragEnd"
+            @todoAdded="handleTodoAdded" @todoRemoved="handleTodoRemoved"
+            :group="{ name: 'todos', pull: true, put: true }" />
           <div v-if="selectedCategory && selectedCategory.id === category.id" class="mt-3.5 mb-7">
             <div class="flex items-center gap-1.5">
-              <input class="w-[19px] h-[19px] rounded border bg-[#dadddf] border-gray-300"/>
-              <input 
-                type="text" 
-                placeholder="할 일 입력" 
-                class="pb-1.5 w-full text-xs outline-none caret-blue-500"
+              <input class="w-[19px] h-[19px] rounded border bg-[#dadddf] border-gray-300" />
+              <input type="text" placeholder="할 일 입력" class="pb-1.5 w-full text-xs outline-none caret-blue-500"
                 :ref="el => { if (selectedCategory?.id === category.id) todoInput = el }"
-                :style="{ 'border-bottom': `2px solid ${selectedCategory.color}` }" 
-                v-model="todo.content" 
-                @click.stop
-                @keyup.enter="handleAddTodo(todo)" 
-              />
+                :style="{ 'border-bottom': `2px solid ${selectedCategory.color}` }" v-model="todo.content" @click.stop
+                @keyup.enter="handleAddTodo(todo)" />
             </div>
           </div>
         </div>
@@ -50,12 +45,14 @@ const categoryStore = useCategoryStore();
 const todoStore = useTodoStore();
 const selectedCategory = ref(null);
 const todo = ref({
-  categoryId: null,
-  date: new Date().toISOString().split('T')[0],
-  content: '',
   userId: authStore.user.id,
+  categoryId: null,
+  content: '',
+  date: new Date().toISOString().split('T')[0],
 })
 const todoInput = ref(null);
+const dragStartCategoryId = ref(null);
+const dragEndCategoryId = ref(null);
 
 const closeAddTodo = () => {
   selectedCategory.value = null;
@@ -90,6 +87,42 @@ const handleAddTodo = async (todo) => {
 
 const truncateText = (text) => {
   return text.length > 20 ? text.slice(0, 20) + '...' : text;
+};
+
+const handleDragStart = (event) => {
+  const { todoId, categoryId } = event;
+  dragStartCategoryId.value = categoryId;
+  console.log('Drag started from category:', dragStartCategoryId.value);
+};
+
+const handleTodoAdded = (event) => {
+  const { todoId, newCategoryId, newIndex } = event;
+  console.log('Todo added to category:', newCategoryId);
+  console.log('Todo index:', newIndex);
+  dragEndCategoryId.value = newCategoryId;
+};
+
+const handleTodoRemoved = (event) => {
+  const { todoId, oldCategoryId, oldIndex } = event;
+  console.log('Todo removed from category:', oldCategoryId);
+  console.log('Todo index:', oldIndex);
+};
+
+const handleDragEnd = async () => {
+  if (dragStartCategoryId.value && dragEndCategoryId.value &&
+    dragStartCategoryId.value !== dragEndCategoryId.value) {
+    console.log('Moving todo between categories:', {
+      from: dragStartCategoryId.value,
+      to: dragEndCategoryId.value
+    });
+    const updates = [];
+    await Promise.all(updates.map(todo => todoStore.fetchTodoUpdate(todo)));
+  } else {
+    console.log('No move or same category');
+  }
+
+  dragStartCategoryId.value = null;
+  dragEndCategoryId.value = null;
 };
 
 onMounted(async () => {
