@@ -19,7 +19,7 @@ public class Board {
     private int userId;
     @NonNull private String tag;
     private String date;
-    @NonNull private String writer;
+    private String writer;
     @NonNull private String title;
     @NonNull private String content;
     private int viewCount;
