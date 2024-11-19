@@ -11,8 +11,8 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/fitquest/api/**")
                 .allowedHeaders("*")
-                .allowedOrigins("http://localhost:5173")  // 클라이언트 URL
-                .allowedMethods("GET", "POST", "PUT", "DELETE")  // 허용할 HTTP 메서드
-                .allowCredentials(true);  // 자격 증명 허용
+                .allowedOriginPatterns("http://localhost:[*]", "http://127.0.0.1:[*]", "http://70.12.50.63:[*]")
+                .allowedMethods("GET", "POST", "PUT", "DELETE") 
+                .allowCredentials(true); 
     }
 }

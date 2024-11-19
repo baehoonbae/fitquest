@@ -2,8 +2,10 @@
   <div>
     <div class="space-y-4">
       <div v-for="category in categoryStore.categories" :key="category.id">
-        <div class="flex items-center bg-gray-100 rounded-[16px] py-1.5 px-2.5 cursor-pointer hover:bg-gray-200 w-fit"
-          @click.stop="openTodoForm(category)">
+        <div
+          class="flex items-center bg-gray-100 rounded-[16px] py-1.5 px-2.5 cursor-pointer hover:bg-gray-200 w-fit"
+          @click.stop="openTodoForm(category)"
+        >
           <div class="flex items-center gap-1.5">
             <GlobeAltIcon v-if="category.isPublic" class="w-3.5 h-3.5 text-gray-400" />
             <LockClosedIcon v-else class="w-3.5 h-3.5 text-gray-400" />
@@ -14,16 +16,29 @@
           <span class="text-gray-400 ml-1.5">+</span>
         </div>
         <div class="mb-7">
-          <TodoList :categoryId="category.id" @dragstart="handleDragStart" @dragend="handleDragEnd"
-            @todoAdded="handleTodoAdded" @todoRemoved="handleTodoRemoved"
-            :group="{ name: 'todos', pull: true, put: true }" />
-          <div v-if="selectedCategory && selectedCategory.id === category.id" class="mt-3.5 mb-7">
+          <TodoList :categoryId="category.id" :group="'todos'" />
+          <div
+            v-if="selectedCategory && selectedCategory.id === category.id"
+            class="mt-3.5 mb-7"
+          >
             <div class="flex items-center gap-1.5">
-              <input class="w-[19px] h-[19px] rounded border bg-[#dadddf] border-gray-300" />
-              <input type="text" placeholder="할 일 입력" class="pb-1.5 w-full text-xs outline-none caret-blue-500"
-                :ref="el => { if (selectedCategory?.id === category.id) todoInput = el }"
-                :style="{ 'border-bottom': `2px solid ${selectedCategory.color}` }" v-model="todo.content" @click.stop
-                @keyup.enter="handleAddTodo(todo)" />
+              <input
+                class="w-[19px] h-[19px] rounded border bg-[#dadddf] border-gray-300"
+              />
+              <input
+                type="text"
+                placeholder="할 일 입력"
+                class="pb-1.5 w-full text-xs outline-none caret-blue-500"
+                :ref="
+                  (el) => {
+                    if (selectedCategory?.id === category.id) todoInput = el;
+                  }
+                "
+                :style="{ 'border-bottom': `2px solid ${selectedCategory.color}` }"
+                v-model="todo.content"
+                @click.stop
+                @keyup.enter="handleAddTodo(todo)"
+              />
             </div>
           </div>
         </div>
@@ -39,29 +54,30 @@ import { GlobeAltIcon, LockClosedIcon } from "@heroicons/vue/24/outline";
 import { onMounted, watch, ref, onUnmounted } from "vue";
 import TodoList from "@/components/TodoList.vue";
 import { useTodoStore } from "@/stores/todo";
+import { useDateStore } from "@/stores/date";
 
 const authStore = useAuthStore();
 const categoryStore = useCategoryStore();
 const todoStore = useTodoStore();
 const selectedCategory = ref(null);
+const dateStore = useDateStore();
 const todo = ref({
   userId: authStore.user.id,
   categoryId: null,
-  content: '',
-  date: new Date().toISOString().split('T')[0],
-})
+  content: "",
+  date: dateStore.selectedDate,
+});
 const todoInput = ref(null);
-const dragStartCategoryId = ref(null);
-const dragEndCategoryId = ref(null);
 
 const closeAddTodo = () => {
   selectedCategory.value = null;
-  todo.value.content = '';
+  todo.value.content = "";
 };
 
 const openTodoForm = (category) => {
   selectedCategory.value = category;
   todo.value.categoryId = category.id;
+  todo.value.date = dateStore.selectedDate;
 
   setTimeout(() => {
     if (todoInput.value) {
@@ -76,78 +92,52 @@ const handleAddTodo = async (todo) => {
       const result = await todoStore.fetchAddTodo(todo);
       if (result?.success) {
         await todoStore.fetchTodos(todo.date);
-        todo.content = '';
+        todo.content = "";
       }
     } catch (error) {
-      console.error('할 일 추가 실패:', error);
+      console.error("할 일 추가 실패:", error);
     }
   }
   closeAddTodo();
 };
 
 const truncateText = (text) => {
-  return text.length > 20 ? text.slice(0, 20) + '...' : text;
-};
-
-const handleDragStart = (event) => {
-  const { todoId, categoryId } = event;
-  dragStartCategoryId.value = categoryId;
-  console.log('Drag started from category:', dragStartCategoryId.value);
-};
-
-const handleTodoAdded = (event) => {
-  const { todoId, newCategoryId, newIndex } = event;
-  console.log('Todo added to category:', newCategoryId);
-  console.log('Todo index:', newIndex);
-  dragEndCategoryId.value = newCategoryId;
-};
-
-const handleTodoRemoved = (event) => {
-  const { todoId, oldCategoryId, oldIndex } = event;
-  console.log('Todo removed from category:', oldCategoryId);
-  console.log('Todo index:', oldIndex);
-};
-
-const handleDragEnd = async () => {
-  if (dragStartCategoryId.value && dragEndCategoryId.value &&
-    dragStartCategoryId.value !== dragEndCategoryId.value) {
-    console.log('Moving todo between categories:', {
-      from: dragStartCategoryId.value,
-      to: dragEndCategoryId.value
-    });
-    const updates = [];
-    await Promise.all(updates.map(todo => todoStore.fetchTodoUpdate(todo)));
-  } else {
-    console.log('No move or same category');
-  }
-
-  dragStartCategoryId.value = null;
-  dragEndCategoryId.value = null;
+  return text.length > 20 ? text.slice(0, 20) + "..." : text;
 };
 
 onMounted(async () => {
+  if (!dateStore.selectedDate) {
+    dateStore.setSelectedDate(new Date().toISOString().split("T")[0]);
+  }
   if (authStore.user.isAuthenticated) {
     await categoryStore.fetchCategories();
-    const today = new Date().toISOString().split('T')[0];
-    await todoStore.fetchTodos(today);
+    await todoStore.fetchTodos(dateStore.selectedDate);
   }
-  window.addEventListener('click', closeAddTodo);
-  window.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') closeAddTodo();
+  window.addEventListener("click", closeAddTodo);
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeAddTodo();
   });
 });
 
 watch(
+  () => dateStore.selectedDate,
+  async (newDate) => {
+    await todoStore.fetchTodos(newDate);
+  }
+);
+
+watch(
   () => authStore.user.isAuthenticated,
-  (isAuthenticated) => {
+  async (isAuthenticated) => {
     if (isAuthenticated) {
-      categoryStore.fetchCategories();
+      await categoryStore.fetchCategories();
+      await todoStore.fetchTodos(dateStore.selectedDate);
     }
   }
 );
 
 onUnmounted(() => {
-  window.removeEventListener('click', closeAddTodo);
-  window.removeEventListener('keydown', closeAddTodo);
+  window.removeEventListener("click", closeAddTodo);
+  window.removeEventListener("keydown", closeAddTodo);
 });
 </script>

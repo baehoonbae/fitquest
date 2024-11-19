@@ -3,25 +3,24 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import axios from "axios";
 import { useAuthStore } from "./auth";
+import http from "@/api/http";
 
 export const useTodoStore = defineStore("todo", () => {
   const todos = ref([]);
   const todo = ref({});
   const authStore = useAuthStore();
+  const monthlyUndoneCounts = ref({});
 
   // 투두 목록 조회(일자별로)
   const fetchTodos = async (date) => {
     const userId = authStore.user.id;
     const accessToken = authStore.getToken();
     try {
-      const response = await axios.get(
-        `http://localhost:8097/fitquest/api/todo/${date}/${userId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      const response = await http.get(`/todo/${date}/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
       if (response.data) {
         todos.value = response.data;
       } else {
@@ -40,20 +39,19 @@ export const useTodoStore = defineStore("todo", () => {
     if (!todoData.content?.trim()) {
       throw new Error("할일 내용을 입력해주세요");
     }
-    const categoryTodos = todos.value.filter(todo => todo.categoryId === todoData.categoryId);
-    const maxOrder = categoryTodos.length > 0
-      ? Math.max(...categoryTodos.map(t => t.todoOrder || 0))
-      : -1;
+    const categoryTodos = todos.value.filter(
+      (todo) => todo.categoryId === todoData.categoryId
+    );
+    const maxOrder =
+      categoryTodos.length > 0
+        ? Math.max(...categoryTodos.map((t) => t.todoOrder || 0))
+        : -1;
     todoData.todoOrder = maxOrder + 1;
     try {
       const accessToken = authStore.getToken();
-      const response = await axios.post(
-        "http://localhost:8097/fitquest/api/todo",
-        todoData,
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        }
-      );
+      const response = await http.post("/todo", todoData, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
 
       if (response.data) {
         await fetchTodos(todoData.date);
@@ -72,15 +70,11 @@ export const useTodoStore = defineStore("todo", () => {
   const fetchTodoUpdate = async (todoData) => {
     try {
       const accessToken = authStore.getToken();
-      const response = await axios.put(
-        `http://localhost:8097/fitquest/api/todo/${todoData.id}`,
-        todoData,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      const response = await http.put(`/todo/${todoData.id}`, todoData, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
       if (response.data) {
         setTimeout(async () => {
           await fetchTodos(todoData.date);
@@ -97,14 +91,11 @@ export const useTodoStore = defineStore("todo", () => {
   const fetchTodo = async (todoId) => {
     try {
       const accessToken = authStore.getToken();
-      const response = await axios.get(
-        `http://localhost:8097/fitquest/api/todo/${todoId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      const response = await http.get(`/todo/${todoId}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
       if (response.data) {
         todo.value = response.data;
       }
@@ -118,7 +109,7 @@ export const useTodoStore = defineStore("todo", () => {
   const fetchDeleteTodo = async (todoId) => {
     try {
       const accessToken = authStore.getToken();
-      const response = await axios.delete(`http://localhost:8097/fitquest/api/todo/${todoId}`, {
+      const response = await http.delete(`/todo/${todoId}`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -132,7 +123,30 @@ export const useTodoStore = defineStore("todo", () => {
         error.response?.data?.message || "할일 삭제에 실패했습니다."
       );
     }
-  }
+  };
+
+  const fetchCountUndoneTodo = async (year, month, daysInMonth) => {
+    try {
+      // 월별 미완료 todo 개수 조회..
+      // 어떤 정보를 파라미터로 받아오는게 좋을까?
+      // 년, 월, 일 이렇게 받아오는게 좋을까?
+      // 아니면 년, 월만 받아오는게 좋을까?
+      const userId = authStore.user.id;
+      for (let i = 0; i < daysInMonth; i++) {
+        const date = `${year}-${month}-${i + 1}`;
+        const response = await http.get(`/todo/undone/${userId}/${date}`);
+        monthlyUndoneCounts.value[date] = response.data;
+      }
+    } catch (error) {
+      throw new Error(
+        error.response?.data?.message || "할일 개수 조회에 실패했습니다."
+      );
+    }
+  };
+
+  const getUndoneTodoCount = async (date) => {
+    return monthlyUndoneCounts[date] || 0;
+  };
 
   return {
     todos,
@@ -142,5 +156,6 @@ export const useTodoStore = defineStore("todo", () => {
     fetchAddTodo,
     fetchTodoUpdate,
     fetchDeleteTodo,
+    fetchCountUndoneTodo,
   };
 });
