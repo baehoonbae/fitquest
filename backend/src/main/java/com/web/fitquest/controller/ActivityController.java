@@ -1,21 +1,18 @@
 package com.web.fitquest.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.web.fitquest.service.activity.ActivityService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/activity")
+@RequiredArgsConstructor
 @Slf4j
 public class ActivityController {
-        private ActivityService activityService;
+    private final ActivityService activityService;
 
-    @Autowired
-    public ActivityController(ActivityService activityService) {
-        this.activityService = activityService;
-    }
 }

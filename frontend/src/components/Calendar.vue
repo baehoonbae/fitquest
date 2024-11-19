@@ -1,52 +1,46 @@
 <template>
   <!-- Left Calendar Section -->
-  <div class="w-[23rem]">
+  <div class="w-full md:w-[24rem]">
     <!-- Date and Stats -->
-    <div class="flex items-center justify-between mb-2">
-      <div class="flex items-center gap-2">
-        <span class="text-[0.95rem] font-bold pl-3">{{ currentYear }}년 {{ currentMonth }}월</span>
-        <span class="text-[0.95rem] font-semibold text-gray-600">
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-3">
+        <span class="text-[1.1rem] font-bold pl-3">{{ currentYear }}년 {{ currentMonth }}월</span>
+        <span class="hidden sm:inline text-[1rem] font-semibold text-gray-600">
           ✓ 0 😊 0 ❤️ 0
         </span>
       </div>
-      <div class="flex gap-2">
-        <button @click="previousMonth" class="text-gray-400">&lt;</button>
-        <button @click="nextMonth" class="text-gray-400">&gt;</button>
+      <div class="flex gap-3">
+        <button @click="previousMonth" class="text-gray-400 text-xl">&lt;</button>
+        <button @click="nextMonth" class="text-gray-400 text-xl">&gt;</button>
       </div>
     </div>
 
     <!-- Calendar -->
-    <div class="mb-7">
+    <div class="mb-8">
       <!-- Weekdays -->
-      <div class="grid grid-cols-7 mb-2 font-semibold">
-        <div
-          v-for="{ day, color } in weekdays"
-          :key="day"
-          :class="[
-            'text-center text-[0.72rem] w-11 h-7 flex items-center justify-center',
-            color,
-          ]"
-        >
+      <div class="grid grid-cols-7 mb-3 font-semibold">
+        <div v-for="{ day, color } in weekdays" :key="day" :class="[
+          'text-center text-[0.85rem] w-full sm:w-12 h-8 flex items-center justify-center',
+          color,
+        ]">
           {{ day }}
         </div>
       </div>
       <!-- Days -->
-      <div class="grid grid-cols-7 gap-1">
+      <div class="grid grid-cols-7 gap-2">
         <!-- 빈 칸들 (월요일부터 시작) -->
         <template v-for="empty in firstDayOfMonth" :key="'empty-' + empty">
-          <div class="aspect-square w-11 h-11"></div>
+          <div class="aspect-square w-full sm:w-12 h-auto sm:h-12"></div>
         </template>
 
         <!-- 1일부터 말일까지 -->
         <template v-for="day in daysInMonth" :key="day">
           <div
-            class="aspect-square font-semibold w-11 h-11 flex items-center justify-center rounded-full text-[0.72rem] cursor-pointer"
+            class="aspect-square font-semibold w-full sm:w-12 h-auto sm:h-12 flex items-center justify-center rounded-full text-[0.85rem] cursor-pointer"
             :class="{
               'hover:bg-gray-50': true,
               'bg-gray-200': isToday(day),
-            }"
-            @click="selectDate(day)"
-          >
+            }" @click="selectDate(day)">
             {{ day }}
           </div>
         </template>

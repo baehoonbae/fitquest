@@ -45,4 +45,8 @@ public class TodoServiceImpl implements TodoService {
         return Optional.ofNullable(todoMapper.getTodoById(id));
     }
 
+    @Override
+    public boolean deleteTodo(int id) {
+        return todoMapper.deleteTodo(id) > 0;
+    }
 }

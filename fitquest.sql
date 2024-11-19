@@ -164,6 +164,19 @@ BEGIN
 END//
 DELIMITER ;
 
+# 11/18 추가
+# todo 순서 컬럼 추가
+ALTER TABLE todo ADD COLUMN todo_order INT;
+
+# 기존 데이터에 대해 임시로 순서 부여
+UPDATE todo t1
+JOIN (
+    SELECT id, ROW_NUMBER() OVER (PARTITION BY category_id ORDER BY id) as rn
+    FROM todo
+) t2 ON t1.id = t2.id
+SET t1.todo_order = t2.rn;
+
+
 select * from activity;
 select * from article;
 select * from board;

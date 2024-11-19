@@ -1,12 +1,14 @@
 <template>
-  <div>
-    <div class="flex flex-col md:flex-row justify-around">
-      <!-- 달력 -->
-      <Calendar />
-      <CategoryList />
+  <div class="max-w-[900px] mx-auto px-4 flex flex-col gap-2">
+    <div class="flex flex-col md:flex-row gap-6">
+      <div class="md:w-1/2">
+        <Calendar />
+      </div>
+      <div class="md:w-1/2 min-h-[450px] max-h-[calc(100vh-25rem)] overflow-y-auto scrollbar-custom">
+        <CategoryList />
+      </div>
     </div>
-    <div class="flex justify-center">
-      <!-- 로그인된 유저의 잔디 그래프 -->
+    <div>
       <GrassGraph />
     </div>
   </div>
@@ -17,3 +19,9 @@ import Calendar from "@/components/Calendar.vue";
 import CategoryList from "@/components/CategoryList.vue";
 import GrassGraph from "@/components/GrassGraph.vue";
 </script>
+
+<style>
+.scrollbar-custom::-webkit-scrollbar {
+  display: none;
+}
+</style>
