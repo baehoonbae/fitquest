@@ -4,7 +4,7 @@ import { ref } from "vue";
 import axios from "axios";
 import { useRouter } from 'vue-router';
 import { useAuthStore } from "./auth";
-
+import http from "@/api/http";
 export const useCategoryStore = defineStore("category", () => {
     const router = useRouter();
     const categories = ref([]);
@@ -17,7 +17,7 @@ export const useCategoryStore = defineStore("category", () => {
         const accessToken = authStore.getToken();
 
         try {
-            const response = await axios.get(`http://localhost:8097/fitquest/api/category/${userId}`, {
+            const response = await http.get(`/category/${userId}`, {
                 headers: {
                     Authorization: `Bearer ${accessToken}`
                 }
@@ -40,7 +40,7 @@ export const useCategoryStore = defineStore("category", () => {
         const accessToken = authStore.getToken();
 
         try {   
-            const response = await axios.get(`http://localhost:8097/fitquest/api/category/${userId}/${categoryId}`, {
+            const response = await http.get(`/category/${userId}/${categoryId}`, {
                 headers: {
                     Authorization: `Bearer ${accessToken}`
                 }
