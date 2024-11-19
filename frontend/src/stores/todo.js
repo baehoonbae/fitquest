@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import axios from "axios";
 import { useAuthStore } from "./auth";
+import http from "@/api/http";
 
 export const useTodoStore = defineStore("todo", () => {
   const todos = ref([]);
@@ -14,8 +15,8 @@ export const useTodoStore = defineStore("todo", () => {
     const userId = authStore.user.id;
     const accessToken = authStore.getToken();
     try {
-      const response = await axios.get(
-        `http://localhost:8097/fitquest/api/todo/${date}/${userId}`,
+      const response = await http.get(
+        `/todo/${date}/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -47,8 +48,8 @@ export const useTodoStore = defineStore("todo", () => {
     todoData.todoOrder = maxOrder + 1;
     try {
       const accessToken = authStore.getToken();
-      const response = await axios.post(
-        "http://localhost:8097/fitquest/api/todo",
+      const response = await http.post(
+        "/todo",
         todoData,
         {
           headers: { Authorization: `Bearer ${accessToken}` },
@@ -72,8 +73,8 @@ export const useTodoStore = defineStore("todo", () => {
   const fetchTodoUpdate = async (todoData) => {
     try {
       const accessToken = authStore.getToken();
-      const response = await axios.put(
-        `http://localhost:8097/fitquest/api/todo/${todoData.id}`,
+      const response = await http.put(
+        `/todo/${todoData.id}`,
         todoData,
         {
           headers: {
@@ -97,8 +98,8 @@ export const useTodoStore = defineStore("todo", () => {
   const fetchTodo = async (todoId) => {
     try {
       const accessToken = authStore.getToken();
-      const response = await axios.get(
-        `http://localhost:8097/fitquest/api/todo/${todoId}`,
+      const response = await http.get(
+        `/todo/${todoId}`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -118,7 +119,7 @@ export const useTodoStore = defineStore("todo", () => {
   const fetchDeleteTodo = async (todoId) => {
     try {
       const accessToken = authStore.getToken();
-      const response = await axios.delete(`http://localhost:8097/fitquest/api/todo/${todoId}`, {
+      const response = await http.delete(`/todo/${todoId}`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },

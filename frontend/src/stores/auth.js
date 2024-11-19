@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
+import http from "@/api/http";
 
 export const useAuthStore = defineStore("auth", () => {
   const router = useRouter();
@@ -18,8 +19,8 @@ export const useAuthStore = defineStore("auth", () => {
   // 로그인 액션
   const login = async (loginData) => {
     try {
-      const response = await axios.post(
-        "http://localhost:8097/fitquest/api/user/login",
+      const response = await http.post(
+        "/user/login",
         loginData,
         { withCredentials: true }
       );
@@ -78,7 +79,7 @@ export const useAuthStore = defineStore("auth", () => {
     const accessToken = getToken();
     if (accessToken && user.value.isAuthenticated) {
       // 토큰이 있고 user가 인증된 상태면 헤더만 다시 설정
-      axios.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
+      http.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
       return true;
     }
     return false;
@@ -91,8 +92,8 @@ export const useAuthStore = defineStore("auth", () => {
     if (!accessToken || !user.value.id) return;
 
     try {
-      const response = await axios.get(
-        `http://localhost:8097/fitquest/api/user/${user.value.id}`,
+      const response = await http.get(
+        `/user/${user.value.id}`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -117,7 +118,7 @@ export const useAuthStore = defineStore("auth", () => {
   // 회원가입
   const regist = async (userData) => {
     try {
-      await axios.post('http://localhost:8097/fitquest/api/user/regist', userData);
+      await http.post('/user/regist', userData);
       return { success: true, message: '회원가입이 완료되었습니다.' };
     } catch (error) {
       return {
@@ -131,8 +132,8 @@ export const useAuthStore = defineStore("auth", () => {
   // 닉네임 중복 체크
   const checkDuplicateName = async (name) => {
     try {
-      const response = await axios.get(
-        `http://localhost:8097/fitquest/api/user/check-name/${name}`,
+      const response = await http.get(
+        `/user/check-name/${name}`,
         {
           validateStatus: (status) => status >= 200 && status < 300 || status === 409
         }
@@ -150,8 +151,8 @@ export const useAuthStore = defineStore("auth", () => {
   // 이메일 중복 체크
   const checkDuplicateEmail = async (email) => {
     try {
-      const response = await axios.get(
-        `http://localhost:8097/fitquest/api/user/check-email/${email}`,
+      const response = await http.get(
+        `/user/check-email/${email}`,
         {
           validateStatus: (status) => status >= 200 && status < 300 || status === 409
         }

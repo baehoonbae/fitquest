@@ -4,7 +4,9 @@
       <div class="md:w-1/2">
         <Calendar @dateSelected="handleDateSelected" />
       </div>
-      <div class="md:w-1/2 min-h-[450px] max-h-[calc(100vh-25rem)] overflow-y-auto scrollbar-custom">
+      <div
+        class="md:w-1/2 min-h-[450px] max-h-[calc(100vh-25rem)] overflow-y-auto scrollbar-custom"
+      >
         <CategoryList :selectedDate="selectedDate" />
       </div>
     </div>
@@ -20,7 +22,7 @@ import CategoryList from "@/components/CategoryList.vue";
 import GrassGraph from "@/components/GrassGraph.vue";
 import { ref } from "vue";
 
-const selectedDate=ref(null);
+const selectedDate = ref(null);
 
 const handleDateSelected = (date) => {
   selectedDate.value = date;
