@@ -49,4 +49,9 @@ public class TodoServiceImpl implements TodoService {
     public boolean deleteTodo(int id) {
         return todoMapper.deleteTodo(id) > 0;
     }
+
+    @Override
+    public Optional<List<Todo>> getTodoListByYearAndMonth(Todo todo) {
+        return Optional.ofNullable(todoMapper.getTodoListByYearAndMonth(todo));
+    }
 }

@@ -1,15 +1,26 @@
 // stores/todo.js
+// 할일 관련 스토어
+// 월별 투두 목록과 일자별 투두 목록을 관리함
+// 할일 삭제, 추가, 수정 시 월별 투두 목록과 일자별 투두 목록을 갱신함
 import { defineStore } from "pinia";
-import { ref } from "vue";
-import axios from "axios";
+import { computed, ref } from "vue";
 import { useAuthStore } from "./auth";
 import http from "@/api/http";
 
 export const useTodoStore = defineStore("todo", () => {
-  const todos = ref([]);
+  const monthlyTodos = ref([]);
+  const dailyTodos = ref([]);
   const todo = ref({});
   const authStore = useAuthStore();
-  const monthlyUndoneCounts = ref({});
+  const monthlyUndoneCounts = computed(() => {
+    const counts = {};
+    monthlyTodos.value.forEach((todo) => {
+      if (!todo.isDone) {
+        counts[todo.date] = (counts[todo.date] || 0) + 1;
+      }
+    });
+    return counts;
+  });
 
   // 투두 목록 조회(일자별로)
   const fetchTodos = async (date) => {
@@ -22,15 +33,10 @@ export const useTodoStore = defineStore("todo", () => {
         },
       });
       if (response.data) {
-        todos.value = response.data;
-      } else {
-        console.log("할일 조회 실패:", response.data);
+        dailyTodos.value = response.data;
       }
     } catch (error) {
-      console.error("할일 조회 실패:", error.response?.data || error.message);
-      if (error.response?.status === 401) {
-        console.error("인증 토큰이 만료되었거나 유효하지 않습니다");
-      }
+      console.error("할일 조회 실패:", error);
     }
   };
 
@@ -39,7 +45,7 @@ export const useTodoStore = defineStore("todo", () => {
     if (!todoData.content?.trim()) {
       throw new Error("할일 내용을 입력해주세요");
     }
-    const categoryTodos = todos.value.filter(
+    const categoryTodos = dailyTodos.value.filter(
       (todo) => todo.categoryId === todoData.categoryId
     );
     const maxOrder =
@@ -55,6 +61,9 @@ export const useTodoStore = defineStore("todo", () => {
 
       if (response.data) {
         await fetchTodos(todoData.date);
+        // todo를 추가할 때 is_done이 0이므로 추가한 날짜의 월 투두 목록을 조회한다.
+        const date = new Date(todoData.date);
+        await fetchMonthlyTodos(date.getFullYear(), date.getMonth() + 1);
         return { success: true };
       }
     } catch (error) {
@@ -78,6 +87,8 @@ export const useTodoStore = defineStore("todo", () => {
       if (response.data) {
         setTimeout(async () => {
           await fetchTodos(todoData.date);
+          const date = new Date(todoData.date);
+          await fetchMonthlyTodos(date.getFullYear(), date.getMonth() + 1);
         }, 100);
         return { success: true };
       }
@@ -116,6 +127,8 @@ export const useTodoStore = defineStore("todo", () => {
       });
       if (response.data) {
         await fetchTodos(todo.value.date);
+        const date = new Date(todo.value.date);
+        await fetchMonthlyTodos(date.getFullYear(), date.getMonth() + 1);
         return { success: true };
       }
     } catch (error) {
@@ -125,37 +138,39 @@ export const useTodoStore = defineStore("todo", () => {
     }
   };
 
-  const fetchCountUndoneTodo = async (year, month, daysInMonth) => {
+  const getUndoneTodoCount = (date) => {
+    return monthlyUndoneCounts.value[date] || 0;
+  };
+
+  const fetchMonthlyTodos = async (year, month) => {
+    if (month < 10) {
+      month = "0" + month;
+    }
     try {
-      // 월별 미완료 todo 개수 조회..
-      // 어떤 정보를 파라미터로 받아오는게 좋을까?
-      // 년, 월, 일 이렇게 받아오는게 좋을까?
-      // 아니면 년, 월만 받아오는게 좋을까?
       const userId = authStore.user.id;
-      for (let i = 0; i < daysInMonth; i++) {
-        const date = `${year}-${month}-${i + 1}`;
-        const response = await http.get(`/todo/undone/${userId}/${date}`);
-        monthlyUndoneCounts.value[date] = response.data;
-      }
+      const accessToken = authStore.getToken();
+      const response = await http.get(`/todo/${userId}/${year}/${month}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      monthlyTodos.value = response.data;
     } catch (error) {
-      throw new Error(
-        error.response?.data?.message || "할일 개수 조회에 실패했습니다."
-      );
+      console.error('todos 조회 실패:', error);
     }
   };
 
-  const getUndoneTodoCount = async (date) => {
-    return monthlyUndoneCounts[date] || 0;
-  };
-
   return {
-    todos,
+    monthlyTodos,
+    dailyTodos,
     todo,
+    monthlyUndoneCounts,
+    getUndoneTodoCount,
     fetchTodo,
     fetchTodos,
     fetchAddTodo,
     fetchTodoUpdate,
     fetchDeleteTodo,
-    fetchCountUndoneTodo,
+    fetchMonthlyTodos,
   };
 });

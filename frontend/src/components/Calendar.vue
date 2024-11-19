@@ -45,7 +45,9 @@
             <div
               class="w-6 h-6 text-center text-gray-600 border border-gray-200 bg-gray-200 rounded-[0.3rem] mb-0.5"
             >
-              {{ undoneTodoCount }}
+              <div v-if="todoStore.getUndoneTodoCount(formatDate(day)) > 0">
+                {{ todoStore.getUndoneTodoCount(formatDate(day)) }}
+              </div>
             </div>
             <div
               class="text-center rounded-full px-2 py-1"
@@ -113,13 +115,15 @@ const isSelectedDate = (day) => {
 };
 
 // 이전 달로 이동
-const previousMonth = () => {
+const previousMonth = async () => {
   currentDate.value = new Date(currentYear.value, currentMonth.value - 2, 1);
+  await todoStore.fetchMonthlyTodos(currentYear.value, currentMonth.value);
 };
 
 // 다음 달로 이동
-const nextMonth = () => {
+const nextMonth = async () => {
   currentDate.value = new Date(currentYear.value, currentMonth.value, 1);
+  await todoStore.fetchMonthlyTodos(currentYear.value, currentMonth.value);
 };
 
 // 날짜 선택
@@ -129,11 +133,13 @@ const selectDate = (day) => {
   dateStore.setSelectedDate(formattedDate);
 };
 
+// YYYY-MM-DD 형식으로 날짜 변환
+const formatDate = (date) => {
+  const selectedDate = new Date(currentYear.value, currentMonth.value - 1, date + 1);
+  return selectedDate.toISOString().split("T")[0];
+};
+
 onMounted(async () => {
-  await todoStore.fetchCountUndoneTodo(
-    currentYear.value,
-    currentMonth.value,
-    daysInMonth.value
-  );
+  await todoStore.fetchMonthlyTodos(currentYear.value, currentMonth.value);
 });
 </script>
