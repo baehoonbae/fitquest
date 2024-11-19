@@ -23,15 +23,15 @@
     </select>
 
     <insert id="addBoard" parameterType="com.web.fitquest.model.board.Board">
-        INSERT INTO board (tag, title, content)
-        VALUES (#{tag}, #{title}, #{content})
+        INSERT INTO board (user_id, tag, writer, title, content)
+        VALUES (#{userId}, #{tag}, #{writer}, #{title}, #{content})
     </insert>
 
     <update id="updateBoard" parameterType="com.web.fitquest.model.board.Board">
         UPDATE board
         SET
-        <if test="tag != null">tag = #{tag}</if>
-        <if test="title != null">title = #{title}</if>
+        <if test="tag != null">tag = #{tag},</if>
+        <if test="title != null">title = #{title},</if>
         <if test="content != null">content = #{content}</if>
         WHERE id = #{id}
     </update>
