@@ -72,6 +72,11 @@ const router = createRouter({
       component: () => import("@/views/CommunityWrite.vue"),
     },
     {
+      path: "/community/edit/:id",
+      name: "CommunityUpdate",
+      component: () => import("@/views/CommunityUpdate.vue"),
+    },
+    {
       path: "/news",
       name: "news",
       component: NewsHomeView,
