@@ -6,7 +6,7 @@
 
     <select id="allBoards" parameterType="com.web.fitquest.model.searchCondition.SearchCondition" 
             resultType="com.web.fitquest.model.board.Board">
-        SELECT id Id, user_id userId, tag, date, writer, title, content, view_count viewCnt
+        SELECT id Id, user_id userId, tag, date, writer, title, content, view_count viewCount
         FROM board
         <where>
             <if test="tag != null and tag != ''">
@@ -17,7 +17,7 @@
     </select>
 
     <select id="getBoard" parameterType="int" resultType="com.web.fitquest.model.board.Board">
-        SELECT id Id, user_id userId, tag, date, writer, title, content, view_count viewCnt
+        SELECT id Id, user_id userId, tag, date, writer, title, content, view_count viewCount
         FROM board
         WHERE id = #{id}
     </select>
@@ -32,7 +32,8 @@
         SET
         <if test="tag != null">tag = #{tag},</if>
         <if test="title != null">title = #{title},</if>
-        <if test="content != null">content = #{content}</if>
+        <if test="content != null">content = #{content},</if>
+        <if test="viewCount >= 0">view_count = #{viewCount}</if>
         WHERE id = #{id}
     </update>
 

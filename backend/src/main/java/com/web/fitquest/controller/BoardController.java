@@ -19,9 +19,6 @@ import com.web.fitquest.model.board.Board;
 import com.web.fitquest.model.searchCondition.SearchCondition;
 import com.web.fitquest.service.board.BoardService;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,12 +30,6 @@ public class BoardController {
    
    private final BoardService boardService;
 
-   @Operation(summary = "게시글 목록 조회", description = "전체 게시글 목록을 조회합니다.")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "조회 성공"),
-        @ApiResponse(responseCode = "204", description = "데이터 없음"),
-        @ApiResponse(responseCode = "500", description = "서버 오류")
-    })
    @GetMapping
    public ResponseEntity<?> getAllBoards(@ModelAttribute SearchCondition searchCondition) {
        log.debug("BoardController/getAllBoards");
