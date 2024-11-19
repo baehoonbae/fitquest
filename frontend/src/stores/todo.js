@@ -6,11 +6,13 @@ import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import { useAuthStore } from "./auth";
 import http from "@/api/http";
+import { useDateStore } from "./date";
 
 export const useTodoStore = defineStore("todo", () => {
   const monthlyTodos = ref([]);
   const dailyTodos = ref([]);
   const todo = ref({});
+  const dateStore = useDateStore();
   const authStore = useAuthStore();
   const monthlyUndoneCounts = computed(() => {
     const counts = {};
@@ -86,7 +88,7 @@ export const useTodoStore = defineStore("todo", () => {
       });
       if (response.data) {
         setTimeout(async () => {
-          await fetchTodos(todoData.date);
+          await fetchTodos(dateStore.selectedDate);
           const date = new Date(todoData.date);
           await fetchMonthlyTodos(date.getFullYear(), date.getMonth() + 1);
         }, 100);
