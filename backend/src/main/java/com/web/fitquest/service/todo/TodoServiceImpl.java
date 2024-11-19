@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.web.fitquest.mapper.todo.TodoMapper;
+import com.web.fitquest.model.activity.Activity;
 import com.web.fitquest.model.todo.Todo;
+import com.web.fitquest.service.activity.ActivityService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +21,13 @@ import lombok.extern.slf4j.Slf4j;
 public class TodoServiceImpl implements TodoService {
 
     private final TodoMapper todoMapper;
+    private final ActivityService activityService;
+
+    private void updateActivityRatio(int userId, String date) {
+        double ratio = todoMapper.getDailyCompletionRatio(userId, date);
+        Activity activity = new Activity(0, userId, date, ratio);
+        activityService.updateActivityRatio(activity);
+    }
 
     @Override
     public Optional<List<Todo>> getTodoList(Todo todo) {
@@ -27,12 +36,20 @@ public class TodoServiceImpl implements TodoService {
 
     @Override
     public boolean addTodo(Todo todo) {
-        return todoMapper.addTodo(todo) > 0;
+        boolean success = todoMapper.addTodo(todo) > 0;
+        if (success) {
+            updateActivityRatio(todo.getUserId(), todo.getDate());
+        }
+        return success;
     }
 
     @Override
     public boolean updateTodo(Todo todo) {
-        return todoMapper.updateTodo(todo) > 0;
+        boolean success = todoMapper.updateTodo(todo) > 0;
+        if (success) {
+            updateActivityRatio(todo.getUserId(), todo.getDate());
+        }
+        return success;
     }
 
     @Override
@@ -47,7 +64,12 @@ public class TodoServiceImpl implements TodoService {
 
     @Override
     public boolean deleteTodo(int id) {
-        return todoMapper.deleteTodo(id) > 0;
+        Todo todo = todoMapper.getTodoById(id);
+        boolean success = todoMapper.deleteTodo(id) > 0;
+        if (success && todo != null) {
+            updateActivityRatio(todo.getUserId(), todo.getDate());
+        }
+        return success;
     }
 
     @Override

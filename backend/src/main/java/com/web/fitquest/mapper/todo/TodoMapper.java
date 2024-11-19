@@ -3,6 +3,7 @@ package com.web.fitquest.mapper.todo;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.web.fitquest.model.todo.Todo;
 
@@ -21,4 +22,6 @@ public interface TodoMapper {
     int deleteTodo(int id);
 
     List<Todo> getTodoListByYearAndMonth(Todo todo);
+
+    double getDailyCompletionRatio(@Param("userId") int userId, @Param("date") String date);
 }
