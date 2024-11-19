@@ -19,4 +19,6 @@ public interface TodoMapper {
     Todo getTodoById(int id);
 
     int deleteTodo(int id);
+
+    List<Todo> getTodoListByYearAndMonth(Todo todo);
 }

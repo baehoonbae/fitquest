@@ -1,22 +1,47 @@
 <template>
-  <draggable v-model="filteredTodos" :group="{ name: 'todos', pull: true, put: true }" item-key="id" @end="handleDragEnd" @start="handleDragStart"
-    @change="handleChange" :animation="200">
+  <draggable
+    v-model="filteredTodos"
+    :group="{ name: 'todos', pull: true, put: true }"
+    item-key="id"
+    @end="handleDragEnd"
+    @start="handleDragStart"
+    @change="handleChange"
+    :animation="200"
+  >
     <template #item="{ element: todo }">
       <div class="flex items-center gap-1.5 pt-3.5">
-        <div class="relative w-[19px] h-[19px] cursor-pointer" @click="handleDone(todo.id)">
-          <svg v-if="todo.isDone" class="w-[19px] h-[19px] text-black" viewBox="0 0 20 20" fill="currentColor">
+        <div
+          class="relative w-[19px] h-[19px] cursor-pointer"
+          @click="handleDone(todo.id)"
+        >
+          <svg
+            v-if="todo.isDone"
+            class="w-[19px] h-[19px] text-black"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
             <rect width="18" height="18" x="1" y="1" rx="4" fill="currentColor" />
-            <path fill="white"
-              d="M13.293 7.293a1 1 0 0 1 1.414 1.414l-5 5a1 1 0 0 1-1.414 0l-2.5-2.5a1 1 0 0 1 1.414-1.414L9 11.586l4.293-4.293z" />
+            <path
+              fill="white"
+              d="M13.293 7.293a1 1 0 0 1 1.414 1.414l-5 5a1 1 0 0 1-1.414 0l-2.5-2.5a1 1 0 0 1 1.414-1.414L9 11.586l4.293-4.293z"
+            />
           </svg>
-          <div v-else class="w-[19px] h-[19px] rounded border bg-[#dadddf] border-gray-300"></div>
+          <div
+            v-else
+            class="w-[19px] h-[19px] rounded border bg-[#dadddf] border-gray-300"
+          ></div>
         </div>
         <div v-if="contentUpdateMode && todo.id === selectedTodoId" class="flex-1">
           <div class="flex" @click.stop>
-            <input type="text" placeholder="할 일 입력" class="pb-1.5 w-full text-xs outline-none caret-blue-500"
-              v-model="newTodoContent" :style="{
+            <input
+              type="text"
+              placeholder="할 일 입력"
+              class="pb-1.5 w-full text-xs outline-none caret-blue-500"
+              v-model="newTodoContent"
+              :style="{
                 'border-bottom': `2px solid ${categoryStore.category.color}`,
-              }" />
+              }"
+            />
             <EllipsisHorizontalIcon class="w-[19px] h-[19px] flex-shrink-0" />
           </div>
         </div>
@@ -29,8 +54,13 @@
       </div>
     </template>
   </draggable>
-  <TodoMenu v-if="!contentUpdateMode && selectedTodoId !== null" :selectedTodoId="selectedTodoId" @close="closeMenu"
-    @edit="handleContent" @delete="goDelete" />
+  <TodoMenu
+    v-if="!contentUpdateMode && selectedTodoId !== null"
+    :selectedTodoId="selectedTodoId"
+    @close="closeMenu"
+    @edit="handleContent"
+    @delete="goDelete"
+  />
 </template>
 
 <script setup>
@@ -38,7 +68,7 @@ import { useCategoryStore } from "@/stores/category";
 import { useTodoStore } from "@/stores/todo";
 import { EllipsisHorizontalIcon } from "@heroicons/vue/24/outline";
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import draggable from 'vuedraggable';
+import draggable from "vuedraggable";
 import TodoMenu from "./TodoMenu.vue";
 import { useDragStore } from "@/stores/drag";
 
@@ -47,18 +77,21 @@ const props = defineProps({
     type: Number,
     required: true,
   },
-  group: {  // group prop 추가
+  group: {
+    // group prop 추가
     type: String,
-    default: 'todos'
+    default: "todos",
   },
-  onDragstart: {  // dragstart 이벤트 prop 추가
+  onDragstart: {
+    // dragstart 이벤트 prop 추가
     type: Function,
-    default: () => {}
+    default: () => {},
   },
-  onDragend: {  // dragend 이벤트 prop 추가
+  onDragend: {
+    // dragend 이벤트 prop 추가
     type: Function,
-    default: () => {}
-  }
+    default: () => {},
+  },
 });
 
 const categoryStore = useCategoryStore();
@@ -70,17 +103,17 @@ const isDragging = ref(false);
 
 const filteredTodos = computed({
   get: () => {
-    return todoStore.todos
-      .filter(todo => todo.categoryId === props.categoryId)
+    return todoStore.dailyTodos
+      .filter((todo) => todo.categoryId === props.categoryId)
       .sort((a, b) => (a.todoOrder || 0) - (b.todoOrder || 0));
   },
   set: (value) => {
-    const updatedTodos = todoStore.todos.map(todo => {
-      const newTodo = value.find(t => t.id === todo.id);
+    const updatedTodos = todoStore.dailyTodos.map((todo) => {
+      const newTodo = value.find((t) => t.id === todo.id);
       return newTodo || todo;
     });
-    todoStore.todos = updatedTodos;
-  }
+    todoStore.dailyTodos = updatedTodos;
+  },
 });
 
 const toggleMenu = (id) => {
@@ -90,7 +123,7 @@ const toggleMenu = (id) => {
 const goUpdate = async () => {
   try {
     if (contentUpdateMode.value) {
-      const todo = todoStore.todos.find((t) => t.id === selectedTodoId.value);
+      const todo = todoStore.dailyTodos.find((t) => t.id === selectedTodoId.value);
       const updatedTodo = {
         id: todo.id,
         userId: todo.userId,
@@ -98,7 +131,7 @@ const goUpdate = async () => {
         isDone: todo.isDone,
         content: newTodoContent.value,
         date: todo.date,
-        todoOrder: todo.todoOrder
+        todoOrder: todo.todoOrder,
       };
       await todoStore.fetchTodoUpdate(updatedTodo);
       contentUpdateMode.value = false;
@@ -124,7 +157,7 @@ const closeMenu = () => {
 
 const handleDone = async (id) => {
   try {
-    const todo = todoStore.todos.find((t) => t.id === id);
+    const todo = todoStore.dailyTodos.find((t) => t.id === id);
     const updatedTodo = {
       id: todo.id,
       userId: todo.userId,
@@ -132,7 +165,7 @@ const handleDone = async (id) => {
       isDone: (todo.isDone + 1) % 2,
       content: todo.content,
       date: todo.date,
-      todoOrder: todo.todoOrder
+      todoOrder: todo.todoOrder,
     };
     await todoStore.fetchTodoUpdate(updatedTodo);
   } catch (error) {
@@ -141,7 +174,7 @@ const handleDone = async (id) => {
 };
 
 const handleContent = async (id) => {
-  const todo = todoStore.todos.find((t) => t.id === id);
+  const todo = todoStore.dailyTodos.find((t) => t.id === id);
   if (todo) {
     await categoryStore.fetchCategory(todo.categoryId);
     contentUpdateMode.value = true;
@@ -159,52 +192,59 @@ const handleDragStart = (event) => {
 
 const handleDragEnd = async (event) => {
   if (!isDragging.value || !dragStore.dragState.todoId) return;
-  
+
   try {
-    const draggedTodo = todoStore.todos.find(t => t.id === dragStore.dragState.todoId);
+    const draggedTodo = todoStore.dailyTodos.find(
+      (t) => t.id === dragStore.dragState.todoId
+    );
     if (!draggedTodo) return;
 
     // dragState를 사용하여 업데이트할 todo 생성
     const updatedDraggedTodo = {
       ...draggedTodo,
       categoryId: dragStore.dragState.endCategoryId,
-      todoOrder: dragStore.dragState.endIndex
+      todoOrder: dragStore.dragState.endIndex,
     };
 
     // 시작 카테고리의 todos
-    const startCategoryTodos = todoStore.todos
-      .filter(t => t.categoryId === dragStore.dragState.startCategoryId && t.id !== draggedTodo.id)
+    const startCategoryTodos = todoStore.dailyTodos
+      .filter(
+        (t) =>
+          t.categoryId === dragStore.dragState.startCategoryId && t.id !== draggedTodo.id
+      )
       .sort((a, b) => (a.todoOrder || 0) - (b.todoOrder || 0))
       .map((todo, index) => ({
         ...todo,
-        todoOrder: index
+        todoOrder: index,
       }));
 
     // 도착 카테고리의 todos
-    const endCategoryTodos = todoStore.todos
-      .filter(t => t.categoryId === dragStore.dragState.endCategoryId && t.id !== draggedTodo.id)
+    const endCategoryTodos = todoStore.dailyTodos
+      .filter(
+        (t) =>
+          t.categoryId === dragStore.dragState.endCategoryId && t.id !== draggedTodo.id
+      )
       .sort((a, b) => (a.todoOrder || 0) - (b.todoOrder || 0));
-    
+
     // 드래그된 todo를 새 위치에 삽입
     endCategoryTodos.splice(dragStore.dragState.endIndex, 0, updatedDraggedTodo);
-    
+
     const endUpdates = endCategoryTodos.map((todo, index) => ({
       ...todo,
-      todoOrder: index
+      todoOrder: index,
     }));
 
     // 모든 업데이트를 한번에 실행
-    const allUpdates = [...startCategoryTodos, ...endUpdates];    
-    await Promise.all(allUpdates.map(todo => todoStore.fetchTodoUpdate(todo)));
-    
+    const allUpdates = [...startCategoryTodos, ...endUpdates];
+    await Promise.all(allUpdates.map((todo) => todoStore.fetchTodoUpdate(todo)));
+
     // 스토어 상태 업데이트
-    todoStore.todos = todoStore.todos.map(todo => {
-      const updatedTodo = allUpdates.find(t => t.id === todo.id);
+    todoStore.dailyTodos = todoStore.dailyTodos.map((todo) => {
+      const updatedTodo = allUpdates.find((t) => t.id === todo.id);
       return updatedTodo || todo;
     });
-
   } catch (error) {
-    console.error('Todo 순서 업데이트 실패:', error);
+    console.error("Todo 순서 업데이트 실패:", error);
   } finally {
     dragStore.resetDragState();
     isDragging.value = false;
