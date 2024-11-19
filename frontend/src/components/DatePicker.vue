@@ -1,6 +1,5 @@
 <template>
-  <!-- Left Calendar Section -->
-  <div class="w-full md:w-[24rem]">
+  <div class="w-full md:w-[27rem]">
     <!-- Date and Stats -->
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center gap-3">
@@ -59,6 +58,14 @@
         </template>
       </div>
     </div>
+    <div class="flex justify-center">
+      <button
+        class="w-[7rem] py-4 rounded-full text-center text-base font-semibold cursor-pointer transition-all duration-300 ease-in-out bg-black text-white hover:bg-gray-800"
+        @click="confirmDate"
+      >
+        확인
+      </button>
+    </div>
   </div>
 </template>
 
@@ -69,6 +76,7 @@ import { useCategoryStore } from "@/stores/category";
 import { useDateStore } from "@/stores/date";
 import { useTodoStore } from "@/stores/todo";
 
+const emit = defineEmits(["closeDatePicker"]);
 const authStore = useAuthStore();
 const categoryStore = useCategoryStore();
 const dateStore = useDateStore();
@@ -93,6 +101,44 @@ const weekdays = [
   { day: "일", color: "text-red-500" },
 ];
 
+// 선택된 날짜 상태 관리
+const localSelectedDate = ref(null);
+
+// 선택한 날짜인지 확인
+const isSelectedDate = (day) => {
+  const dateString = new Date(currentYear.value, currentMonth.value - 1, day + 1)
+    .toISOString()
+    .split("T")[0];
+  return localSelectedDate.value === dateString;
+};
+
+// 선택한 날짜 포맷팅
+const selectDate = (day) => {
+  const selectedDate = new Date(currentYear.value, currentMonth.value - 1, day + 1);
+  const formattedDate = selectedDate.toISOString().split("T")[0];
+  localSelectedDate.value = formattedDate;
+};
+
+// 날짜 수정 완료하기
+const confirmDate = async () => {
+  const todo = todoStore.todo;
+  try {
+    await todoStore.fetchTodoUpdate({
+      ...todo,
+      date: localSelectedDate.value,
+    });
+    await todoStore.fetchTodos(dateStore.selectedDate);
+    emit("closeDatePicker");
+  } catch (error) {
+    console.error("날짜 수정 실패:", error);
+  }
+};
+
+onMounted(async () => {
+  await todoStore.fetchMonthlyTodos(currentYear.value, currentMonth.value);
+  localSelectedDate.value = dateStore.selectedDate;
+});
+
 // 해당 월의 첫 번째 날의 요일 구하기 (0: 일요일, 1: 월요일, ...)
 const firstDayOfMonth = computed(() => {
   const firstDay = new Date(currentYear.value, currentMonth.value - 1, 1).getDay();
@@ -103,16 +149,6 @@ const firstDayOfMonth = computed(() => {
 const daysInMonth = computed(() => {
   return new Date(currentYear.value, currentMonth.value, 0).getDate();
 });
-
-// 오늘 날짜 체크
-const isSelectedDate = (day) => {
-  return (
-    dateStore.selectedDate ===
-    new Date(currentYear.value, currentMonth.value - 1, day + 1)
-      .toISOString()
-      .split("T")[0]
-  );
-};
 
 // 이전 달로 이동
 const previousMonth = async () => {
@@ -126,20 +162,9 @@ const nextMonth = async () => {
   await todoStore.fetchMonthlyTodos(currentYear.value, currentMonth.value);
 };
 
-// 날짜 선택
-const selectDate = (day) => {
-  const selectedDate = new Date(currentYear.value, currentMonth.value - 1, day + 1);
-  const formattedDate = selectedDate.toISOString().split("T")[0];
-  dateStore.setSelectedDate(formattedDate);
-};
-
 // YYYY-MM-DD 형식으로 날짜 변환
 const formatDate = (date) => {
   const selectedDate = new Date(currentYear.value, currentMonth.value - 1, date + 1);
   return selectedDate.toISOString().split("T")[0];
 };
-
-onMounted(async () => {
-  await todoStore.fetchMonthlyTodos(currentYear.value, currentMonth.value);
-});
 </script>

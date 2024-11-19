@@ -48,4 +48,8 @@
         delete from todo where id = #{id}
     </delete>
 
+    <select id="getTodoListByYearAndMonth" resultType="com.web.fitquest.model.todo.Todo">
+        select id, user_id userId, category_id categoryId, is_done isDone, content, date, todo_order todoOrder from todo where user_id = #{userId} AND date LIKE CONCAT(#{date}, '%')
+    </select>
+
 </mapper>

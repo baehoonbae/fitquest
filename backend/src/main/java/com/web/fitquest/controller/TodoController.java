@@ -19,8 +19,6 @@ import com.web.fitquest.service.todo.TodoService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.RequestParam;
-
 
 @RestController
 @RequestMapping("/api/todo")
@@ -104,5 +102,20 @@ public class TodoController {
             return ResponseEntity.internalServerError().body("서버 오류 발생");
         }
     }
-    
+
+    // year와 month에 해당하는 모든 todo를 가져온다.
+    @GetMapping("/{userId}/{year}/{month}")
+    public ResponseEntity<?> getTodoListByYearAndMonth(
+            @PathVariable int userId,
+            @PathVariable String year,
+            @PathVariable String month) {
+        try {
+            Todo todo = new Todo(0, userId, 0, 0, "", year + "-" + month, 0);
+            Optional<List<Todo>> opTodoList = todoService.getTodoListByYearAndMonth(todo);
+            return opTodoList.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("서버 오류 발생");
+        }
+    }
 }
