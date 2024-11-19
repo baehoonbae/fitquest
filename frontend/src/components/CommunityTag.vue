@@ -1,11 +1,11 @@
 <template>
-  <div class="tags-container">
-    <div class="tags-scroll">
+  <div class="py-4 border-b border-gray-100">
+    <div class="flex gap-2 overflow-x-auto pb-2">
       <button
         v-for="tag in tags"
         :key="tag"
-        class="tag"
-        :class="{ active: selectedTag === tag }"
+        class="whitespace-nowrap px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors duration-200"
+        :class="{ 'bg-blue-600 text-white hover:bg-blue-700': selectedTag === tag }"
         @click="selectTag(tag)"
       >
         #{{ tag }}
@@ -14,51 +14,21 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "CommunityTags",
-  props: {
-    tags: {
-      type: Array,
-      required: true,
-    },
-    selectedTag: {
-      type: String,
-      default: null,
-    },
+<script setup>
+const props = defineProps({
+  tags: {
+    type: Array,
+    required: true,
   },
-  methods: {
-    selectTag(tag) {
-      this.$emit("select-tag", this.selectedTag === tag ? null : tag);
-    },
+  selectedTag: {
+    type: String,
+    default: null,
   },
+});
+
+const emit = defineEmits(['select-tag']);
+
+const selectTag = (tag) => {
+  emit('select-tag', props.selectedTag === tag ? null : tag);
 };
 </script>
-
-<style scoped>
-.tags-container {
-  padding: 16px 0;
-  border-bottom: 1px solid #eee;
-}
-
-.tags-scroll {
-  display: flex;
-  overflow-x: auto;
-  gap: 8px;
-  padding-bottom: 8px;
-}
-
-.tag {
-  white-space: nowrap;
-  padding: 6px 12px;
-  border-radius: 16px;
-  background-color: #f5f5f5;
-  border: none;
-  cursor: pointer;
-}
-
-.tag.active {
-  background-color: #007bff;
-  color: white;
-}
-</style>

@@ -1,10 +1,20 @@
 <template>
-  <div class="community-container">
+  <div class="max-w-3xl mx-auto px-4">
     <CommunityHeader />
     <CommunitySearch @search="handleSearch" />
-    <div class="action-buttons">
-      <button class="btn btn-view-all" @click="viewAllPosts">전체 보기</button>
-      <button class="btn btn-write" @click="goToWrite">글 쓰기</button>
+    <div class="flex justify-end gap-3 my-2">
+      <button
+        class="px-3 py-1.5 rounded-md font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200"
+        @click="viewAllPosts"
+      >
+        전체 보기
+      </button>
+      <button
+        class="px-3 py-1.5 rounded-md font-medium text-sm bg-blue-600 text-white hover:bg-blue-700 transition-all duration-200"
+        @click="goToWrite"
+      >
+        글 쓰기
+      </button>
     </div>
     <CommunityTag
       :tags="tags"
@@ -30,6 +40,7 @@ import CommunitySearch from "@/components/CommunitySearch.vue";
 import CommunityTag from "@/components/CommunityTag.vue";
 import CommunityBoard from "@/components/CommunityBoard.vue";
 import CommunityPagenation from "@/components/CommunityPagenation.vue";
+import Footer from "@/components/common/Footer.vue";
 
 // 반응형 상태 정의
 const router = useRouter();
@@ -152,46 +163,3 @@ watch(
   }
 );
 </script>
-
-<style scoped>
-.community-container {
-  max-width: 768px;
-  margin: 0 auto;
-  padding: 0 16px;
-}
-
-/* 버튼 스타일 추가 */
-.action-buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin: 20px 0;
-}
-
-.btn {
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-weight: 500;
-  cursor: pointer;
-  border: none;
-  transition: all 0.2s ease;
-}
-
-.btn-view-all {
-  background-color: #f1f3f5;
-  color: #495057;
-}
-
-.btn-view-all:hover {
-  background-color: #e9ecef;
-}
-
-.btn-write {
-  background-color: #1976d2;
-  color: white;
-}
-
-.btn-write:hover {
-  background-color: #1565c0;
-}
-</style>

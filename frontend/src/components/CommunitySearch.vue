@@ -1,59 +1,30 @@
 <template>
-  <div class="search-container">
-    <div class="search-box">
+  <div class="py-4">
+    <div class="flex items-center border border-gray-200 rounded-md px-3 py-2">
       <input
         type="text"
         placeholder="글 검색"
         v-model="searchText"
         @keyup.enter="search"
+        class="flex-1 border-none outline-none px-1"
       />
-      <button class="search-icon" @click="search">
+      <button 
+        class="p-1 px-2 cursor-pointer hover:text-gray-600 transition-colors duration-200"
+        @click="search"
+      >
         <i class="fas fa-search"></i>
       </button>
     </div>
   </div>
 </template>
 
-<script>
-export default {
-  name: "CommunitySearch",
-  data() {
-    return {
-      searchText: "",
-    };
-  },
-  methods: {
-    search() {
-      this.$emit("search", this.searchText);
-    },
-  },
+<script setup>
+import { ref } from 'vue';
+
+const emit = defineEmits(['search']);
+const searchText = ref('');
+
+const search = () => {
+  emit('search', searchText.value);
 };
 </script>
-
-<style scoped>
-.search-container {
-  padding: 16px 0;
-}
-
-.search-box {
-  display: flex;
-  align-items: center;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 8px 12px;
-}
-
-input {
-  flex: 1;
-  border: none;
-  outline: none;
-  padding: 4px;
-}
-
-.search-icon {
-  background: none;
-  border: none;
-  padding: 4px 8px;
-  cursor: pointer;
-}
-</style>
