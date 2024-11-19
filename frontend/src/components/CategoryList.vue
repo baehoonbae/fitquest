@@ -55,12 +55,14 @@ import { onMounted, watch, ref, onUnmounted } from "vue";
 import TodoList from "@/components/TodoList.vue";
 import { useTodoStore } from "@/stores/todo";
 import { useDateStore } from "@/stores/date";
+import { useActivityStore } from "@/stores/activity";
 
 const authStore = useAuthStore();
 const categoryStore = useCategoryStore();
 const todoStore = useTodoStore();
-const selectedCategory = ref(null);
 const dateStore = useDateStore();
+const activityStore = useActivityStore();
+const selectedCategory = ref(null);
 const todo = ref({
   userId: authStore.user.id,
   categoryId: null,
@@ -93,6 +95,7 @@ const handleAddTodo = async (todo) => {
       if (result?.success) {
         await todoStore.fetchTodos(todo.date);
         todo.content = "";
+        await activityStore.fetchUpdateDailyActivity(todo.date, todo.userId);
       }
     } catch (error) {
       console.error("할 일 추가 실패:", error);

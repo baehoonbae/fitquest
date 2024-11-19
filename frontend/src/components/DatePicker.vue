@@ -17,14 +17,10 @@
     <div class="mb-8">
       <!-- Weekdays -->
       <div class="grid grid-cols-7 mb-3 font-semibold">
-        <div
-          v-for="{ day, color } in weekdays"
-          :key="day"
-          :class="[
-            'text-center text-[0.85rem] w-full sm:w-12 h-8 flex items-center justify-center',
-            color,
-          ]"
-        >
+        <div v-for="{ day, color } in weekdays" :key="day" :class="[
+          'text-center text-[0.85rem] w-full sm:w-12 h-8 flex items-center justify-center',
+          color,
+        ]">
           {{ day }}
         </div>
       </div>
@@ -39,19 +35,13 @@
         <template v-for="day in daysInMonth" :key="day">
           <div
             class="aspect-square font-semibold w-full sm:w-12 h-auto sm:h-[3.3rem] flex flex-col items-center justify-center rounded-lg text-[0.85rem] cursor-pointer relative"
-            @click="selectDate(day)"
-          >
-            <div
-              class="w-6 h-6 text-center text-gray-600 border border-gray-200 bg-gray-200 rounded-[0.3rem] mb-0.5"
-            >
+            @click="selectDate(day)">
+            <div class="w-6 h-6 text-center text-gray-600 border border-gray-200 bg-gray-200 rounded-[0.3rem] mb-0.5">
               <div v-if="todoStore.getUndoneTodoCount(formatDate(day)) > 0">
                 {{ todoStore.getUndoneTodoCount(formatDate(day)) }}
               </div>
             </div>
-            <div
-              class="text-center rounded-full px-2 py-1"
-              :class="[{ 'bg-black text-white': isSelectedDate(day) }]"
-            >
+            <div class="text-center rounded-full px-2 py-1" :class="[{ 'bg-black text-white': isSelectedDate(day) }]">
               {{ day }}
             </div>
           </div>
@@ -61,8 +51,7 @@
     <div class="flex justify-center">
       <button
         class="w-[7rem] py-4 rounded-full text-center text-base font-semibold cursor-pointer transition-all duration-300 ease-in-out bg-black text-white hover:bg-gray-800"
-        @click="confirmDate"
-      >
+        @click="confirmDate">
         확인
       </button>
     </div>
@@ -75,12 +64,14 @@ import { useAuthStore } from "@/stores/auth";
 import { useCategoryStore } from "@/stores/category";
 import { useDateStore } from "@/stores/date";
 import { useTodoStore } from "@/stores/todo";
+import { useActivityStore } from "@/stores/activity";
 
 const emit = defineEmits(["closeDatePicker"]);
 const authStore = useAuthStore();
 const categoryStore = useCategoryStore();
 const dateStore = useDateStore();
 const todoStore = useTodoStore();
+const activityStore = useActivityStore();
 
 onMounted(async () => {
   await authStore.checkAuth();
@@ -122,12 +113,23 @@ const selectDate = (day) => {
 // 날짜 수정 완료하기
 const confirmDate = async () => {
   const todo = todoStore.todo;
+  const oldDate = todo.date;
+  const newDate = localSelectedDate.value;
+
   try {
+    // todo 날짜 업데이트
     await todoStore.fetchTodoUpdate({
       ...todo,
-      date: localSelectedDate.value,
+      date: newDate,
     });
-    await todoStore.fetchTodos(dateStore.selectedDate);
+
+    // 이전 날짜와 새로운 날짜의 todos와 activity 동시 갱신
+    await Promise.all([
+      todoStore.fetchTodos(oldDate),
+      todoStore.fetchTodos(newDate),
+      activityStore.fetchUpdateDailyActivity(oldDate, todo.userId),
+      activityStore.fetchUpdateDailyActivity(newDate, todo.userId)
+    ]);
     emit("closeDatePicker");
   } catch (error) {
     console.error("날짜 수정 실패:", error);
