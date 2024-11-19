@@ -14,9 +14,7 @@
           <span class="text-gray-400 ml-1.5">+</span>
         </div>
         <div class="mb-7">
-          <TodoList :categoryId="category.id" @dragstart="handleDragStart" @dragend="handleDragEnd"
-            @todoAdded="handleTodoAdded" @todoRemoved="handleTodoRemoved"
-            :group="{ name: 'todos', pull: true, put: true }" />
+          <TodoList :categoryId="category.id" :group="'todos'" />
           <div v-if="selectedCategory && selectedCategory.id === category.id" class="mt-3.5 mb-7">
             <div class="flex items-center gap-1.5">
               <input class="w-[19px] h-[19px] rounded border bg-[#dadddf] border-gray-300" />
@@ -51,8 +49,6 @@ const todo = ref({
   date: new Date().toISOString().split('T')[0],
 })
 const todoInput = ref(null);
-const dragStartCategoryId = ref(null);
-const dragEndCategoryId = ref(null);
 
 const closeAddTodo = () => {
   selectedCategory.value = null;
@@ -89,42 +85,6 @@ const truncateText = (text) => {
   return text.length > 20 ? text.slice(0, 20) + '...' : text;
 };
 
-const handleDragStart = (event) => {
-  const { todoId, categoryId } = event;
-  dragStartCategoryId.value = categoryId;
-  console.log('Drag started from category:', dragStartCategoryId.value);
-};
-
-const handleTodoAdded = (event) => {
-  const { todoId, newCategoryId, newIndex } = event;
-  console.log('Todo added to category:', newCategoryId);
-  console.log('Todo index:', newIndex);
-  dragEndCategoryId.value = newCategoryId;
-};
-
-const handleTodoRemoved = (event) => {
-  const { todoId, oldCategoryId, oldIndex } = event;
-  console.log('Todo removed from category:', oldCategoryId);
-  console.log('Todo index:', oldIndex);
-};
-
-const handleDragEnd = async () => {
-  if (dragStartCategoryId.value && dragEndCategoryId.value &&
-    dragStartCategoryId.value !== dragEndCategoryId.value) {
-    console.log('Moving todo between categories:', {
-      from: dragStartCategoryId.value,
-      to: dragEndCategoryId.value
-    });
-    const updates = [];
-    await Promise.all(updates.map(todo => todoStore.fetchTodoUpdate(todo)));
-  } else {
-    console.log('No move or same category');
-  }
-
-  dragStartCategoryId.value = null;
-  dragEndCategoryId.value = null;
-};
-
 onMounted(async () => {
   if (authStore.user.isAuthenticated) {
     await categoryStore.fetchCategories();
@@ -149,5 +109,12 @@ watch(
 onUnmounted(() => {
   window.removeEventListener('click', closeAddTodo);
   window.removeEventListener('keydown', closeAddTodo);
+});
+
+const props = defineProps({
+  selectedDate: {
+    type: String,
+    required: true
+  }
 });
 </script>

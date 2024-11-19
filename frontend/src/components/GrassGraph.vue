@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h3 class="text-lg font-semibold mb-4">활동 그래프</h3>
+        <h3 class="text-lg font-semibold mb-4">잔디</h3>
         <div class="grass-graph overflow-x-auto">
             <div class="min-w-[800px]">
                 <div class="flex flex-col gap-1">

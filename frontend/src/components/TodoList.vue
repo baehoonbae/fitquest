@@ -34,18 +34,31 @@
 </template>
 
 <script setup>
-import draggable from 'vuedraggable';
-import { useTodoStore } from "@/stores/todo";
-import { onBeforeUnmount, onMounted, ref, watch, computed } from "vue";
-import { EllipsisHorizontalIcon } from "@heroicons/vue/24/outline";
-import TodoMenu from "./TodoMenu.vue";
 import { useCategoryStore } from "@/stores/category";
+import { useTodoStore } from "@/stores/todo";
+import { EllipsisHorizontalIcon } from "@heroicons/vue/24/outline";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import draggable from 'vuedraggable';
+import TodoMenu from "./TodoMenu.vue";
+import { useDragStore } from "@/stores/drag";
 
 const props = defineProps({
   categoryId: {
     type: Number,
     required: true,
   },
+  group: {  // group prop 추가
+    type: String,
+    default: 'todos'
+  },
+  onDragstart: {  // dragstart 이벤트 prop 추가
+    type: Function,
+    default: () => {}
+  },
+  onDragend: {  // dragend 이벤트 prop 추가
+    type: Function,
+    default: () => {}
+  }
 });
 
 const categoryStore = useCategoryStore();
@@ -54,9 +67,6 @@ const selectedTodoId = ref(null);
 const contentUpdateMode = ref(false);
 const newTodoContent = ref(null);
 const isDragging = ref(false);
-const draggedTodoId = ref(null);
-const oldIndex = ref(null);
-const newIndex = ref(null);
 
 const filteredTodos = computed({
   get: () => {
@@ -139,46 +149,71 @@ const handleContent = async (id) => {
   }
 };
 
-const emit = defineEmits(['dragstart', 'dragend', 'todoAdded', 'todoRemoved']);
+const dragStore = useDragStore();
 
 const handleDragStart = (event) => {
   isDragging.value = true;
-  draggedTodoId.value = event.item.__draggable_context.element.id;
-  oldIndex.value = event.oldIndex;
-  
-  emit('dragstart', {
-    todoId: draggedTodoId.value,
-    categoryId: props.categoryId
-  });
+  const draggedTodo = event.item.__draggable_context.element;
+  dragStore.setDragStart(draggedTodo.id, props.categoryId, event.oldIndex);
 };
 
-const handleDragEnd = (event) => {
-  emit('dragend', {
-    todoId: draggedTodoId.value,
-    categoryId: props.categoryId,
-    newIndex: newIndex.value
-  });
-  draggedTodoId.value = null;
-  oldIndex.value = null;
-  newIndex.value = null;
-  isDragging.value = false;
+const handleDragEnd = async (event) => {
+  if (!isDragging.value || !dragStore.dragState.todoId) return;
+  
+  try {
+    const draggedTodo = todoStore.todos.find(t => t.id === dragStore.dragState.todoId);
+    if (!draggedTodo) return;
+
+    // dragState를 사용하여 업데이트할 todo 생성
+    const updatedDraggedTodo = {
+      ...draggedTodo,
+      categoryId: dragStore.dragState.endCategoryId,
+      todoOrder: dragStore.dragState.endIndex
+    };
+
+    // 시작 카테고리의 todos
+    const startCategoryTodos = todoStore.todos
+      .filter(t => t.categoryId === dragStore.dragState.startCategoryId && t.id !== draggedTodo.id)
+      .sort((a, b) => (a.todoOrder || 0) - (b.todoOrder || 0))
+      .map((todo, index) => ({
+        ...todo,
+        todoOrder: index
+      }));
+
+    // 도착 카테고리의 todos
+    const endCategoryTodos = todoStore.todos
+      .filter(t => t.categoryId === dragStore.dragState.endCategoryId && t.id !== draggedTodo.id)
+      .sort((a, b) => (a.todoOrder || 0) - (b.todoOrder || 0));
+    
+    // 드래그된 todo를 새 위치에 삽입
+    endCategoryTodos.splice(dragStore.dragState.endIndex, 0, updatedDraggedTodo);
+    
+    const endUpdates = endCategoryTodos.map((todo, index) => ({
+      ...todo,
+      todoOrder: index
+    }));
+
+    // 모든 업데이트를 한번에 실행
+    const allUpdates = [...startCategoryTodos, ...endUpdates];    
+    await Promise.all(allUpdates.map(todo => todoStore.fetchTodoUpdate(todo)));
+    
+    // 스토어 상태 업데이트
+    todoStore.todos = todoStore.todos.map(todo => {
+      const updatedTodo = allUpdates.find(t => t.id === todo.id);
+      return updatedTodo || todo;
+    });
+
+  } catch (error) {
+    console.error('Todo 순서 업데이트 실패:', error);
+  } finally {
+    dragStore.resetDragState();
+    isDragging.value = false;
+  }
 };
 
 const handleChange = (event) => {
-  if (event.added) {
-    emit('todoAdded', {
-      todoId: event.added.element.id,
-      newCategoryId: props.categoryId,
-      newIndex: event.added.newIndex
-    });
-  } else if (event.removed) {
-    emit('todoRemoved', {
-      todoId: event.removed.element.id,
-      oldCategoryId: props.categoryId,
-      oldIndex: event.removed.oldIndex
-    });
-  } else if (event.moved) {
-    newIndex.value = event.moved.newIndex;
+  if (event.added || event.moved) {
+    dragStore.setDragEnd(props.categoryId, event.added?.newIndex ?? event.moved.newIndex);
   }
 };
 

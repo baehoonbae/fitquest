@@ -5,9 +5,6 @@
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center gap-3">
         <span class="text-[1.1rem] font-bold pl-3">{{ currentYear }}년 {{ currentMonth }}월</span>
-        <span class="hidden sm:inline text-[1rem] font-semibold text-gray-600">
-          ✓ 0 😊 0 ❤️ 0
-        </span>
       </div>
       <div class="flex gap-3">
         <button @click="previousMonth" class="text-gray-400 text-xl">&lt;</button>
@@ -113,7 +110,10 @@ const nextMonth = () => {
 
 // 날짜 선택
 const selectDate = (day) => {
-  const selectedDate = new Date(currentYear.value, currentMonth.value - 1, day);
-  console.log("Selected date:", selectedDate);
+  const selectedDate = new Date(currentYear.value, currentMonth.value - 1, day+1);
+  const formattedDate = selectedDate.toISOString().split('T')[0];
+  emit('dateSelected', formattedDate);
 };
+
+const emit = defineEmits(['dateSelected']);
 </script>
