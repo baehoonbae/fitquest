@@ -1,8 +1,8 @@
 <template>
   <div class="write-container">
-    <h1 class="write-title">게시글 작성</h1>
+    <h1 class="write-title">게시글 수정</h1>
 
-    <form @submit.prevent="submitPost" class="write-form">
+    <form @submit.prevent="updatePost" class="write-form">
       <div class="form-group">
         <label for="tag">태그</label>
         <select id="tag" v-model="post.tag" required>
@@ -41,7 +41,7 @@
         <button type="button" class="btn btn-cancel" @click="goBack">
           취소
         </button>
-        <button type="submit" class="btn btn-submit">등록</button>
+        <button type="submit" class="btn btn-submit">수정 완료</button>
       </div>
     </form>
   </div>
@@ -49,16 +49,18 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import { useBoardStore } from "@/stores/board";
 import http from "@/api/http";
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 const boardStore = useBoardStore();
 
 const post = ref({
+  id: null,
   userId: null,
   writer: "",
   tag: "",
@@ -66,17 +68,38 @@ const post = ref({
   content: "",
 });
 
-onMounted(() => {
-  if (!authStore.user.isAuthenticated) {
-    alert("로그인이 필요합니다.");
-    router.push("/login");
-    return;
-  }
-  post.value.userId = authStore.user.id;
-  post.value.writer = authStore.user.name;
-});
+// 기존 게시글 데이터 가져오기
+const fetchPost = async () => {
+  try {
+    const response = await http.get(`/board/${route.params.id}`);
+    if (response.status === 200) {
+      const boardData = response.data;
 
-const submitPost = async () => {
+      // 작성자 확인
+      if (boardData.userId !== authStore.user.id) {
+        alert("수정 권한이 없습니다.");
+        router.push("/community");
+        return;
+      }
+
+      // 데이터 설정
+      post.value = {
+        id: boardData.id,
+        userId: boardData.userId,
+        writer: boardData.writer,
+        tag: boardData.tag,
+        title: boardData.title,
+        content: boardData.content,
+      };
+    }
+  } catch (error) {
+    console.error("Error fetching post:", error);
+    alert("게시글을 불러오는데 실패했습니다.");
+    router.push("/community");
+  }
+};
+
+const updatePost = async () => {
   try {
     const token = authStore.getToken();
     if (!token) {
@@ -85,30 +108,37 @@ const submitPost = async () => {
       return;
     }
 
-    const success = await boardStore.addBoard(post.value);
-    if (success) {
-      alert("게시글이 등록되었습니다.");
-      // 게시글 목록 갱신 후 페이지 이동
-      await boardStore.fetchBoards();
-      router.push({
-        path: "/community",
-        query: { page: 1 }, // 무조건 첫 페이지로 이동하도록 설정
-      });
+    const response = await http.put(`/board/${post.value.id}`, post.value);
+
+    if (response.status === 200) {
+      alert("게시글이 수정되었습니다.");
+      await boardStore.fetchBoards(); // 게시글 목록 갱신
+      router.push(`/community/detail/${post.value.id}`);
     }
   } catch (error) {
-    console.error("Error posting:", error);
+    console.error("Error updating post:", error);
     if (error.response?.status === 401) {
       alert("로그인이 만료되었습니다. 다시 로그인해주세요.");
       authStore.logout();
     } else {
-      alert(error.response?.data?.message || "게시글 등록에 실패했습니다.");
+      alert("게시글 수정에 실패했습니다.");
     }
   }
 };
 
 const goBack = () => {
-  router.push("/community");
+  router.push(`/community/detail/${route.params.id}`);
 };
+
+// 컴포넌트 마운트 시 로그인 체크 및 데이터 로드
+onMounted(async () => {
+  if (!authStore.user.isAuthenticated) {
+    alert("로그인이 필요합니다.");
+    router.push("/login");
+    return;
+  }
+  await fetchPost();
+});
 </script>
 
 <style scoped>

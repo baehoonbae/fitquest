@@ -37,29 +37,32 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { useAuthStore } from "@/stores/auth"; // auth store import
-import axios from "axios";
+import { useAuthStore } from "@/stores/auth";
+import http from "@/api/http"; // http import로 변경
 
 const route = useRoute();
 const router = useRouter();
-const authStore = useAuthStore(); // auth store 사용
+const authStore = useAuthStore();
 const board = ref({});
 
 // 작성자 여부 확인 (로그인한 사용자의 id와 게시글 작성자의 userId 비교)
 const isAuthor = computed(() => {
+  console.log("Current user ID:", authStore.user.id); // 디버깅용
+  console.log("Board user ID:", board.value?.userId); // 디버깅용
   return (
-    authStore.user.id && board.value && authStore.user.id === board.value.userId
+    authStore.user.isAuthenticated &&
+    board.value?.userId &&
+    authStore.user.id === board.value.userId
   );
 });
 
 // 게시글 데이터 가져오기
 const fetchBoardDetail = async () => {
   try {
-    const response = await axios.get(
-      `http://localhost:8097/fitquest/api/board/${route.params.id}`
-    );
+    const response = await http.get(`/board/${route.params.id}`);
     if (response.status === 200) {
       board.value = response.data;
+      console.log("Fetched board:", board.value); // 디버깅용
     }
   } catch (error) {
     console.error("Error fetching board detail:", error);
@@ -69,18 +72,26 @@ const fetchBoardDetail = async () => {
 
 // 게시글 삭제
 const handleDelete = async () => {
+  if (!authStore.user.isAuthenticated) {
+    alert("로그인이 필요합니다.");
+    router.push("/login");
+    return;
+  }
+
+  if (!isAuthor.value) {
+    alert("삭제 권한이 없습니다.");
+    return;
+  }
+
   if (!confirm("정말 삭제하시겠습니까?")) return;
 
   try {
     const token = authStore.getToken();
-    const response = await axios.delete(
-      `http://localhost:8097/fitquest/api/board/${route.params.id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await http.delete(`/board/${route.params.id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
     if (response.status === 200) {
       alert("게시글이 삭제되었습니다.");
@@ -89,8 +100,8 @@ const handleDelete = async () => {
   } catch (error) {
     console.error("Error deleting board:", error);
     if (error.response?.status === 401) {
-      alert("로그인이 필요합니다.");
-      router.push("/login");
+      alert("로그인이 만료되었습니다. 다시 로그인해주세요.");
+      authStore.logout();
     } else {
       alert("게시글 삭제에 실패했습니다.");
     }
@@ -99,6 +110,17 @@ const handleDelete = async () => {
 
 // 게시글 수정 페이지로 이동
 const handleEdit = () => {
+  if (!authStore.user.isAuthenticated) {
+    alert("로그인이 필요합니다.");
+    router.push("/login");
+    return;
+  }
+
+  if (!isAuthor.value) {
+    alert("수정 권한이 없습니다.");
+    return;
+  }
+
   router.push(`/community/edit/${route.params.id}`);
 };
 
