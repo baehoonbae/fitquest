@@ -9,10 +9,39 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/fitquest/api/**")
+        registry
+            .addMapping("/**")  // 모든 경로에 대해 CORS 설정 적용
+                .allowedOrigins(
+                    "http://localhost:5173",     // Vue 개발 서버
+                    "http://localhost:5174",     // 예비 포트
+                    "http://localhost:3000"      // 추가 개발 서버 포트
+                )
+                .allowedMethods(
+                    "GET",
+                    "POST", 
+                    "PUT", 
+                    "DELETE", 
+                    "PATCH", 
+                    "OPTIONS"
+                )
+                .allowedHeaders("*")            // 모든 헤더 허용
+                .exposedHeaders(
+                    "Authorization",
+                    "Content-Type",
+                    "X-Total-Count",
+                    "Access-Control-Allow-Origin",
+                    "Access-Control-Allow-Credentials"
+                )
+                .allowCredentials(true)         // 자격 증명 허용
+                .maxAge(3600);                  // preflight 요청 결과를 1시간 동안 캐시
+
+        // fitquest 전용 엔드포인트에 대한 추가 설정
+        registry
+            .addMapping("/fitquest/api/**")
+                .allowedOrigins("http://localhost:5173")
+                .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowedHeaders("*")
-                .allowedOriginPatterns("http://localhost:[*]", "http://127.0.0.1:[*]", "http://70.12.50.63:[*]")
-                .allowedMethods("GET", "POST", "PUT", "DELETE") 
-                .allowCredentials(true); 
+                .allowCredentials(true)
+                .maxAge(3600);
     }
 }
