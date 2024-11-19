@@ -43,8 +43,10 @@
             @click="selectDate(day)"
           >
             <div
-              class="w-6 h-6 border border-gray-200 bg-gray-200 rounded-[0.3rem] mb-0.5"
-            ></div>
+              class="w-6 h-6 text-center text-gray-600 border border-gray-200 bg-gray-200 rounded-[0.3rem] mb-0.5"
+            >
+              {{ undoneTodoCount }}
+            </div>
             <div
               class="text-center rounded-full px-2 py-1"
               :class="[{ 'bg-black text-white': isSelectedDate(day) }]"
@@ -63,10 +65,12 @@ import { ref, computed, onMounted } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { useCategoryStore } from "@/stores/category";
 import { useDateStore } from "@/stores/date";
+import { useTodoStore } from "@/stores/todo";
 
 const authStore = useAuthStore();
 const categoryStore = useCategoryStore();
 const dateStore = useDateStore();
+const todoStore = useTodoStore();
 
 onMounted(async () => {
   await authStore.checkAuth();
@@ -124,4 +128,12 @@ const selectDate = (day) => {
   const formattedDate = selectedDate.toISOString().split("T")[0];
   dateStore.setSelectedDate(formattedDate);
 };
+
+onMounted(async () => {
+  await todoStore.fetchCountUndoneTodo(
+    currentYear.value,
+    currentMonth.value,
+    daysInMonth.value
+  );
+});
 </script>

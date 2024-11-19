@@ -19,6 +19,8 @@ import com.web.fitquest.service.todo.TodoService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/api/todo")
@@ -102,4 +104,5 @@ public class TodoController {
             return ResponseEntity.internalServerError().body("서버 오류 발생");
         }
     }
+    
 }
