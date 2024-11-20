@@ -2,7 +2,9 @@
   <div class="bg-white rounded-lg shadow-sm my-5">
     <div class="w-full">
       <!-- 게시판 헤더 -->
-      <div class="hidden md:grid md:grid-cols-[100px_1fr_280px] md:px-5 md:py-4 bg-gray-50 border-b-2 border-gray-200 font-semibold text-gray-700">
+      <div
+        class="hidden md:grid md:grid-cols-[100px_1fr_280px] md:px-5 md:py-4 bg-gray-50 border-b-2 border-gray-200 font-semibold text-gray-700"
+      >
         <div>태그</div>
         <div>제목</div>
         <div class="grid grid-cols-3 text-center">
@@ -11,7 +13,7 @@
           <span>조회수</span>
         </div>
       </div>
-      
+
       <!-- 게시글 목록 -->
       <div
         v-for="board in boards"
@@ -28,7 +30,9 @@
             {{ truncateContent(board.content) }}
           </p>
         </div>
-        <div class="grid grid-cols-3 items-center text-center text-sm text-gray-700 mt-2.5 md:mt-0">
+        <div
+          class="grid grid-cols-3 items-center text-center text-sm text-gray-700 mt-2.5 md:mt-0"
+        >
           <span class="font-medium">{{ board.writer }}</span>
           <span class="text-gray-500">{{ formatDate(board.date) }}</span>
           <span class="flex items-center justify-center gap-1">
@@ -42,7 +46,7 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router';
+import { useRouter } from "vue-router";
 
 const router = useRouter();
 
