@@ -7,7 +7,7 @@
         <Calendar @dateSelected="handleDateSelected" />
       </div>
       <div
-        class="md:w-1/2 border border-[#dddfe0] min-h-[calc(100vh-25rem)] max-h-[calc(100vh-25rem)] overflow-y-auto scrollbar-custom p-4 rounded-[30px]"
+        class="md:w-1/2 border border-[#dddfe0] min-h-[calc(100vh-25rem)] max-h-[calc(100vh-25rem)] overflow-y-auto p-4 rounded-[30px]"
       >
         <CategoryList :selectedDate="selectedDate" />
       </div>
@@ -30,9 +30,3 @@ const handleDateSelected = (date) => {
   selectedDate.value = date;
 };
 </script>
-
-<style>
-.scrollbar-custom::-webkit-scrollbar {
-  display: none;
-}
-</style>

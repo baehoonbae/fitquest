@@ -37,3 +37,20 @@ onMounted(() => {
   authStore.checkAuth();
 });
 </script>
+
+<style>
+/* 웹킷 기반 브라우저 (Chrome, Safari, Edge 등) */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: none;
+}
+
+/* IE, Edge legacy */
+* {
+  -ms-overflow-style: none;
+}
+</style>

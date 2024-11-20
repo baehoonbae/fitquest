@@ -43,7 +43,7 @@
               <input
                 type="text"
                 placeholder="할 일 입력"
-                class="pb-1.5 w-full bg-[#f7f8f9] text-sm outline-none caret-blue-500"
+                class="pb-1.5 w-full text-sm outline-none caret-blue-500"
                 :ref="
                   (el) => {
                     if (selectedCategory?.id === category.id) todoInput = el;
