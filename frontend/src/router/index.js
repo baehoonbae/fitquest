@@ -55,6 +55,9 @@ const router = createRouter({
       path: "/config",
       name: "config",
       component: UserConfigView,
+      meta: {
+        requiresAuth: true,
+      },
     },
     {
       path: "/community",
@@ -75,11 +78,17 @@ const router = createRouter({
       path: "/community/write",
       name: "CommunityWrite",
       component: CommunityWrite,
+      meta: {
+        requiresAuth: true,
+      },
     },
     {
       path: "/community/edit/:id",
       name: "CommunityUpdate",
       component: CommunityUpdate,
+      meta: {
+        requiresAuth: true,
+      },
     },
     {
       path: "/news",
@@ -90,38 +99,63 @@ const router = createRouter({
       path: "/category-regist",
       name: "CategoryRegist",
       component: CategoryRegistView,
+      meta: {
+        requiresAuth: true,
+      },
     },
     {
       path: "/category-manage",
       name: "CategoryManage",
       component: CategoryManageView,
+      meta: {
+        requiresAuth: true,
+      },
     },
     {
       path: "/category-update/:id",
       name: "CategoryUpdate",
       component: CategoryUpdateView,
+      meta: {
+        requiresAuth: true,
+      },
     },
   ],
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
+  if (to.meta.requiresAuth) {
+    try {
+      const hasRefreshToken = await authStore.checkRefreshTokenExists();
+      
+      if (!hasRefreshToken) {
+        // console.log('리프레시 토큰이 없습니다. 로그아웃 처리합니다.');
+        authStore.logout();
+        next({ name: 'login' });
+        return;
+      }
 
-  if (to.meta.requiresAuth && (!authStore.user.isAuthenticated || !authStore.getToken())) {
-    authStore.logout();
-    next({ name: "root" });
-    return;
+      // 액세스 토큰 체크 및 갱신
+      const accessToken = authStore.getToken();
+      if (!accessToken || !authStore.validateAccessToken()) {
+        const refreshed = await authStore.refreshToken();
+        if (!refreshed) {
+          authStore.logout();
+          next({ name: 'login' });
+          return;
+        }
+      }
+
+      next(); // 인증 성공시 다음으로 진행
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      authStore.logout();
+      next({ name: 'login' });
+    }
+  } else {
+    // 인증이 필요없는 페이지는 바로 진행
+    next();
   }
-
-  if (
-    authStore.user.isAuthenticated &&
-    (to.name === "login" || to.name === "signup")
-  ) {
-    next({ name: "userHome" });
-    return;
-  }
-
-  next();
 });
 
 export default router;

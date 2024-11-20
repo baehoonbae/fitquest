@@ -11,6 +11,7 @@ export const useAuthStore = defineStore("auth", () => {
     id: null,
     email: null,
     name: "",
+    description: "",
     isAuthenticated: false,
   });
 
@@ -36,6 +37,7 @@ export const useAuthStore = defineStore("auth", () => {
         id: data.id,
         email: data.email,
         name: data.name,
+        description: data.description,
         isAuthenticated: true,
       };
 
@@ -74,33 +76,11 @@ export const useAuthStore = defineStore("auth", () => {
     router.push('/');
   };
 
-  // 인증 상태 체크 (페이지 새로고침 시 호출)
-  const checkAuth = () => {
-    const accessToken = getToken();
-    if (accessToken && user.value.isAuthenticated) {
-      // 토큰이 있고 user가 인증된 상태면 헤더만 다시 설정
-      http.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
-      return true;
-    }
-    return false;
-  };
-
   // fetchUserInfo는 필요한 경우에만 명시적으로 호출
-  // 예: 프로필 업데이트 후 최신 정보 가져오기
   const fetchUserInfo = async () => {
-    const accessToken = getToken();
-    if (!accessToken || !user.value.id) return;
-
+    if (!getToken() || !user.value.id) return;
     try {
-      const response = await http.get(
-        `/user/${user.value.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-
+      const response = await http.get(`/user/${user.value.id}`);
       if (response.data) {
         user.value = {
           ...response.data,
@@ -167,16 +147,61 @@ export const useAuthStore = defineStore("auth", () => {
     }
   };
 
+  const validateAccessToken = () => {
+    const token = getToken();
+    if (!token) return false;
+    
+    // JWT 토큰 만료 시간 확인 로직
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.exp * 1000 > Date.now();
+    } catch {
+      return false;
+    }
+  };
+
+  // axios 인터셉터 추가
+  http.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+      const originalRequest = error.config;
+      
+      if (error.response.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true;
+        
+        const refreshed = await refreshToken();
+        if (refreshed) {
+          originalRequest.headers['Authorization'] = `Bearer ${sessionStorage.getItem('accessToken')}`;
+          return http(originalRequest);
+        }
+      }
+      return Promise.reject(error);
+    }
+  );
+
+  const checkRefreshTokenExists = async () => {
+    try {
+      const response = await http.get('/user/check-refresh-token', { 
+        withCredentials: true 
+      });
+      return response.data.exists;
+    } catch (error) {
+      console.error('리프레시 토큰 확인 실패:', error);
+      return false;
+    }
+  };
+
   return {
     user,
     login,
     logout,
-    checkAuth,
     fetchUserInfo,
     getToken,
     regist,
     checkDuplicateName,
     checkDuplicateEmail,
+    validateAccessToken,
+    checkRefreshTokenExists,
   };
 }, {
   persist: {

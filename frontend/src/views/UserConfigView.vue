@@ -38,8 +38,8 @@
             @click="showChangeDescriptionModal = true"
           >
             <span>자기소개</span>
-            <span class="font-bold"
-              >{{ localUser.description || "등록안됨" }}
+            <span class="font-bold">
+              {{ authStore.user.description || "등록안됨" }}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -72,13 +72,12 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import ChangeName from "@/components/ChangeName.vue";
 import ChangeDescription from "@/components/ChangeDescription.vue";
 import { useAuthStore } from "@/stores/auth";
 
 const authStore = useAuthStore();
-const localUser = computed(() => ({ ...authStore.user }));
 
 const showChangeNameModal = ref(false);
 const showChangeDescriptionModal = ref(false);

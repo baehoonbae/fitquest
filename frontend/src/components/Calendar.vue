@@ -75,7 +75,7 @@ const dateStore = useDateStore();
 const todoStore = useTodoStore();
 
 onMounted(async () => {
-  await authStore.checkAuth();
+  await authStore.fetchUserInfo();
   await categoryStore.fetchCategories();
 });
 
