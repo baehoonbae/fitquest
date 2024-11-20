@@ -1,11 +1,13 @@
 package com.web.fitquest.controller;
 
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -67,11 +69,11 @@ public class UserController {
                         ResponseCookie refreshTokenCookie = ResponseCookie
                                 .from("refreshToken", tokens.getRefreshToken())
                                 .httpOnly(true)         // 자바스크립트 접근 불가
-                                .secure(true)             // https 프로토콜에서만 전송(개발 단계에서는 주석 처리)
+                                .secure(false)             // https 프로토콜에서만 전송(개발 단계에서는 주석 처리)
                                 .path("/")                  // 모든 경로에서 접근 가능
                                 .maxAge(60 * 60 * 24 * 14)       // 2주
-                                .sameSite("Strict")     // CSRF 방지
-                                .domain("localhost")      // 도메인 설정
+                                .sameSite("Lax")     // CSRF 방지
+                                .domain("")      // 도메인 설정
                                 .build();
 
                         return ResponseEntity.ok()
@@ -87,6 +89,7 @@ public class UserController {
                             .status(HttpStatus.UNAUTHORIZED)
                             .body(new LoginResponse(null, null, null, null, "로그인 실패")));
         } catch (Exception e) {
+            log.error("Login error: ", e);  // 상세 로그 추가
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new LoginResponse(null, null, null, null, "서버 오류"));
         }
@@ -183,5 +186,11 @@ public class UserController {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping("/check-refresh-token")
+    public ResponseEntity<?> checkRefreshToken(@CookieValue(name = "refreshToken", required = false) String refreshToken) {
+        return ResponseEntity.ok()
+            .body(Map.of("exists", refreshToken != null));
     }
 }
