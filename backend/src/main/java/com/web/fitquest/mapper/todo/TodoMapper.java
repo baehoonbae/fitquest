@@ -24,4 +24,6 @@ public interface TodoMapper {
     List<Todo> getTodoListByYearAndMonth(Todo todo);
 
     double getDailyCompletionRatio(@Param("userId") int userId, @Param("date") String date);
+
+    List<Todo> getTodoListByCategoryId(@Param("categoryId") int categoryId, @Param("userId") int userId);
 }

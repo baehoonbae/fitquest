@@ -8,6 +8,11 @@ import UserConfigView from "@/views/UserConfigView.vue";
 import CommunityHomeView from "@/views/CommunityHomeView.vue";
 import NewsHomeView from "@/views/NewsHomeView.vue";
 import CommunityDetail from "@/views/CommunityDetail.vue";
+import CommunityWrite from "@/views/CommunityWrite.vue";
+import CommunityUpdate from "@/views/CommunityUpdate.vue";
+import CategoryRegistView from "@/views/CategoryRegistView.vue";
+import CategoryManageView from "@/views/CategoryManageView.vue";
+import CategoryUpdateView from "@/views/CategoryUpdateView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -69,17 +74,32 @@ const router = createRouter({
     {
       path: "/community/write",
       name: "CommunityWrite",
-      component: () => import("@/views/CommunityWrite.vue"),
+      component: CommunityWrite,
     },
     {
       path: "/community/edit/:id",
       name: "CommunityUpdate",
-      component: () => import("@/views/CommunityUpdate.vue"),
+      component: CommunityUpdate,
     },
     {
       path: "/news",
       name: "news",
       component: NewsHomeView,
+    },
+    {
+      path: "/category-regist",
+      name: "CategoryRegist",
+      component: CategoryRegistView,
+    },
+    {
+      path: "/category-manage",
+      name: "CategoryManage",
+      component: CategoryManageView,
+    },
+    {
+      path: "/category-update/:id",
+      name: "CategoryUpdate",
+      component: CategoryUpdateView,
     },
   ],
 });
@@ -87,7 +107,8 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
 
-  if (to.meta.requiresAuth && !authStore.user.isAuthenticated) {
+  if (to.meta.requiresAuth && (!authStore.user.isAuthenticated || !authStore.getToken())) {
+    authStore.logout();
     next({ name: "root" });
     return;
   }

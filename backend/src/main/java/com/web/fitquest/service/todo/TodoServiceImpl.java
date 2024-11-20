@@ -76,4 +76,9 @@ public class TodoServiceImpl implements TodoService {
     public Optional<List<Todo>> getTodoListByYearAndMonth(Todo todo) {
         return Optional.ofNullable(todoMapper.getTodoListByYearAndMonth(todo));
     }
+
+    @Override
+    public Optional<List<Todo>> getTodoListByCategoryId(int categoryId, int userId) {
+        return Optional.ofNullable(todoMapper.getTodoListByCategoryId(categoryId, userId));
+    }
 }

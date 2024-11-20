@@ -1,36 +1,69 @@
 <template>
-  <draggable v-model="filteredTodos" :group="{ name: 'todos', pull: true, put: true }" item-key="id"
-    @end="handleDragEnd" @start="handleDragStart" @change="handleChange" :animation="200">
+  <draggable
+    v-model="filteredTodos"
+    :group="{ name: 'todos', pull: true, put: true }"
+    item-key="id"
+    @end="handleDragEnd"
+    @start="handleDragStart"
+    @change="handleChange"
+    :animation="200"
+  >
     <template #item="{ element: todo }">
       <div class="flex items-center gap-1.5 pt-3.5">
-        <div class="relative w-[19px] h-[19px] cursor-pointer" @click="handleDone(todo.id)">
-          <svg v-if="todo.isDone" class="w-[19px] h-[19px] text-black" viewBox="0 0 20 20" fill="currentColor">
+        <div
+          class="relative w-[19px] h-[19px] cursor-pointer"
+          @click="handleDone(todo.id)"
+        >
+          <svg
+            v-if="todo.isDone"
+            class="w-[19px] h-[19px] text-black"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
             <rect width="18" height="18" x="1" y="1" rx="4" fill="currentColor" />
-            <path fill="white"
-              d="M13.293 7.293a1 1 0 0 1 1.414 1.414l-5 5a1 1 0 0 1-1.414 0l-2.5-2.5a1 1 0 0 1 1.414-1.414L9 11.586l4.293-4.293z" />
+            <path
+              fill="white"
+              d="M13.293 7.293a1 1 0 0 1 1.414 1.414l-5 5a1 1 0 0 1-1.414 0l-2.5-2.5a1 1 0 0 1 1.414-1.414L9 11.586l4.293-4.293z"
+            />
           </svg>
-          <div v-else class="w-[19px] h-[19px] rounded border bg-[#dadddf] border-gray-300"></div>
+          <div
+            v-else
+            class="w-[19px] h-[19px] rounded border bg-[#dadddf] border-gray-300"
+          ></div>
         </div>
         <div v-if="contentUpdateMode && todo.id === selectedTodoId" class="flex-1">
           <div class="flex" @click.stop>
-            <input type="text" placeholder="할 일 입력" class="pb-1.5 w-full text-xs outline-none caret-blue-500"
-              v-model="newTodoContent" :style="{
+            <input
+              type="text"
+              placeholder="할 일 입력"
+              class="pb-1.5 w-full text-xs outline-none caret-blue-500"
+              v-model="newTodoContent"
+              :style="{
                 'border-bottom': `2px solid ${categoryStore.category.color}`,
-              }" />
+              }"
+            />
             <EllipsisHorizontalIcon class="w-[19px] h-[19px] flex-shrink-0" />
           </div>
         </div>
         <div v-else class="flex-1">
           <button @click="toggleMenu(todo.id)" class="flex w-full">
-            <div class="w-full text-xs text-left truncate">{{ todo.content }}</div>
+            <div class="w-full text-[14.3px] text-left">
+              {{ truncateText(todo.content) }}
+            </div>
             <EllipsisHorizontalIcon class="w-[19px] h-[19px] flex-shrink-0" />
           </button>
         </div>
       </div>
     </template>
   </draggable>
-  <TodoMenu v-if="!contentUpdateMode && selectedTodoId !== null" :selectedTodoId="selectedTodoId" @close="closeMenu"
-    @edit="handleContent" @delete="goDelete" @moveTomorrow="handleMoveTomorrow" />
+  <TodoMenu
+    v-if="!contentUpdateMode && selectedTodoId !== null"
+    :selectedTodoId="selectedTodoId"
+    @close="closeMenu"
+    @edit="handleContent"
+    @delete="goDelete"
+    @moveTomorrow="handleMoveTomorrow"
+  />
 </template>
 
 <script setup>
@@ -57,12 +90,12 @@ const props = defineProps({
   onDragstart: {
     // dragstart 이벤트 prop 추가
     type: Function,
-    default: () => { },
+    default: () => {},
   },
   onDragend: {
     // dragend 이벤트 prop 추가
     type: Function,
-    default: () => { },
+    default: () => {},
   },
 });
 
@@ -90,6 +123,10 @@ const filteredTodos = computed({
     todoStore.dailyTodos = updatedTodos;
   },
 });
+
+const truncateText = (text) => {
+  return text.length > 20 ? text.slice(0, 20) + "..." : text;
+};
 
 const toggleMenu = (id) => {
   selectedTodoId.value = selectedTodoId.value === id ? null : id;
@@ -166,7 +203,7 @@ const handleMoveTomorrow = async (id) => {
     const oldDate = todo.date;
     const tomorrow = new Date(todo.date);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    const newDate = tomorrow.toISOString().split('T')[0];
+    const newDate = tomorrow.toISOString().split("T")[0];
     todo.date = newDate;
     await todoStore.fetchTodoUpdate(todo);
 
@@ -174,7 +211,7 @@ const handleMoveTomorrow = async (id) => {
       todoStore.fetchTodos(oldDate),
       todoStore.fetchTodos(newDate),
       activityStore.fetchUpdateDailyActivity(oldDate, todo.userId),
-      activityStore.fetchUpdateDailyActivity(newDate, todo.userId)
+      activityStore.fetchUpdateDailyActivity(newDate, todo.userId),
     ]);
     closeMenu();
   } catch (error) {
@@ -208,7 +245,10 @@ const handleDragEnd = async (event) => {
 
     // 시작 카테고리의 todos
     const startCategoryTodos = todoStore.dailyTodos
-      .filter((t) => t.categoryId === dragStore.dragState.startCategoryId && t.id !== draggedTodo.id)
+      .filter(
+        (t) =>
+          t.categoryId === dragStore.dragState.startCategoryId && t.id !== draggedTodo.id
+      )
       .sort((a, b) => (a.todoOrder || 0) - (b.todoOrder || 0))
       .map((todo, index) => ({
         ...todo,
@@ -217,7 +257,10 @@ const handleDragEnd = async (event) => {
 
     // 도착 카테고리의 todos
     const endCategoryTodos = todoStore.dailyTodos
-      .filter((t) => t.categoryId === dragStore.dragState.endCategoryId && t.id !== draggedTodo.id)
+      .filter(
+        (t) =>
+          t.categoryId === dragStore.dragState.endCategoryId && t.id !== draggedTodo.id
+      )
       .sort((a, b) => (a.todoOrder || 0) - (b.todoOrder || 0));
 
     // 드래그된 todo를 새 위치에 삽입
