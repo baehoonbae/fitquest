@@ -13,6 +13,7 @@ import CommunityUpdate from "@/views/CommunityUpdate.vue";
 import CategoryRegistView from "@/views/CategoryRegistView.vue";
 import CategoryManageView from "@/views/CategoryManageView.vue";
 import CategoryUpdateView from "@/views/CategoryUpdateView.vue";
+import CommunitySearch from "@/components/CommunitySearch.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -43,13 +44,19 @@ const router = createRouter({
       path: "/signup",
       name: "signup",
       component: UserRegistView,
-      meta: { hideLayout: true },
+      meta: {   
+        hideLayout: true,
+        title: '회원가입',
+      },
     },
     {
       path: "/login",
       name: "login",
       component: UserLoginView,
-      meta: { hideLayout: true },
+      meta: {
+        hideLayout: true,
+        title: '로그인',
+      },
     },
     {
       path: "/config",
@@ -57,22 +64,32 @@ const router = createRouter({
       component: UserConfigView,
       meta: {
         requiresAuth: true,
+        title: '설정',
       },
     },
     {
       path: "/community",
       name: "community",
       component: CommunityHomeView,
+      meta: {
+        title: '커뮤니티',
+      },
     },
     {
       path: "/community",
       name: "CommunityHome",
       component: CommunityHomeView,
+      meta: {
+        title: '커뮤니티',
+      },
     },
     {
       path: "/community/detail/:id",
       name: "CommunityDetail",
       component: CommunityDetail,
+      meta: {
+        title: '커뮤니티',
+      },
     },
     {
       path: "/community/write",
@@ -94,6 +111,9 @@ const router = createRouter({
       path: "/news",
       name: "news",
       component: NewsHomeView,
+      meta: {
+        title: CommunitySearch,
+      },
     },
     {
       path: "/category-regist",
@@ -101,6 +121,7 @@ const router = createRouter({
       component: CategoryRegistView,
       meta: {
         requiresAuth: true,
+        title: '카테고리 등록',
       },
     },
     {
@@ -109,6 +130,7 @@ const router = createRouter({
       component: CategoryManageView,
       meta: {
         requiresAuth: true,
+        title: '카테고리 관리',
       },
     },
     {
@@ -117,6 +139,7 @@ const router = createRouter({
       component: CategoryUpdateView,
       meta: {
         requiresAuth: true,
+        title: '카테고리 수정',
       },
     },
   ],

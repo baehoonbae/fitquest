@@ -1,8 +1,8 @@
 <template>
-  <div class="flex flex-col min-h-screen bg-white">
+  <div class="flex flex-col h-full bg-white">
     <!-- Main Content -->
     <main class="flex-1 flex justify-center items-start bg-white">
-      <div class="w-[900px] mx-auto">
+      <div class="w-full max-w-[900px] px-4 mx-auto">
         <div class="justify-items-center py-10">
           <div class="w-20 h-20 bg-[#ebeef0] rounded-full"></div>
           <button class="text-[0.78rem] font-bold text-blue-500 mt-4">
@@ -11,7 +11,7 @@
         </div>
         <div class="space-y-[0.6rem]">
           <button
-            class="flex justify-between items-center px-6 w-[900px] h-[50px] text-[0.9rem] font-medium p-2 rounded-[20px] bg-[#f6f6f6]"
+            class="flex justify-between items-center px-6 w-full h-[50px] text-[0.9rem] font-medium p-2 rounded-[20px] bg-[#f6f6f6]"
             @click="showChangeNameModal = true"
           >
             <span>이름</span>
@@ -34,7 +34,7 @@
             </span>
           </button>
           <button
-            class="flex justify-between items-center px-6 w-[900px] h-[50px] text-[0.9rem] font-medium p-2 rounded-[20px] bg-[#f6f6f6]"
+            class="flex justify-between items-center px-6 w-full h-[50px] text-[0.9rem] font-medium p-2 rounded-[20px] bg-[#f6f6f6]"
             @click="showChangeDescriptionModal = true"
           >
             <span>자기소개</span>

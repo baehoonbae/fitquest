@@ -1,7 +1,11 @@
 <template>
   <div class="max-w-3xl mx-auto px-4">
-    <CommunityHeader />
     <CommunitySearch @search="handleSearch" />
+    <CommunityTag
+      :tags="tags"
+      :selectedTag="selectedTag"
+      @select-tag="handleTagSelect"
+    />
     <div class="flex justify-end gap-3 my-2">
       <button
         class="px-3 py-1.5 rounded-md font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200"
@@ -16,11 +20,6 @@
         글 쓰기
       </button>
     </div>
-    <CommunityTag
-      :tags="tags"
-      :selectedTag="selectedTag"
-      @select-tag="handleTagSelect"
-    />
     <CommunityBoard :boards="paginatedBoards" />
     <CommunityPagenation
       :currentPage="currentPage"
@@ -34,12 +33,10 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useBoardStore } from "@/stores/board";
-import CommunityHeader from "@/components/common/CommunityHeader.vue";
 import CommunitySearch from "@/components/CommunitySearch.vue";
 import CommunityTag from "@/components/CommunityTag.vue";
 import CommunityBoard from "@/components/CommunityBoard.vue";
 import CommunityPagenation from "@/components/CommunityPagenation.vue";
-import Footer from "@/components/common/Footer.vue";
 
 // 반응형 상태 정의
 const router = useRouter();

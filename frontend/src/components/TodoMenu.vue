@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" @click="closeMenu">
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[999]" @click="closeMenu">
     <div class="bg-white rounded-lg p-6 w-[480px]" @click.stop>
       <template v-if="!showDatePicker">
         <div class="flex justify-center text-gray-700 font-semibold text-mg mb-4">

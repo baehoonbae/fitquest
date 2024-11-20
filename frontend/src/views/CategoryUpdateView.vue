@@ -48,7 +48,7 @@
                 <div
                   v-if="showDropdown"
                   @click.stop
-                  class="absolute right-0 top-8 w-32 bg-white border rounded-md shadow-lg z-10"
+                  class="absolute right-0 top-8 w-32 bg-white border rounded-md shadow-lg z-[998]"
                 >
                   <div
                     @click="selectVisibility(1)"
@@ -105,7 +105,7 @@
     <Transition name="modal">
       <div
         v-if="showDeleteModal"
-        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[999]"
         @click="showDeleteModal = false"
       >
         <div class="bg-white rounded-lg p-6 w-80" @click.stop>
