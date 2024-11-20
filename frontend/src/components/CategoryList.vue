@@ -38,12 +38,12 @@
           >
             <div class="flex items-center gap-1.5">
               <input
-                class="w-[19px] h-[19px] rounded border bg-[#dadddf] border-gray-300"
+                class="w-[19px] h-[19px] rounded border bg-[#dddfe0] border-[#dddfe0]"
               />
               <input
                 type="text"
                 placeholder="할 일 입력"
-                class="pb-1.5 w-full text-xs outline-none caret-blue-500"
+                class="pb-1.5 w-full bg-[#f7f8f9] text-sm outline-none caret-blue-500"
                 :ref="
                   (el) => {
                     if (selectedCategory?.id === category.id) todoInput = el;

@@ -9,19 +9,23 @@
         </span>
       </div>
       <div class="flex gap-3">
-        <button @click="previousMonth" class="text-gray-400 text-xl">&lt;</button>
-        <button @click="nextMonth" class="text-gray-400 text-xl">&gt;</button>
+        <button @click="previousMonth" class="text-[#dddfe0] text-xl">&lt;</button>
+        <button @click="nextMonth" class="text-[#dddfe0] text-xl">&gt;</button>
       </div>
     </div>
 
     <!-- Calendar -->
     <div class="mb-8">
       <!-- Weekdays -->
-      <div class="grid grid-cols-7 mb-3 font-semibold">
-        <div v-for="{ day, color } in weekdays" :key="day" :class="[
-          'text-center text-[0.85rem] w-full sm:w-12 h-8 flex items-center justify-center',
-          color,
-        ]">
+      <div class="grid grid-cols-7 mb-3 font-semibold gap-2">
+        <div
+          v-for="{ day, color } in weekdays"
+          :key="day"
+          :class="[
+            'text-center text-[0.85rem] w-full sm:w-12 h-8 flex items-center justify-center',
+            color,
+          ]"
+        >
           {{ day }}
         </div>
       </div>
@@ -36,13 +40,19 @@
         <template v-for="day in daysInMonth" :key="day">
           <div
             class="aspect-square font-semibold w-full sm:w-12 h-auto sm:h-[3.3rem] flex flex-col items-center justify-center rounded-lg text-[0.85rem] cursor-pointer relative"
-            @click="selectDate(day)">
-            <div class="w-6 h-6 text-center text-gray-600 border border-gray-200 bg-gray-200 rounded-[0.3rem] mb-0.5">
+            @click="selectDate(day)"
+          >
+            <div
+              class="w-6 h-6 text-center text-gray-600 border border-[#dddfe0] bg-[#dddfe0] rounded-[0.3rem] mb-0.5"
+            >
               <div v-if="todoStore.getUndoneTodoCount(formatDate(day)) > 0">
                 {{ todoStore.getUndoneTodoCount(formatDate(day)) }}
               </div>
             </div>
-            <div class="text-center rounded-full px-2 py-1" :class="[{ 'bg-black text-white': isSelectedDate(day) }]">
+            <div
+              class="text-center rounded-full px-2 py-1"
+              :class="[{ 'bg-black text-white': isSelectedDate(day) }]"
+            >
               {{ day }}
             </div>
           </div>
@@ -105,32 +115,50 @@ const isSelectedDate = (day) => {
 
 // 이전 달로 이동
 const previousMonth = async () => {
-  dateStore.currentYear = new Date(currentYear.value, currentMonth.value - 2, 1).getFullYear();
-  dateStore.currentMonth = new Date(currentYear.value, currentMonth.value - 2, 1).getMonth() + 1;
+  dateStore.currentYear = new Date(
+    currentYear.value,
+    currentMonth.value - 2,
+    1
+  ).getFullYear();
+  dateStore.currentMonth =
+    new Date(currentYear.value, currentMonth.value - 2, 1).getMonth() + 1;
   await todoStore.fetchMonthlyTodos(currentYear.value, currentMonth.value);
 };
 
 // 다음 달로 이동
 const nextMonth = async () => {
-  dateStore.currentYear = new Date(currentYear.value, currentMonth.value, 1).getFullYear();
-  dateStore.currentMonth = new Date(currentYear.value, currentMonth.value, 1).getMonth() + 1;
+  dateStore.currentYear = new Date(
+    currentYear.value,
+    currentMonth.value,
+    1
+  ).getFullYear();
+  dateStore.currentMonth =
+    new Date(currentYear.value, currentMonth.value, 1).getMonth() + 1;
   await todoStore.fetchMonthlyTodos(currentYear.value, currentMonth.value);
 };
 
 // 날짜 선택
 const selectDate = (day) => {
-  const selectedDate = new Date(dateStore.currentYear, dateStore.currentMonth - 1, day + 1);
+  const selectedDate = new Date(
+    dateStore.currentYear,
+    dateStore.currentMonth - 1,
+    day + 1
+  );
   const formattedDate = selectedDate.toISOString().split("T")[0];
   dateStore.setSelectedDate(formattedDate);
 };
 
 // YYYY-MM-DD 형식으로 날짜 변환
 const formatDate = (date) => {
-  const selectedDate = new Date(dateStore.currentYear, dateStore.currentMonth - 1, date + 1);
+  const selectedDate = new Date(
+    dateStore.currentYear,
+    dateStore.currentMonth - 1,
+    date + 1
+  );
   return selectedDate.toISOString().split("T")[0];
 };
 
 onMounted(async () => {
   await todoStore.fetchMonthlyTodos(dateStore.currentYear, dateStore.currentMonth);
-}); 
+});
 </script>
