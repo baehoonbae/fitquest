@@ -9,7 +9,9 @@ import com.web.fitquest.model.category.Category;
 
 @Mapper
 public interface CategoryMapper {
-    int addCategory(Category category);
     List<Category> getCategoryList(int userId);
     Category getCategoryByUserIdAndCategoryId(@Param("userId") int userId, @Param("categoryId") int categoryId);
+    int addCategory(Category category);
+    int updateCategory(Category category);
+    int deleteCategory(int categoryId);
 }

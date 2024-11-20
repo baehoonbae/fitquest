@@ -3,9 +3,14 @@ package com.web.fitquest.controller;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -47,17 +52,45 @@ public class CategoryController {
         }
     }
 
+    // 카테고리 추가
+    @PostMapping("/{userId}")
+    public ResponseEntity<?> addCategory(@PathVariable int userId, @RequestBody Category category) {
+        try {
+            boolean success = categoryService.addCategory(category);
+            return success
+                    ? ResponseEntity.ok(category)
+                    : ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("카테고리 추가 실패");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("서버 오류 발생");
+        }
+    }
+
+    // 카테고리 수정
+    @PutMapping("/{categoryId}")
+    public ResponseEntity<?> updateCategory(@PathVariable int categoryId, @RequestBody Category category) {
+        try {
+            boolean success = categoryService.updateCategory(category);
+            return success
+                    ? ResponseEntity.ok(category)
+                    : ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("카테고리 수정 실패");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("서버 오류 발생");
+        }
+    }
+
     // 카테고리 삭제
-    // @DeleteMapping("/{categoryId}")
-    // public ResponseEntity<?> deleteCategory(@PathVariable int categoryId) {
-    //     try {
-    //         boolean success = categoryService.deleteCategory(categoryId);
-    //         return success 
-    //             ? ResponseEntity.ok("카테고리 삭제 성공")
-    //             : ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("카테고리 삭제 실패");
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //         return ResponseEntity.internalServerError().body("서버 오류 발생");
-    //     }
-    // }
+    @DeleteMapping("/{categoryId}")
+    public ResponseEntity<?> deleteCategory(@PathVariable int categoryId) {
+        try {
+            boolean success = categoryService.deleteCategory(categoryId);
+            return success 
+                ? ResponseEntity.ok("카테고리 삭제 성공")
+                : ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("카테고리 삭제 실패");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("서버 오류 발생");
+        }
+    }
 }
