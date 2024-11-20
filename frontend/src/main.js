@@ -5,7 +5,7 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import App from "./App.vue";
 import router from "./router";
 import axios from "axios";  
-import './assets/css/main.css'  // CSS import 추가
+import './assets/css/main.css'
 
 axios.defaults.headers.common['Content-Type'] = 'application/json;charset=utf-8'
 

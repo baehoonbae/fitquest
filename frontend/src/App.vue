@@ -1,8 +1,8 @@
 <template>
   <div class="min-h-screen flex flex-col">
-    <header v-if="!hideLayout" class="fixed top-0 left-0 right-0 bg-white z-45">
+    <header v-if="!hideLayout" class="fixed top-0 left-0 right-0 bg-white z-[99]">
       <div class="max-w-[950px] mx-auto px-5 md:px-4">
-        <Header />
+        <Header @search="handleSearch" />
       </div>
     </header>
 
@@ -12,7 +12,7 @@
       </div>
     </main>
 
-    <footer v-if="!hideLayout" class="fixed bottom-0 left-0 right-0 bg-white z-45">
+    <footer v-if="!hideLayout" class="fixed bottom-0 left-0 right-0 bg-white z-[99]">
       <div class="max-w-7xl mx-auto px-5 md:px-4">
         <Footer />
       </div>
@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-import { onMounted, computed } from "vue";
+import { onMounted, computed, provide, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import Header from "@/components/common/Header.vue";
@@ -32,6 +32,14 @@ const authStore = useAuthStore();
 
 // 현재 라우트의 meta.hideLayout 값을 확인
 const hideLayout = computed(() => route.meta.hideLayout);
+
+const searchQuery = ref(null);
+provide('searchQuery', searchQuery);
+
+// 검색 이벤트를 하위 컴포넌트에 제공
+const handleSearch = (query) => {
+  searchQuery.value = query;
+};
 
 onMounted(() => {
   authStore.fetchUserInfo();

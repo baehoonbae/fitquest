@@ -1,56 +1,24 @@
 <template>
-  <div class="min-h-screen bg-gray-50 p-4">
+  <div class="h-full">
     <!-- 그리드 컨테이너 -->
-    <div
-      class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 mx-auto max-w-7xl"
-    >
-      <!-- 카드 아이템 -->
-      <div v-for="card in cards" :key="card.id" class="break-inside-avoid mb-4">
-        <div
-          class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer overflow-hidden"
-          @click="openCard(card)"
-        >
-          <!-- 이미지 -->
-          <div class="relative group">
-            <img
-              :src="card.imageUrl"
-              :alt="card.title"
-              class="w-full h-auto object-cover"
-            />
-            <!-- 호버 오버레이 -->
-            <div
-              class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-opacity duration-300"
-            ></div>
-          </div>
-
-          <!-- 카드 콘텐츠 -->
-          <div class="p-4">
-            <h3 class="font-semibold text-gray-800 text-sm mb-1">{{ card.title }}</h3>
-            <p class="text-gray-500 text-xs">{{ card.description }}</p>
-
-            <!-- 하단 메타 정보 -->
-            <div class="flex items-center justify-between mt-3">
-              <div class="flex items-center space-x-2">
-                <div class="w-6 h-6 rounded-full bg-gray-200"></div>
-                <span class="text-xs text-gray-600">작성자</span>
-              </div>
-              <div class="flex items-center space-x-2">
-                <button class="p-1.5 hover:bg-gray-100 rounded-full">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4 text-gray-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
-                    />
-                  </svg>
-                </button>
+    <div class="h-[calc(100vh-8rem)] overflow-y-auto rounded-[15px] z-0" style="position: relative;">
+      <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 mx-auto max-w-[1400px]">
+        <!-- 카드 아이템 -->
+        <div v-for="item in newsItems" :key="item.link" class="break-inside-avoid mb-4">
+          <div
+            class="bg-gray-50 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer overflow-hidden flex flex-col"
+            @click="openNews(item.link)">
+            <!-- 썸네일 이미지 -->
+            <div v-if="item.thumbnail" class="w-full h-4/5 overflow-hidden">
+              <img :src="item.thumbnail" @error="handleImageError($event, item)" class="w-full h-full object-cover"
+                loading="lazy" alt="" />
+            </div>
+            <!-- 카드 콘텐츠 -->
+            <div class="p-2 h-1/5">
+              <h3 class="font-semibold text-gray-800 text-sm truncate" v-html="item.title"></h3>
+              <!-- 하단 메타 정보 -->
+              <div class="flex items-center justify-between mt-1">
+                <span class="text-xs text-gray-600">{{ formatDate(item.postdate) }}</span>
               </div>
             </div>
           </div>
@@ -61,76 +29,116 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted, inject, watch } from "vue";
+import { searchBlog, searchImage } from '@/api/news';
 
-const getRandomSize = () => {
-  // 300에서 500 사이의 랜덤한 숫자 생성
-  return Math.floor(Math.random() * (500 - 300 + 1)) + 300;
+const searchQuery = ref('운동');
+const imageQuery = ref('보디빌딩');
+const newsItems = ref([]);
+const imageItems = ref([]);
+const usedImageIndices = ref(new Set());
+
+// App.vue에서 제공하는 검색어 감시
+const providedQuery = inject('searchQuery');
+watch(providedQuery, (newQuery) => {
+  if (newQuery) {
+    searchQuery.value = newQuery;
+    handleSearch();
+  }
+}, { immediate: true });
+
+const decodeHtmlEntities = (text) => {
+  const textArea = document.createElement('textarea');
+  textArea.innerHTML = text;
+  return textArea.value;
 };
 
-const cards = ref([
-  {
-    id: 1,
-    imageUrl: `https://picsum.photos/seed/1/${getRandomSize()}/${getRandomSize()}`,
-    title: "상체 운동 루틴",
-    description: "초보자를 위한 상체 운동 가이드",
-  },
-  {
-    id: 2,
-    imageUrl: `https://picsum.photos/seed/2/${getRandomSize()}/${getRandomSize()}`,
-    title: "하체 운동 루틴",
-    description: "하체 근력 강화를 위한 운동법",
-  },
-  {
-    id: 3,
-    imageUrl: `https://picsum.photos/seed/3/${getRandomSize()}/${getRandomSize()}`,
-    title: "코어 운동 루틴",
-    description: "효과적인 코어 운동 방법",
-  },
-  {
-    id: 4,
-    imageUrl: `https://picsum.photos/seed/4/${getRandomSize()}/${getRandomSize()}`,
-    title: "스트레칭 가이드",
-    description: "운동 전후 스트레칭 방법",
-  },
-  {
-    id: 5,
-    imageUrl: `https://picsum.photos/seed/5/${getRandomSize()}/${getRandomSize()}`,
-    title: "유산소 운동",
-    description: "체지방 감소를 위한 유산소 운동",
-  },
-  {
-    id: 6,
-    imageUrl: `https://picsum.photos/seed/6/${getRandomSize()}/${getRandomSize()}`,
-    title: "식단 관리",
-    description: "운동 효과를 높이는 식단 팁",
-  },
-  {
-    id: 7,
-    imageUrl: `https://picsum.photos/seed/7/${getRandomSize()}/${getRandomSize()}`,
-    title: "홈트레이닝",
-    description: "집에서 할 수 있는 운동 방법",
-  },
-  {
-    id: 8,
-    imageUrl: `https://picsum.photos/seed/8/${getRandomSize()}/${getRandomSize()}`,
-    title: "근력 운동",
-    description: "기초 근력 향상 프로그램",
-  },
-  {
-    id: 9,
-    imageUrl: `https://picsum.photos/seed/9/${getRandomSize()}/${getRandomSize()}`,
-    title: "요가 루틴",
-    description: "초보자를 위한 요가 동작",
-  },
-]);
-const openCard = (card) => {
-  console.log("카드 클릭:", card);
+const formatDate = (dateStr) => {
+  if (!dateStr) return '';
+
+  let date;
+  // YYYYMMDD 형식 처리 (예: "20241110")
+  if (/^\d{8}$/.test(dateStr)) {
+    const year = dateStr.substring(0, 4);
+    const month = dateStr.substring(4, 6);
+    const day = dateStr.substring(6, 8);
+    return `${year}-${month}-${day}`;
+  }
+
+  try {
+    date = new Date(dateStr);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  } catch (e) {
+    return '';
+  }
 };
+
+const handleImageError = (event, item) => {
+  // 이미지 로드 실패시 다른 이미지로 교체
+  const newImage = getUniqueRandomImage();
+  if (newImage) {
+    item.thumbnail = newImage.thumbnail;
+  } else {
+    // 대체 이미지가 없는 경우 기본 이미지 사용
+    item.thumbnail = '/default-image.jpg'; // 기본 이미지 경로 설정 필요
+  }
+};
+
+const getUniqueRandomImage = () => {
+  if (imageItems.value.length === 0) return null;
+  if (usedImageIndices.value.size >= imageItems.value.length) {
+    usedImageIndices.value.clear(); // 모든 이미지가 사용되었다면 초기화
+  }
+
+  let randomIndex;
+  do {
+    randomIndex = Math.floor(Math.random() * imageItems.value.length);
+  } while (usedImageIndices.value.has(randomIndex));
+
+  usedImageIndices.value.add(randomIndex);
+  return imageItems.value[randomIndex];
+};
+
+const handleSearch = async () => {
+  try {
+    const [blogResponse, imageResponse] = await Promise.all([
+      searchBlog(searchQuery.value),
+      searchImage(imageQuery.value)
+    ]);
+
+    imageItems.value = imageResponse.items.map(item => ({
+      thumbnail: item.link
+    }));
+
+    usedImageIndices.value.clear();
+
+    newsItems.value = blogResponse.items.map(item => {
+      const uniqueImage = getUniqueRandomImage();
+      return {
+        ...item,
+        title: decodeHtmlEntities(item.title),
+        postdate: item.postdate,
+        thumbnail: uniqueImage?.thumbnail
+      };
+    });
+  } catch (error) {
+    console.error('검색 실패:', error);
+  }
+};
+
+const openNews = (link) => {
+  window.open(link, '_blank');
+};
+
+onMounted(() => {
+  handleSearch();
+});
 </script>
 
 <style scoped>
-/* Masonry 레이아웃을 위한 최소한의 CSS */
 .break-inside-avoid {
   -webkit-column-break-inside: avoid;
   page-break-inside: avoid;

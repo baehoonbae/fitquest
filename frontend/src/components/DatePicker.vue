@@ -74,7 +74,7 @@ const todoStore = useTodoStore();
 const activityStore = useActivityStore();
 
 onMounted(async () => {
-  await authStore.checkAuth();
+  await authStore.fetchUserInfo();
   await categoryStore.fetchCategories();
 });
 
