@@ -9,7 +9,13 @@
       <div
         :class="[
           'p-4 rounded-lg',
-          comment.parentId ? `ml-${8 * getCommentDepth(comment)}` : 'ml-0',
+          {
+            'ml-0': !comment.parentId,
+            'ml-8': comment.parentId && getCommentDepth(comment) === 1,
+            'ml-16': comment.parentId && getCommentDepth(comment) === 2,
+            'ml-24': comment.parentId && getCommentDepth(comment) === 3,
+            'ml-32': comment.parentId && getCommentDepth(comment) >= 4,
+          },
           'bg-white border border-gray-200',
         ]"
       >
@@ -41,7 +47,18 @@
       </div>
 
       <!-- 대댓글 작성 폼 -->
-      <div v-if="activeReplyId === comment.id" class="mt-3 ml-8">
+      <div
+        v-if="activeReplyId === comment.id"
+        :class="[
+          'mt-3',
+          {
+            'ml-8': !comment.parentId,
+            'ml-16': comment.parentId && getCommentDepth(comment) === 1,
+            'ml-24': comment.parentId && getCommentDepth(comment) === 2,
+            'ml-32': comment.parentId && getCommentDepth(comment) >= 3,
+          },
+        ]"
+      >
         <CommentForm
           :boardId="boardId"
           :parentId="comment.id"
@@ -77,7 +94,7 @@ const activeReplyId = ref(null);
 
 const isAuthenticated = computed(() => authStore.user.isAuthenticated);
 
-// 댓글의 깊이를 계산하는 함수
+// 댓글 깊이 계산 함수는 유지
 const getCommentDepth = (comment) => {
   let depth = 0;
   let currentComment = comment;
@@ -96,7 +113,49 @@ const getCommentDepth = (comment) => {
 const fetchComments = async () => {
   try {
     const response = await http.get(`/comment/board/${props.boardId}`);
-    comments.value = response.data;
+    const rawComments = response.data;
+
+    // 댓글 트리 구조 만들기
+    const commentMap = new Map();
+    const rootComments = [];
+
+    // 1. 모든 댓글을 Map에 저장
+    rawComments.forEach((comment) => {
+      commentMap.set(comment.id, { ...comment, children: [] });
+    });
+
+    // 2. 부모-자식 관계 설정
+    rawComments.forEach((comment) => {
+      if (comment.parentId) {
+        const parentComment = commentMap.get(comment.parentId);
+        if (parentComment) {
+          parentComment.children.push(commentMap.get(comment.id));
+        }
+      } else {
+        rootComments.push(commentMap.get(comment.id));
+      }
+    });
+
+    // 3. 트리 구조를 평탄화하여 순서대로 배열로 변환
+    const flattenComments = [];
+    const flattenTree = (comment) => {
+      flattenComments.push(comment);
+      // 자식 댓글들을 ID 기준으로 정렬
+      comment.children
+        .sort((a, b) => a.id - b.id)
+        .forEach((child) => {
+          flattenTree(child);
+        });
+    };
+
+    // 4. 최상위 댓글들을 ID 기준으로 정렬하고 각각의 트리를 평탄화
+    rootComments
+      .sort((a, b) => a.id - b.id)
+      .forEach((rootComment) => {
+        flattenTree(rootComment);
+      });
+
+    comments.value = flattenComments;
   } catch (error) {
     console.error("댓글 로딩 실패:", error);
   }
@@ -115,7 +174,7 @@ const handleDelete = async (id) => {
   if (!confirm("댓글을 삭제하시겠습니까?")) return;
 
   try {
-    await http.delete(`/api/comment/${id}`);
+    await http.delete(`/comment/${id}`);
     fetchComments();
   } catch (error) {
     console.error("댓글 삭제 실패:", error);
@@ -136,6 +195,7 @@ const formatDate = (date) => {
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
+    second: "2-digit",
   });
 };
 
