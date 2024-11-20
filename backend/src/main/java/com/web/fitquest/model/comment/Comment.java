@@ -16,11 +16,11 @@ import lombok.ToString;
 @RequiredArgsConstructor
 public class Comment {
     private int id;
-    private int boardId;
-    private int userId;
+    private int boardId;    // 게시글 ID (NOT NULL)
+    private int userId;     // 사용자 ID (NOT NULL)
     @NonNull private String writer;
     @NonNull private String content; 
-    @NonNull private String date;
-    private int parentId;
+    private String date;    // DB default값 사용
+    private Integer parentId;  // 대댓글인 경우만 사용되므로 nullable
     private int isDelete;
 }
