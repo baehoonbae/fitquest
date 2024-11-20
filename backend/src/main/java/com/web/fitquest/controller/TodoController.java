@@ -118,4 +118,16 @@ public class TodoController {
             return ResponseEntity.internalServerError().body("서버 오류 발생");
         }
     }
+
+    // 카테고리 id에 해당하는 모든 todo를 가져온다.
+    @GetMapping("/list/{categoryId}/{userId}")
+    public ResponseEntity<?> getTodoListByCategoryId(@PathVariable int categoryId, @PathVariable int userId) {
+        try {
+            Optional<List<Todo>> opTodoList = todoService.getTodoListByCategoryId(categoryId, userId);
+            return opTodoList.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) { 
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("서버 오류 발생");
+        }
+    }
 }

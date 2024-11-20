@@ -63,4 +63,8 @@
         WHERE user_id = #{userId}
         AND date = #{date}
     </select>
+
+    <select id="getTodoListByCategoryId">
+        select id, user_id userId, category_id categoryId, is_done isDone, content, date, todo_order todoOrder from todo where category_id = #{categoryId} AND user_id = #{userId}
+    </select>
 </mapper>
