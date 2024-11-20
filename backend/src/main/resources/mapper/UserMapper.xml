@@ -3,15 +3,15 @@
 
 <mapper namespace="com.web.fitquest.mapper.user.UserMapper">
   <select id="selectUserByEmail" resultType="com.web.fitquest.model.user.User">
-    select * from user where email = #{email}
+    select id, email, name, is_admin isAdmin, description from user where email = #{email}
   </select>
 
   <select id="selectUserById" resultType="com.web.fitquest.model.user.User">
-    select * from user where id = #{id}
+    select id, email, name, is_admin isAdmin, description from user where id = #{id}
   </select>
 
   <select id="selectUserByName" resultType="com.web.fitquest.model.user.User">
-    select * from user where name = #{name}
+    select id, email, name, is_admin isAdmin, description from user where name = #{name}
   </select>
 
   <insert id="insertUser">
