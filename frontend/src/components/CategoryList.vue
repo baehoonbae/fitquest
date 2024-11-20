@@ -1,5 +1,20 @@
 <template>
   <div>
+    <!-- 카테고리 헤더 -->
+    <div class="flex justify-end items-center mb-4 gap-4">
+      <RouterLink
+        to="/category-regist"
+        class="text-sm text-gray-600 hover:text-gray-800 flex items-center gap-1"
+      >
+        <PlusCircleIcon class="w-7 h-7" />
+      </RouterLink>
+      <RouterLink
+        to="/category-manage"
+        class="text-sm text-gray-600 hover:text-gray-800 flex items-center gap-1"
+      >
+        <Cog6ToothIcon class="w-7 h-7" />
+      </RouterLink>
+    </div>
     <div class="space-y-4">
       <div v-for="category in categoryStore.categories" :key="category.id">
         <div
@@ -9,7 +24,7 @@
           <div class="flex items-center gap-1.5">
             <GlobeAltIcon v-if="category.isPublic" class="w-3.5 h-3.5 text-gray-400" />
             <LockClosedIcon v-else class="w-3.5 h-3.5 text-gray-400" />
-            <span class="text-xs font-bold" :style="{ color: category.color }">
+            <span class="text-sm font-bold" :style="{ color: category.color }">
               {{ truncateText(category.title) }}
             </span>
           </div>
@@ -50,7 +65,12 @@
 <script setup>
 import { useAuthStore } from "@/stores/auth";
 import { useCategoryStore } from "@/stores/category";
-import { GlobeAltIcon, LockClosedIcon } from "@heroicons/vue/24/outline";
+import {
+  Cog6ToothIcon,
+  GlobeAltIcon,
+  LockClosedIcon,
+  PlusCircleIcon,
+} from "@heroicons/vue/24/outline";
 import { onMounted, watch, ref, onUnmounted } from "vue";
 import TodoList from "@/components/TodoList.vue";
 import { useTodoStore } from "@/stores/todo";

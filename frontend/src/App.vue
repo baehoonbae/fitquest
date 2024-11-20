@@ -1,26 +1,18 @@
 <template>
   <div class="min-h-screen flex flex-col">
     <header v-if="!hideLayout" class="fixed top-0 left-0 right-0 bg-white z-45">
-      <div class="max-w-5xl mx-auto px-5 md:px-4">
+      <div class="max-w-[950px] mx-auto px-5 md:px-4">
         <Header />
       </div>
     </header>
 
-    <main
-      :class="[
-        'flex-1',
-        { 'mt-[60px] mb-[60px]': !hideLayout, 'my-0': hideLayout },
-      ]"
-    >
+    <main :class="['flex-1', { 'mt-[60px] mb-[60px]': !hideLayout, 'my-0': hideLayout }]">
       <div class="max-w-7xl mx-auto px-5 md:px-4">
         <RouterView />
       </div>
     </main>
 
-    <footer
-      v-if="!hideLayout"
-      class="fixed bottom-0 left-0 right-0 bg-white z-45"
-    >
+    <footer v-if="!hideLayout" class="fixed bottom-0 left-0 right-0 bg-white z-45">
       <div class="max-w-7xl mx-auto px-5 md:px-4">
         <Footer />
       </div>
