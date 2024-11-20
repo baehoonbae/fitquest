@@ -34,7 +34,7 @@ const authStore = useAuthStore();
 const hideLayout = computed(() => route.meta.hideLayout);
 
 onMounted(() => {
-  authStore.checkAuth();
+  authStore.fetchUserInfo();
 });
 </script>
 
