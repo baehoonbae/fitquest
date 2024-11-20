@@ -7,12 +7,6 @@
 
 `npm i`
 
-`npm install @heroicons/vue`
-
-`npm install axios`
-
-`npm install pinia-plugin-persistedstate`
-
 
 ## 커밋 메시지
 
