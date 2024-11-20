@@ -19,4 +19,6 @@ public interface CommentMapper {
 
    // 댓글 삭제 - int 반환으로 변경 (성공:1, 실패:0)
    int deleteComment(Comment comment);
+
+   List<Comment> findChildComments(int parentId);
 }

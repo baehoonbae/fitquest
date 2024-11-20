@@ -1,5 +1,7 @@
 package com.web.fitquest.model.board;
 
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +20,7 @@ public class Board {
     private int id;
     private int userId;
     @NonNull private String tag;
-    private String date;
+    private LocalDateTime date;
     @NonNull private String writer;
     @NonNull private String title;
     @NonNull private String content;

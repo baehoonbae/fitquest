@@ -1,5 +1,6 @@
 package com.web.fitquest.service.comment;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,8 +48,15 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public Optional<Comment> deleteComment(Comment comment) {
         try {
+            // 1. 먼저 이 댓글의 모든 하위 답글들을 찾아서 삭제 표시
+            List<Comment> childComments = findAllChildComments(comment.getId());
+            for (Comment child : childComments) {
+                commentMapper.deleteComment(child);
+            }
+            
+            // 2. 현재 댓글 삭제 표시
             int result = commentMapper.deleteComment(comment);
-            if(result > 0) {
+            if (result > 0) {
                 return Optional.of(comment);
             }
             return Optional.empty();
@@ -56,6 +64,19 @@ public class CommentServiceImpl implements CommentService {
             log.error("댓글 삭제 실패: ", e);
             return Optional.empty();
         }
+    }
+
+    // 댓글의 모든 하위 답글을 찾는 메소드
+    private List<Comment> findAllChildComments(int parentId) {
+        List<Comment> children = commentMapper.findChildComments(parentId);
+        List<Comment> allChildren = new ArrayList<>(children);
+        
+        // 재귀적으로 각 자식의 자식들도 찾기
+        for (Comment child : children) {
+            allChildren.addAll(findAllChildComments(child.getId()));
+        }
+        
+        return allChildren;
     }
 
     @Override

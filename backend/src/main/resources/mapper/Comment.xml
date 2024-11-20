@@ -43,6 +43,22 @@
        AND is_delete = 0
    </select>
 
+   <!-- 특정 댓글의 직접적인 자식 답글들 찾기 -->
+    <select id="findChildComments" parameterType="int" resultType="com.web.fitquest.model.comment.Comment">
+        SELECT 
+            id Id,
+            board_id boardId,
+            user_id userId,
+            writer,
+            content,
+            date,
+            parent_id parentId,
+            is_delete isDelete
+        FROM comment
+        WHERE parent_id = #{parentId}
+        AND is_delete = 0
+    </select>
+
    <!-- 새 댓글 추가 -->
     <insert id="addComment" parameterType="com.web.fitquest.model.comment.Comment"
             useGeneratedKeys="true" keyProperty="id">

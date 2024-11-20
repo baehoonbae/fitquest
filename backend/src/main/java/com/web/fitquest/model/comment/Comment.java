@@ -1,5 +1,7 @@
 package com.web.fitquest.model.comment;
 
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +22,7 @@ public class Comment {
     private int userId;     // 사용자 ID (NOT NULL)
     @NonNull private String writer;
     @NonNull private String content; 
-    private String date;    // DB default값 사용
+    private LocalDateTime date;    // DB default값 사용
     private Integer parentId;  // 대댓글인 경우만 사용되므로 nullable
     private int isDelete;
 }
