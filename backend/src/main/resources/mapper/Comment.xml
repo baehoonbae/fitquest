@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.web.fitquest.mapper.comment.CommentMapper">
+
+   <!-- 게시글의 모든 댓글 조회 -->
+   <select id="allComments" parameterType="int" 
+           resultType="com.web.fitquest.model.comment.Comment">
+       SELECT 
+           id Id, 
+           board_id boardId, 
+           user_id userId, 
+           writer, 
+           content, 
+           date, 
+           parent_id parentId, 
+           is_delete isDelete
+       FROM comment
+       WHERE board_id = #{boardId}
+       AND is_delete = 0
+       ORDER BY 
+           CASE
+               WHEN parent_id IS NULL THEN id
+               ELSE parent_id
+           END,
+           id ASC
+   </select>
+
+   <!-- 특정 댓글 조회 -->
+   <select id="getComment" parameterType="int" 
+           resultType="com.web.fitquest.model.comment.Comment">
+       SELECT 
+           id Id, 
+           board_id boardId, 
+           user_id userId, 
+           writer, 
+           content, 
+           date, 
+           parent_id parentId, 
+           is_delete isDelete
+       FROM comment
+       WHERE id = #{id}
+       AND is_delete = 0
+   </select>
+
+   <!-- 새 댓글 추가 -->
+    <insert id="addComment" parameterType="com.web.fitquest.model.comment.Comment"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO comment (
+            board_id, 
+            user_id, 
+            writer, 
+            content, 
+            parent_id
+        ) VALUES (
+            #{boardId}, 
+            #{userId}, 
+            #{writer}, 
+            #{content}, 
+            <if test="parentId != null">
+                #{parentId}
+            </if>
+            <if test="parentId == null">
+                NULL
+            </if>
+        )
+    </insert>
+
+   <!-- 댓글 삭제 (is_delete 플래그 설정) -->
+    <update id="deleteComment" parameterType="com.web.fitquest.model.comment.Comment">
+        UPDATE comment
+        SET is_delete = 1
+        WHERE id = #{id}
+    </update>
+   
+</mapper>

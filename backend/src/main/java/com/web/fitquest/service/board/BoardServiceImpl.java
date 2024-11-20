@@ -3,7 +3,6 @@ package com.web.fitquest.service.board;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,14 +10,11 @@ import com.web.fitquest.mapper.board.BoardMapper;
 import com.web.fitquest.model.board.Board;
 import com.web.fitquest.model.searchCondition.SearchCondition;
 
-import lombok.RequiredArgsConstructor;;
-
 @Service
 public class BoardServiceImpl implements BoardService {
 
     private final BoardMapper boardMapper;
 
-	@Autowired
     public BoardServiceImpl(BoardMapper boardMapper) {
         this.boardMapper = boardMapper;
     }
