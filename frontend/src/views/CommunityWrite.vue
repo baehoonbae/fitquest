@@ -2,12 +2,17 @@
   <div class="max-w-4xl mx-auto px-5 my-1 md:my-2">
     <h1 class="text-3xl font-bold text-gray-800 mb-8">게시글 작성</h1>
 
-    <form @submit.prevent="submitPost" class="bg-white p-8 md:p-5 rounded-lg shadow-sm">
+    <form
+      @submit.prevent="submitPost"
+      class="bg-white p-8 md:p-5 rounded-lg shadow-sm"
+    >
       <div class="mb-6">
-        <label for="tag" class="block font-semibold text-gray-700 mb-2">태그</label>
-        <select 
-          id="tag" 
-          v-model="post.tag" 
+        <label for="tag" class="block font-semibold text-gray-700 mb-2"
+          >태그</label
+        >
+        <select
+          id="tag"
+          v-model="post.tag"
           required
           class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600"
         >
@@ -16,12 +21,16 @@
           <option value="요가">요가</option>
           <option value="필라테스">필라테스</option>
           <option value="러닝">러닝</option>
+          <option value="크로스핏">크로스핏</option>
+          <option value="식단">식단</option>
           <option value="기타">기타</option>
         </select>
       </div>
 
       <div class="mb-6">
-        <label for="title" class="block font-semibold text-gray-700 mb-2">제목</label>
+        <label for="title" class="block font-semibold text-gray-700 mb-2"
+          >제목</label
+        >
         <input
           type="text"
           id="title"
@@ -33,7 +42,9 @@
       </div>
 
       <div class="mb-6">
-        <label for="content" class="block font-semibold text-gray-700 mb-2">내용</label>
+        <label for="content" class="block font-semibold text-gray-700 mb-2"
+          >내용</label
+        >
         <textarea
           id="content"
           v-model="post.content"
@@ -45,15 +56,15 @@
       </div>
 
       <div class="flex justify-end gap-3 mt-8">
-        <button 
-          type="button" 
+        <button
+          type="button"
           class="px-5 py-2.5 rounded-md font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200"
           @click="goBack"
         >
           취소
         </button>
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           class="px-5 py-2.5 rounded-md font-medium bg-blue-600 text-white hover:bg-blue-700 transition-all duration-200"
         >
           등록

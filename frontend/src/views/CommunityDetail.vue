@@ -3,17 +3,19 @@
     <!-- 게시글 헤더 -->
     <div class="mb-10 pb-5 border-b-2 border-gray-200">
       <div class="flex justify-between items-center mb-4">
-        <span class="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-sm font-medium">
+        <span
+          class="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-sm font-medium"
+        >
           #{{ board.tag }}
         </span>
         <div class="flex gap-2" v-if="isAuthor">
-          <button 
+          <button
             class="px-4 py-2 rounded font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all duration-200"
             @click="handleEdit"
           >
             수정
           </button>
-          <button 
+          <button
             class="px-4 py-2 rounded font-medium bg-red-500 text-white hover:bg-red-600 transition-all duration-200"
             @click="handleDelete"
           >
@@ -21,10 +23,14 @@
           </button>
         </div>
       </div>
-      <h1 class="text-4xl md:text-2xl font-bold text-gray-800 mb-4 leading-tight">
+      <h1
+        class="text-4xl md:text-2xl font-bold text-gray-800 mb-4 leading-tight"
+      >
         {{ board.title }}
       </h1>
-      <div class="flex justify-between items-center text-gray-500 text-sm md:flex-col md:items-start md:gap-2">
+      <div
+        class="flex justify-between items-center text-gray-500 text-sm md:flex-col md:items-start md:gap-2"
+      >
         <div class="flex gap-3">
           <span class="font-medium text-gray-700">{{ board.writer }}</span>
           <span>{{ formatDate(board.date) }}</span>
@@ -37,13 +43,34 @@
     </div>
 
     <!-- 게시글 내용 -->
-    <div class="min-h-[300px] text-lg md:text-base text-gray-700 leading-relaxed mb-10">
+    <div
+      class="min-h-[300px] text-lg md:text-base text-gray-700 leading-relaxed mb-10"
+    >
       <p>{{ board.content }}</p>
+    </div>
+
+    <!-- 댓글 섹션 -->
+    <div class="mt-10 border-t-2 border-gray-200 pt-8">
+      <h2 class="text-xl font-bold text-gray-800 mb-6">댓글</h2>
+
+      <!-- 댓글 작성 폼 -->
+      <CommentForm
+        v-if="authStore.user.isAuthenticated"
+        :boardId="Number(route.params.id)"
+        @comment-added="refreshComments"
+        class="mb-8"
+      />
+      <div v-else class="mb-8 p-4 bg-gray-50 rounded text-center">
+        <p class="text-gray-600">댓글을 작성하려면 로그인이 필요합니다.</p>
+      </div>
+
+      <!-- 댓글 목록 -->
+      <CommentList :boardId="Number(route.params.id)" ref="commentList" />
     </div>
 
     <!-- 하단 버튼 -->
     <div class="flex justify-center mt-10 pt-5 border-t border-gray-200">
-      <button 
+      <button
         class="px-6 py-2.5 rounded font-medium bg-blue-600 text-white hover:bg-blue-700 transition-all duration-200"
         @click="goBack"
       >
@@ -58,11 +85,14 @@ import { ref, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import http from "@/api/http";
+import CommentForm from "@/components/comment/CommentForm.vue";
+import CommentList from "@/components/comment/CommentList.vue";
 
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 const board = ref({});
+const commentList = ref(null);
 
 const isAuthor = computed(() => {
   console.log("Current user ID:", authStore.user.id);
@@ -74,10 +104,16 @@ const isAuthor = computed(() => {
   );
 });
 
+const refreshComments = () => {
+  if (commentList.value) {
+    commentList.value.fetchComments();
+  }
+};
+
 const incrementViewCount = async (boardData) => {
   try {
-    console.log('조회수 증가 전 데이터:', boardData);
-    
+    console.log("조회수 증가 전 데이터:", boardData);
+
     const updatedBoard = {
       id: boardData.id,
       userId: boardData.userId,
@@ -86,14 +122,13 @@ const incrementViewCount = async (boardData) => {
       writer: boardData.writer,
       title: boardData.title,
       content: boardData.content,
-      viewCount: (boardData.viewCount || 0) + 1
+      viewCount: (boardData.viewCount || 0) + 1,
     };
-    
-    console.log('업데이트할 데이터:', updatedBoard);
-    
+
+    console.log("업데이트할 데이터:", updatedBoard);
+
     const response = await http.put(`/board/${boardData.id}`, updatedBoard);
-    console.log('서버 응답:', response);
-    
+    console.log("서버 응답:", response);
   } catch (error) {
     console.error("Error incrementing view count:", error);
     if (error.response) {
@@ -108,7 +143,7 @@ const fetchBoardDetail = async () => {
     if (response.status === 200) {
       board.value = response.data;
       console.log("가져온 게시글 데이터:", board.value);
-      
+
       // 게시글 데이터를 가져온 후 조회수 증가
       await incrementViewCount(board.value);
       // 증가된 조회수 반영을 위해 게시글 정보 다시 가져오기

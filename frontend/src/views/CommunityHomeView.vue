@@ -27,7 +27,6 @@
       :totalPages="totalPages"
       @page-change="handlePageChange"
     />
-    <Footer />
   </div>
 </template>
 
