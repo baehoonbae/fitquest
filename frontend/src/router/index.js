@@ -81,13 +81,29 @@ const router = createRouter({
       name: "news",
       component: NewsHomeView,
     },
+    {
+      path: "/category-regist",
+      name: "CategoryRegist",
+      component: () => import("@/views/CategoryRegistView.vue"),
+    },
+    {
+      path: "/category-manage",
+      name: "CategoryManage",
+      component: () => import("@/views/CategoryManageView.vue"),
+    },
+    {
+      path: "/category-update/:id",
+      name: "CategoryUpdate",
+      component: () => import("@/views/CategoryUpdateView.vue"),
+    },
   ],
 });
 
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
 
-  if (to.meta.requiresAuth && !authStore.user.isAuthenticated) {
+  if (to.meta.requiresAuth && (!authStore.user.isAuthenticated || !authStore.getToken())) {
+    authStore.logout();
     next({ name: "root" });
     return;
   }
