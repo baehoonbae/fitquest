@@ -244,7 +244,7 @@ ALTER TABLE user
 ADD COLUMN profile_image VARCHAR(255) AFTER name;
 
 ALTER TABLE user
-MODIFY profile_image VARCHAR(255) DEFAULT 'backend/uploads/default_profile.png';
+MODIFY profile_image VARCHAR(255) DEFAULT '/uploads/default_profile.png';
 
 SET SQL_SAFE_UPDATES = 0;
 UPDATE user
