@@ -1,21 +1,12 @@
 <template>
   <div class="h-full">
-    <!-- 그리드 컨테이너 -->
-    <div
-      class="h-[calc(100vh-8rem)] overflow-y-auto rounded-[15px] z-0"
-      style="position: relative"
-      @scroll="handleScroll"
-    >
-      <div
-        class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 mx-auto max-w-[1400px]"
-      >
-        <!-- 카드 아이템 -->
-        <div v-for="item in newsItems" :key="item.link" class="break-inside-avoid mb-4">
+    <div class="h-[calc(100vh-8rem)] overflow-y-auto rounded-[15px] z-0" @scroll="handleScroll">
+      <masonry-wall :items="newsItems" :column-width="300" :gap="16" class="px-4">
+        <template #default="{ item }">
           <div
             class="bg-gray-50 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer overflow-hidden flex flex-col"
             @click="openNews(item.link)"
           >
-            <!-- 썸네일 이미지 -->
             <div
               v-if="item.thumbnail"
               class="w-full overflow-hidden"
@@ -34,25 +25,19 @@
                 :height="item.imageHeight"
               />
             </div>
-            <!-- 카드 콘텐츠 -->
             <div class="p-2 h-2/5">
-              <h3
-                class="font-semibold text-gray-800 text-sm truncate"
-                v-html="item.title"
-              ></h3>
-              <!-- 하단 메타 정보 -->
+              <h3 class="font-semibold text-gray-800 text-sm truncate" v-html="item.title"></h3>
               <div class="flex items-center justify-between mt-1">
                 <span class="text-xs text-gray-600">{{ formatDate(item.postdate) }}</span>
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </template>
+      </masonry-wall>
+
       <!-- 로딩 인디케이터 -->
       <div v-if="isLoading" class="text-center py-4">
-        <div
-          class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"
-        ></div>
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
       </div>
 
       <!-- 더 이상 데이터가 없을 때 메시지 -->
