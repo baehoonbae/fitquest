@@ -153,6 +153,7 @@ const incrementViewCount = async (boardData) => {
   }
 };
 
+// 기존 fetchBoardDetail 함수 수정
 const fetchBoardDetail = async () => {
   try {
     const response = await http.get(`/board/${route.params.id}`);
@@ -160,9 +161,11 @@ const fetchBoardDetail = async () => {
       board.value = response.data;
       console.log("가져온 게시글 데이터:", board.value);
 
-      // 게시글 데이터를 가져온 후 조회수 증가
+      // 게시글 데이터를 가져온 후 최근 본 게시물에 저장
+      saveRecentPost(board.value);
+
+      // 조회수 증가 로직
       await incrementViewCount(board.value);
-      // 증가된 조회수 반영을 위해 게시글 정보 다시 가져오기
       const updatedResponse = await http.get(`/board/${route.params.id}`);
       if (updatedResponse.status === 200) {
         board.value = updatedResponse.data;
@@ -298,6 +301,28 @@ const toggleHit = async () => {
     console.error("Error toggling hit:", error);
     alert("좋아요 처리 중 오류가 발생했습니다.");
   }
+};
+
+// 최근 본 게시물 저장 함수 추가
+const saveRecentPost = (post) => {
+  let recentPosts = JSON.parse(localStorage.getItem("recentPosts") || "[]");
+
+  // 중복 제거
+  recentPosts = recentPosts.filter((p) => p.id !== post.id);
+
+  // 최신 게시물을 배열 앞에 추가
+  recentPosts.unshift({
+    id: post.id,
+    title: post.title,
+    createdAt: post.date,
+    writer: post.writer,
+    tag: post.tag,
+  });
+
+  // 최대 5개만 유지
+  recentPosts = recentPosts.slice(0, 5);
+
+  localStorage.setItem("recentPosts", JSON.stringify(recentPosts));
 };
 
 // 페이지 로드 시 초기 상태 확인
