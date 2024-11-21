@@ -44,9 +44,9 @@ const router = createRouter({
       path: "/signup",
       name: "signup",
       component: UserRegistView,
-      meta: {   
+      meta: {
         hideLayout: true,
-        title: '회원가입',
+        title: "회원가입",
       },
     },
     {
@@ -55,7 +55,7 @@ const router = createRouter({
       component: UserLoginView,
       meta: {
         hideLayout: true,
-        title: '로그인',
+        title: "로그인",
       },
     },
     {
@@ -64,7 +64,7 @@ const router = createRouter({
       component: UserConfigView,
       meta: {
         requiresAuth: true,
-        title: '설정',
+        title: "설정",
       },
     },
     {
@@ -72,7 +72,7 @@ const router = createRouter({
       name: "community",
       component: CommunityHomeView,
       meta: {
-        title: '커뮤니티',
+        title: "커뮤니티",
       },
     },
     {
@@ -80,7 +80,7 @@ const router = createRouter({
       name: "CommunityHome",
       component: CommunityHomeView,
       meta: {
-        title: '커뮤니티',
+        title: "커뮤니티",
       },
     },
     {
@@ -88,7 +88,7 @@ const router = createRouter({
       name: "CommunityDetail",
       component: CommunityDetail,
       meta: {
-        title: '커뮤니티',
+        title: "커뮤니티",
       },
     },
     {
@@ -121,7 +121,7 @@ const router = createRouter({
       component: CategoryRegistView,
       meta: {
         requiresAuth: true,
-        title: '카테고리 등록',
+        title: "카테고리 등록",
       },
     },
     {
@@ -130,7 +130,7 @@ const router = createRouter({
       component: CategoryManageView,
       meta: {
         requiresAuth: true,
-        title: '카테고리 관리',
+        title: "카테고리 관리",
       },
     },
     {
@@ -139,7 +139,7 @@ const router = createRouter({
       component: CategoryUpdateView,
       meta: {
         requiresAuth: true,
-        title: '카테고리 수정',
+        title: "카테고리 수정",
       },
     },
   ],
@@ -149,10 +149,10 @@ router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
   if (to.meta.requiresAuth) {
     try {
-      const hasRefreshToken = await authStore.checkRefreshTokenExists();     
+      const hasRefreshToken = await authStore.checkRefreshTokenExists();
       if (!hasRefreshToken) {
         authStore.logout();
-        next({ name: 'login' });
+        next({ name: "login" });
         return;
       }
 
@@ -162,16 +162,16 @@ router.beforeEach(async (to, from, next) => {
         const hasRefreshToken = await authStore.checkRefreshTokenExists();
         if (!hasRefreshToken) {
           authStore.logout();
-          next({ name: 'login' });
+          next({ name: "login" });
           return;
         }
       }
 
       next(); // 인증 성공시 다음으로 진행
     } catch (error) {
-      console.error('Auth check failed:', error);
+      console.error("Auth check failed:", error);
       authStore.logout();
-      next({ name: 'login' });
+      next({ name: "login" });
     }
   } else {
     // 인증이 필요없는 페이지는 바로 진행

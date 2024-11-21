@@ -35,9 +35,25 @@
           <span class="font-medium text-gray-700">{{ board.writer }}</span>
           <span>{{ formatDate(board.date) }}</span>
         </div>
-        <div class="flex items-center gap-1.5">
-          <i class="fas fa-eye"></i>
-          <span>{{ board.viewCount }}</span>
+        <!-- 조회수와 좋아요 부분 수정 -->
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-1.5">
+            <i class="fas fa-eye"></i>
+            <span>{{ board.viewCount }}</span>
+          </div>
+          <div
+            class="flex items-center gap-1.5 cursor-pointer"
+            @click="toggleHit"
+          >
+            <i
+              :class="{
+                'fas fa-heart text-xl transition-all duration-200': true,
+                'text-red-500': isHit,
+                'text-gray-300 hover:text-red-500': !isHit,
+              }"
+            ></i>
+            <span>{{ hitCount }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -228,7 +244,68 @@ const formatDate = (date) => {
   });
 };
 
-onMounted(() => {
-  fetchBoardDetail();
+// 기존 ref 선언부 아래에 추가
+const isHit = ref(false);
+const hitCount = ref(0);
+
+// 좋아요 상태 확인 함수
+const checkHitStatus = async () => {
+  if (!authStore.user.isAuthenticated) return;
+
+  try {
+    const response = await http.get(
+      `/hit/status/${route.params.id}/${authStore.user.id}`
+    );
+    isHit.value = response.data;
+  } catch (error) {
+    console.error("Error checking hit status:", error);
+  }
+};
+
+// 좋아요 수 조회 함수
+const fetchHitCount = async () => {
+  try {
+    const response = await http.get(`/hit/count/${route.params.id}`);
+    console.log("Hit count response:", response);
+    hitCount.value = response.data;
+  } catch (error) {
+    console.error("Error fetching hit count:", error);
+  }
+};
+
+const toggleHit = async () => {
+  if (!authStore.user.isAuthenticated) {
+    alert("로그인이 필요합니다.");
+    router.push("/login");
+    return;
+  }
+
+  try {
+    const response = await http.post(
+      `/hit/${route.params.id}/${authStore.user.id}`
+    );
+
+    // 응답 상태 확인 및 데이터 처리
+    if (response.status === 200 && response.data) {
+      isHit.value = !isHit.value; // 상태 토글
+      hitCount.value = response.data.hitCount; // 새로운 좋아요 수 업데이트
+      console.log("Hit toggled:", {
+        isHit: isHit.value,
+        hitCount: hitCount.value,
+      });
+    }
+  } catch (error) {
+    console.error("Error toggling hit:", error);
+    alert("좋아요 처리 중 오류가 발생했습니다.");
+  }
+};
+
+// 페이지 로드 시 초기 상태 확인
+onMounted(async () => {
+  await fetchBoardDetail();
+  await Promise.all([
+    fetchHitCount(),
+    authStore.user.isAuthenticated ? checkHitStatus() : Promise.resolve(),
+  ]);
 });
 </script>
