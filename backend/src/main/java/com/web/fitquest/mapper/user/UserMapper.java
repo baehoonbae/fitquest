@@ -11,4 +11,5 @@ public interface UserMapper {
     User selectUserByName(String name);
     int insertUser(User user);
     int updateUser(User user);
+    int updateProfileImage(Integer userId, String imageUrl);
 }

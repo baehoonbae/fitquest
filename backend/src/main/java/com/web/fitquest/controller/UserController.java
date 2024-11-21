@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.web.fitquest.exception.InvalidTokenException;
 import com.web.fitquest.model.user.User;
@@ -23,13 +25,13 @@ import com.web.fitquest.requests.LoginRequest;
 import com.web.fitquest.requests.RefreshTokenRequest;
 import com.web.fitquest.responses.LoginResponse;
 import com.web.fitquest.responses.TokenResponse;
+import com.web.fitquest.responses.UserInfoResponse;
 import com.web.fitquest.service.token.TokenService;
 import com.web.fitquest.service.user.UserService;
 import com.web.fitquest.util.JwtUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 
 @RestController
 @RequestMapping("/api/user")
@@ -68,12 +70,12 @@ public class UserController {
 
                         ResponseCookie refreshTokenCookie = ResponseCookie
                                 .from("refreshToken", tokens.getRefreshToken())
-                                .httpOnly(true)         // 자바스크립트 접근 불가
-                                .secure(false)             // https 프로토콜에서만 전송(개발 단계에서는 주석 처리)
-                                .path("/")                  // 모든 경로에서 접근 가능
-                                .maxAge(60 * 60 * 24 * 14)       // 2주
-                                .sameSite("Lax")     // CSRF 방지
-                                .domain("")      // 도메인 설정
+                                .httpOnly(true) // 자바스크립트 접근 불가
+                                .secure(false) // https 프로토콜에서만 전송(개발 단계에서는 주석 처리)
+                                .path("/") // 모든 경로에서 접근 가능
+                                .maxAge(60 * 60 * 24 * 14) // 2주
+                                .sameSite("Lax") // CSRF 방지
+                                .domain("") // 도메인 설정
                                 .build();
 
                         return ResponseEntity.ok()
@@ -89,7 +91,7 @@ public class UserController {
                             .status(HttpStatus.UNAUTHORIZED)
                             .body(new LoginResponse(null, null, null, null, "로그인 실패")));
         } catch (Exception e) {
-            log.error("Login error: ", e);  // 상세 로그 추가
+            log.error("Login error: ", e); // 상세 로그 추가
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new LoginResponse(null, null, null, null, "서버 오류"));
         }
@@ -163,10 +165,20 @@ public class UserController {
     @GetMapping("/{userId}")
     public ResponseEntity<?> getUserInfo(@PathVariable Integer userId) {
         try {
-            Optional<User> opUser = userService.getUserInfo(userId);
-            return opUser
-                    .map(user -> new ResponseEntity<>(user, HttpStatus.OK))
-                    .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+            Optional<User> opUser = userService.selectUserById(userId);
+            if (opUser.isPresent()) {
+                User user = opUser.get();
+                return ResponseEntity.ok()
+                        .body(new UserInfoResponse(
+                                user.getId(),
+                                user.getEmail(),
+                                user.getName(),
+                                user.getProfileImage(),
+                                user.getIsAdmin(),
+                                user.getDescription()));
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -177,7 +189,7 @@ public class UserController {
     public ResponseEntity<?> updateUserInfo(@PathVariable Integer userId, @RequestBody User user) {
         try {
             boolean success = userService.updateUser(user);
-            if(success) {
+            if (success) {
                 return new ResponseEntity<>(user, HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -189,8 +201,22 @@ public class UserController {
     }
 
     @GetMapping("/check-refresh-token")
-    public ResponseEntity<?> checkRefreshToken(@CookieValue(name = "refreshToken", required = false) String refreshToken) {
+    public ResponseEntity<?> checkRefreshToken(
+            @CookieValue(name = "refreshToken", required = false) String refreshToken) {
         return ResponseEntity.ok()
-            .body(Map.of("exists", refreshToken != null));
+                .body(Map.of("exists", refreshToken != null));
+    }
+
+    @PostMapping("/{userId}/profile-image")
+    public ResponseEntity<?> updateProfileImage(@PathVariable Integer userId,
+            @RequestParam("image") MultipartFile image) {
+        try {
+            String imageUrl = userService.updateProfileImage(userId, image);
+            log.info("imageUrl: {}", imageUrl);
+            return ResponseEntity.ok(Map.of("imageUrl", imageUrl));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생");
+        }
     }
 }

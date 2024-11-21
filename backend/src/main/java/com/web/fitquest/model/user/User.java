@@ -19,6 +19,7 @@ public class User {
     @NonNull private String email;
     @NonNull private String password;
     @NonNull private String name;
+    private String profileImage;
     private int isAdmin;
     private String description;
 }
