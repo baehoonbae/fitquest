@@ -79,25 +79,30 @@ export const useTodoStore = defineStore("todo", () => {
 
   // 할일 수정
   const fetchTodoUpdate = async (todoData) => {
+    const originalTodos = [...dailyTodos.value];
     try {
+      // 즉시 로컬 상태 업데이트
+      dailyTodos.value = dailyTodos.value.map(todo => 
+        todo.id === todoData.id ? { ...todo, ...todoData } : todo
+      );
+
       const accessToken = authStore.getToken();
       const response = await http.put(`/todo/${todoData.id}`, todoData, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       });
+
       if (response.data) {
-        setTimeout(async () => {
-          await fetchTodos(dateStore.selectedDate);
-          const date = new Date(todoData.date);
-          await fetchMonthlyTodos(date.getFullYear(), date.getMonth() + 1);
-        }, 100);
+        // 월간 데이터만 업데이트
+        const date = new Date(todoData.date);
+        await fetchMonthlyTodos(date.getFullYear(), date.getMonth() + 1);
         return { success: true };
       }
     } catch (error) {
-      throw new Error(
-        error.response?.data?.message || "할일 수정에 실패했습니다."
-      );
+      // 실패 시 원래 상태로 복구
+      dailyTodos.value = originalTodos;
+      throw new Error(error.response?.data?.message || "할일 수정에 실패했습니다.");
     }
   };
 
@@ -162,6 +167,11 @@ export const useTodoStore = defineStore("todo", () => {
     }
   };
 
+  // 로컬 상태 즉시 업데이트를 위한 메서드
+  const updateLocalTodos = (todos) => {
+    dailyTodos.value = todos;
+  };
+
   return {
     monthlyTodos,
     dailyTodos,
@@ -174,5 +184,6 @@ export const useTodoStore = defineStore("todo", () => {
     fetchTodoUpdate,
     fetchDeleteTodo,
     fetchMonthlyTodos,
+    updateLocalTodos,
   };
 });
