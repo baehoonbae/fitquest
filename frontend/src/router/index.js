@@ -149,10 +149,8 @@ router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
   if (to.meta.requiresAuth) {
     try {
-      const hasRefreshToken = await authStore.checkRefreshTokenExists();
-      
+      const hasRefreshToken = await authStore.checkRefreshTokenExists();     
       if (!hasRefreshToken) {
-        // console.log('리프레시 토큰이 없습니다. 로그아웃 처리합니다.');
         authStore.logout();
         next({ name: 'login' });
         return;
@@ -161,8 +159,8 @@ router.beforeEach(async (to, from, next) => {
       // 액세스 토큰 체크 및 갱신
       const accessToken = authStore.getToken();
       if (!accessToken || !authStore.validateAccessToken()) {
-        const refreshed = await authStore.refreshToken();
-        if (!refreshed) {
+        const hasRefreshToken = await authStore.checkRefreshTokenExists();
+        if (!hasRefreshToken) {
           authStore.logout();
           next({ name: 'login' });
           return;
