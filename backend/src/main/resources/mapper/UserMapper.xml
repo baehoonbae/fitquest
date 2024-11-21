@@ -15,7 +15,7 @@
   </select>
 
   <insert id="insertUser">
-    insert into user (email, password, name, is_admin, profile_image, description) values (#{email}, #{password}, #{name}, #{isAdmin}, #{profileImage}, #{description})
+    insert into user (email, password, name, is_admin, description) values (#{email}, #{password}, #{name}, #{isAdmin}, #{description})
   </insert>
 
   <update id="updateUser">
