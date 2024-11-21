@@ -7,7 +7,10 @@
     </header>
 
     <main :class="['flex-1', { 'mt-[60px] mb-[60px]': !hideLayout, 'my-0': hideLayout }]">
-      <div class="max-w-7xl mx-auto px-5 md:px-4">
+      <div v-if="route.name === 'news'" class="max-w-[1600px] mx-auto px-5 md:px-4">
+        <RouterView />
+      </div>
+      <div v-else class="max-w-7xl mx-auto px-5 md:px-4">
         <RouterView />
       </div>
     </main>
@@ -34,7 +37,7 @@ const authStore = useAuthStore();
 const hideLayout = computed(() => route.meta.hideLayout);
 
 const searchQuery = ref(null);
-provide('searchQuery', searchQuery);
+provide("searchQuery", searchQuery);
 
 // 검색 이벤트를 하위 컴포넌트에 제공
 const handleSearch = (query) => {
