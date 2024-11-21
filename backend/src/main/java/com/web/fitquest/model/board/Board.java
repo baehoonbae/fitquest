@@ -18,11 +18,12 @@ import lombok.ToString;
 @RequiredArgsConstructor
 public class Board {
     private int id;
-    private int userId;
+    private int userId;      // user 테이블의 id (FK)
     @NonNull private String tag;
     private LocalDateTime date;
-    @NonNull private String writer;
+    private String writer;   // @NonNull 제거, JOIN으로 가져올 값
     @NonNull private String title;
     @NonNull private String content;
     private int viewCount;
+    private int commentCount; // 추가된 필드 - 댓글 수를 저장
 }

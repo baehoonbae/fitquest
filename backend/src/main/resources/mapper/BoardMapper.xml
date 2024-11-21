@@ -6,25 +6,47 @@
 
     <select id="allBoards" parameterType="com.web.fitquest.model.searchCondition.SearchCondition" 
             resultType="com.web.fitquest.model.board.Board">
-        SELECT id Id, user_id userId, tag, date, writer, title, content, view_count viewCount
-        FROM board
+        SELECT b.id Id, 
+            b.user_id userId, 
+            b.tag, 
+            b.date, 
+            u.name writer,
+            b.title, 
+            b.content, 
+            b.view_count viewCount,
+            (SELECT COUNT(*) 
+                FROM comment c 
+                WHERE c.board_id = b.id 
+                AND c.is_delete = 0) as commentCount  <!-- 서브쿼리로 댓글 수 조회 -->
+        FROM board b
+        JOIN user u ON b.user_id = u.id
         <where>
             <if test="tag != null and tag != ''">
-                tag = #{tag}
+                b.tag = #{tag}
             </if>
         </where>
-        ORDER BY date DESC
+        ORDER BY b.date DESC
     </select>
 
     <select id="getBoard" parameterType="int" resultType="com.web.fitquest.model.board.Board">
-        SELECT id Id, user_id userId, tag, date, writer, title, content, view_count viewCount
-        FROM board
-        WHERE id = #{id}
+        SELECT b.id Id, 
+               b.user_id userId, 
+               b.tag, 
+               b.date, 
+               u.name writer,  <!-- user_name을 name으로 변경 -->
+               b.title, 
+               b.content, 
+               b.view_count viewCount
+        FROM board b
+        JOIN user u ON b.user_id = u.id
+        WHERE b.id = #{id}
     </select>
 
     <insert id="addBoard" parameterType="com.web.fitquest.model.board.Board">
         INSERT INTO board (user_id, tag, writer, title, content)
-        VALUES (#{userId}, #{tag}, #{writer}, #{title}, #{content})
+        SELECT #{userId}, #{tag}, name, #{title}, #{content}  <!-- user_name을 name으로 변경 -->
+        FROM user
+        WHERE id = #{userId}
     </insert>
 
     <update id="updateBoard" parameterType="com.web.fitquest.model.board.Board">
@@ -40,5 +62,5 @@
     <delete id="deleteBoard" parameterType="int">
         DELETE FROM board
         WHERE id = #{id}
-	</delete>
+    </delete>
 </mapper>
