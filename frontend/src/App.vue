@@ -33,7 +33,7 @@
     >
       <div class="relative" @mouseenter="showFooter" @mouseleave="hideFooter">
         <!-- 호버 영역 -->
-        <div class="absolute bottom-full left-0 right-0 h-10 bg-transparent">
+        <div class="absolute bottom-full left-0 right-0 h-2 bg-transparent">
           <div class="absolute bottom-0 left-1/2 -translate-x-1/2 text-gray-400">
             <span class="material-icons animate-bounce">expand_less</span>
           </div>
