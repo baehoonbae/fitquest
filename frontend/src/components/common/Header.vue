@@ -23,20 +23,21 @@
           >
             <button
               @click="showRecentPosts"
-              class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 w-full text-left"
+              class="rounded-xl block px-4 py-2 text-sm text-gray-700 w-full text-left transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900 active:bg-gray-100"
             >
               최근 본 게시물
             </button>
             <div class="h-[1px] bg-gray-100"></div>
             <button
-              class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 w-full text-left"
+              @click="showRecentNews"
+              class="rounded-xl block px-4 py-2 text-sm text-gray-700 w-full text-left transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900 active:bg-gray-100"
             >
               최근 본 카드뉴스
             </button>
             <div class="h-[1px] bg-gray-100"></div>
             <button
               @click="authStore.logout()"
-              class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+              class="rounded-xl block w-full text-left px-4 py-2 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900 active:bg-gray-100"
             >
               로그아웃
             </button>
@@ -50,6 +51,10 @@
       :is-open="isRecentPostsModalOpen"
       @close="closeRecentPostsModal"
     />
+    <RecentNewsModal
+      :is-open="isRecentNewsModalOpen"
+      @close="closeRecentNewsModal"
+    />
   </div>
 </template>
 
@@ -57,13 +62,15 @@
 import { useRouter, useRoute } from "vue-router";
 import { onMounted, onUnmounted, ref, computed, shallowRef, watch } from "vue";
 import { useAuthStore } from "@/stores/auth";
-import RecentPostsModal from "@/components/recent/RecentBoard.vue"; // 모달 컴포넌트 import
+import RecentPostsModal from "@/components/recent/RecentBoard.vue";
+import RecentNewsModal from "@/components/recent/RecentNews.vue";
 
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 const isDropdownOpen = ref(false);
 const isRecentPostsModalOpen = ref(false); // 모달 상태 추가
+const isRecentNewsModalOpen = ref(false); // 모달 상태 추가
 
 const headerComponent = shallowRef(null);
 const headerTitle = computed(() => {
@@ -73,12 +80,21 @@ const headerTitle = computed(() => {
 // 최근 본 게시물 모달 표시
 const showRecentPosts = () => {
   isRecentPostsModalOpen.value = true;
-  isDropdownOpen.value = false; // 드롭다운 닫기
+  isDropdownOpen.value = false;
 };
 
 // 모달 닫기
 const closeRecentPostsModal = () => {
   isRecentPostsModalOpen.value = false;
+};
+
+const showRecentNews = () => {
+  isRecentNewsModalOpen.value = true;
+  isDropdownOpen.value = false;
+};
+
+const closeRecentNewsModal = () => {
+  isRecentNewsModalOpen.value = false;
 };
 
 // 현재 라우트에 따라 컴포넌트 동적 로드

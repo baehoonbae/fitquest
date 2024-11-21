@@ -33,20 +33,7 @@
             <span>이름</span>
             <span class="font-bold">
               {{ authStore.user.name }}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-4 h-4 inline"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M8.25 4.5l7.5 7.5-7.5 7.5"
-                />
-              </svg>
+              <ChevronRightIcon class="w-4 h-4 inline" />
             </span>
           </button>
           <button
@@ -93,6 +80,7 @@ import ChangeName from "@/components/ChangeName.vue";
 import ChangeDescription from "@/components/ChangeDescription.vue";
 import { useAuthStore } from "@/stores/auth";
 import http from "@/api/http";
+import { ChevronRightIcon } from "@heroicons/vue/24/outline";
 
 const authStore = useAuthStore();
 const fileInput = ref(null);
@@ -105,7 +93,7 @@ const showChangeDescriptionModal = ref(false);
 onMounted(() => {
   if (authStore.user.profileImage) {
     // 이미지 URL을 직접 사용
-    profileImage.value = `http://70.12.50.63:8097/fitquest/api/file${authStore.user.profileImage}`;
+    profileImage.value = `${http.defaults.baseURL}/file${authStore.user.profileImage}`;
   }
 });
 

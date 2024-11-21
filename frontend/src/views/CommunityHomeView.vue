@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-4xl mx-auto px-4">
+  <div class="max-w-4xl mx-auto px-4 pb-16">
     <CommunitySearch @search="handleSearch" />
     <CommunityTag
       :tags="tags"

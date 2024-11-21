@@ -1,21 +1,22 @@
 <template>
-  <div class="h-full">
-    <!-- 그리드 컨테이너 -->
-    <div
-      class="h-[calc(100vh-8rem)] overflow-y-auto rounded-[15px] z-0"
-      style="position: relative"
+  <div class="h-[calc(100vh-4rem)]">
+    <div 
+      ref="scrollContainer"
+      class="h-full overflow-y-auto rounded-[15px]" 
       @scroll="handleScroll"
     >
-      <div
-        class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 mx-auto max-w-[1400px]"
+      <masonry-wall 
+        :items="newsItems" 
+        :column-width="300" 
+        :gap="16" 
+        class="px-4"
+        @layout-complete="handleLayoutComplete"
       >
-        <!-- 카드 아이템 -->
-        <div v-for="item in newsItems" :key="item.link" class="break-inside-avoid mb-4">
+        <template #default="{ item }">
           <div
             class="bg-gray-50 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer overflow-hidden flex flex-col"
-            @click="openNews(item.link)"
+            @click="openNews(item)"
           >
-            <!-- 썸네일 이미지 -->
             <div
               v-if="item.thumbnail"
               class="w-full overflow-hidden"
@@ -34,25 +35,19 @@
                 :height="item.imageHeight"
               />
             </div>
-            <!-- 카드 콘텐츠 -->
             <div class="p-2 h-2/5">
-              <h3
-                class="font-semibold text-gray-800 text-sm truncate"
-                v-html="item.title"
-              ></h3>
-              <!-- 하단 메타 정보 -->
+              <h3 class="font-semibold text-gray-800 text-sm truncate" v-html="item.title"></h3>
               <div class="flex items-center justify-between mt-1">
                 <span class="text-xs text-gray-600">{{ formatDate(item.postdate) }}</span>
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </template>
+      </masonry-wall>
+
       <!-- 로딩 인디케이터 -->
       <div v-if="isLoading" class="text-center py-4">
-        <div
-          class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"
-        ></div>
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
       </div>
 
       <!-- 더 이상 데이터가 없을 때 메시지 -->
@@ -64,7 +59,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, inject, watch } from "vue";
+import { ref, onMounted, inject, watch, nextTick } from "vue";
 import { searchBlog } from "@/api/news";
 
 const searchQuery = ref("운동");
@@ -79,16 +74,29 @@ const MORE_LOAD_COUNT = 20; // 추가 로드 개수
 // App.vue에서 제공하는 검색어 감시
 const providedQuery = inject("searchQuery");
 
-// 스크롤 이벤트 핸들러
+const scrollContainer = ref(null);
+const lastScrollPosition = ref(0);
+
+// 스크롤 위치 저장
 const handleScroll = async (e) => {
   const element = e.target;
-  // 스크롤이 바닥에 도달했는지 체크 (여유값 100px)
+  lastScrollPosition.value = element.scrollTop;
+  
   if (
     element.scrollHeight - element.scrollTop <= element.clientHeight + 100 &&
     !isLoading.value &&
     hasMore.value
   ) {
     await loadMore();
+  }
+};
+
+// 레이아웃 완료 후 스크롤 위치 복원
+const handleLayoutComplete = () => {
+  if (scrollContainer.value && lastScrollPosition.value > 0) {
+    nextTick(() => {
+      scrollContainer.value.scrollTop = lastScrollPosition.value;
+    });
   }
 };
 
@@ -99,25 +107,28 @@ const loadMore = async () => {
   try {
     isLoading.value = true;
     const nextPage = currentPage.value + 1;
-    const start = (nextPage - 1) * MORE_LOAD_COUNT + 1; // 시작 위치 계산
+    const start = (nextPage - 1) * MORE_LOAD_COUNT + 1;
 
     const blogResponse = await searchBlog(searchQuery.value, start, MORE_LOAD_COUNT);
 
-    // 더 이상 데이터가 없으면 hasMore를 false로 설정
     if (!blogResponse.items || blogResponse.items.length === 0) {
       hasMore.value = false;
       return;
     }
 
-    // 새 아이템 추가
     const newItems = blogResponse.items.map((item, index) => ({
       ...item,
+      id: `${item.link}_${Date.now()}_${newsItems.value.length + index}`,
       title: decodeHtmlEntities(item.title),
       postdate: item.postdate,
       thumbnail: getPicsumImage(newsItems.value.length + index),
     }));
 
-    newsItems.value = [...newsItems.value, ...newItems];
+    // 배열 업데이트를 nextTick으로 감싸서 처리
+    await nextTick(() => {
+      newsItems.value = [...newsItems.value, ...newItems];
+    });
+    
     currentPage.value = nextPage;
   } catch (error) {
     console.error("추가 데이터 로드 실패:", error);
@@ -192,11 +203,11 @@ const handleSearch = async () => {
 
     const blogResponse = await searchBlog(searchQuery.value, 1, INITIAL_LOAD_COUNT);
 
-    // 이미지 정보 미리 생성
     const newItems = blogResponse.items.map((item, index) => {
       const imageInfo = getPicsumImage(index);
       return {
         ...item,
+        id: `${item.link}_${Date.now()}_${index}`,
         title: decodeHtmlEntities(item.title),
         postdate: item.postdate,
         thumbnail: imageInfo.url,
@@ -269,8 +280,40 @@ const handleImageError = (event, item) => {
   }
 };
 
-const openNews = (link) => {
-  window.open(link, "_blank");
+// HTML 태그 제거 함수 추가
+const stripHtmlTags = (html) => {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  return tmp.textContent || tmp.innerText || '';
+};
+
+// 최근 본 카드뉴스 저장 함수 수정
+const saveRecentNews = (news) => {
+  try {
+    let recentNews = JSON.parse(localStorage.getItem("recentNews") || "[]");
+    recentNews = recentNews.filter((p) => p.link !== news.link);
+
+    // 최신 뉴스를 배열 앞에 추가
+    recentNews.unshift({
+      id: news.id || `${news.link}_${Date.now()}`,
+      title: stripHtmlTags(news.title),
+      link: news.link,
+      postdate: formatDate(news.postdate),
+      thumbnail: news.thumbnail
+    });
+
+    // 최대 5개만 유지
+    recentNews = recentNews.slice(0, 5);
+
+    localStorage.setItem("recentNews", JSON.stringify(recentNews));
+  } catch (error) {
+    console.error("최근 본 뉴스 저장 실패:", error);
+  }
+};
+
+const openNews = (news) => {
+  saveRecentNews(news);
+  window.open(news.link, "_blank");
 };
 
 onMounted(() => {
