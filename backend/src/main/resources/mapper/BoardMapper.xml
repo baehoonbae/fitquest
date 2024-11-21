@@ -17,7 +17,10 @@
             (SELECT COUNT(*) 
                 FROM comment c 
                 WHERE c.board_id = b.id 
-                AND c.is_delete = 0) as commentCount  <!-- 서브쿼리로 댓글 수 조회 -->
+                AND c.is_delete = 0) as commentCount,  <!-- 서브쿼리로 댓글 수 조회 -->
+            (SELECT COUNT(*) 
+                FROM hit h 
+                WHERE h.board_id = b.id) as hitCount   <!-- 서브쿼리로 좋아요 수 조회 -->
         FROM board b
         JOIN user u ON b.user_id = u.id
         <where>

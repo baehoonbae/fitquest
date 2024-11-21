@@ -26,4 +26,5 @@ public class Board {
     @NonNull private String content;
     private int viewCount;
     private int commentCount; // 추가된 필드 - 댓글 수를 저장
+    private int hitCount;
 }
