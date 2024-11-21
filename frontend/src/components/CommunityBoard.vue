@@ -3,11 +3,11 @@
     <div class="w-full">
       <!-- 게시판 헤더 -->
       <div
-        class="hidden md:grid md:grid-cols-[100px_1fr_280px] md:px-5 md:py-4 bg-gray-50 border-b-2 border-gray-200 font-semibold text-gray-700"
+        class="hidden md:grid md:grid-cols-[100px_1fr_280px] md:px-5 md:py-4 gap-6 bg-gray-50 border-b-2 border-gray-200 font-semibold text-gray-700"
       >
-        <div>태그</div>
-        <div>제목</div>
-        <div class="grid grid-cols-3 text-center">
+        <div class="text-center">태그</div>
+        <div class="text-center px-4">제목</div>
+        <div class="grid grid-cols-3 text-center gap-4">
           <span>작성자</span>
           <span>작성일</span>
           <span>조회수</span>
@@ -18,22 +18,25 @@
       <div
         v-for="board in boards"
         :key="board.id"
-        class="grid md:grid-cols-[100px_1fr_280px] grid-cols-1 gap-2 md:gap-0 p-5 border-b border-gray-200 hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
+        class="grid md:grid-cols-[100px_1fr_280px] grid-cols-1 gap-6 p-5 border-b border-gray-200 hover:bg-gray-50 transition-colors duration-200 cursor-pointer items-center"
         @click="openBoard(board.id)"
       >
-        <div class="text-blue-600 text-sm font-medium md:text-base">
+        <div class="text-blue-600 text-sm font-medium md:text-base text-center">
           #{{ board.tag }}
         </div>
-        <div class="md:pr-5">
+        <div class="px-4">
           {{ board.title }}
-          <p class="mt-2 md:mt-1 text-sm text-gray-500 line-clamp-1">
-            {{ truncateContent(board.content) }}
-          </p>
+          <span
+            v-if="board.commentCount > 0"
+            class="text-gray-500 text-sm ml-1"
+          >
+            [{{ board.commentCount }}]
+          </span>
         </div>
         <div
-          class="grid grid-cols-3 items-center text-center text-sm text-gray-700 mt-2.5 md:mt-0"
+          class="grid grid-cols-3 items-center text-center text-sm text-gray-700 gap-4"
         >
-          <span class="font-medium">{{ board.writer }}</span>
+          <span class="font-medium break-words">{{ board.writer }}</span>
           <span class="text-gray-500">{{ formatDate(board.date) }}</span>
           <span class="flex items-center justify-center gap-1">
             <i class="fas fa-eye text-gray-400 text-xs"></i>
