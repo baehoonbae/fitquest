@@ -16,17 +16,26 @@
             @click="openNews(item.link)"
           >
             <!-- 썸네일 이미지 -->
-            <div v-if="item.thumbnail" class="w-full h-4/5 overflow-hidden">
+            <div
+              v-if="item.thumbnail"
+              class="w-full overflow-hidden"
+              :style="{
+                aspectRatio: `${item.imageWidth}/${item.imageHeight}`,
+              }"
+            >
               <img
                 :src="item.thumbnail"
                 @error="handleImageError($event, item)"
                 class="w-full h-full object-cover"
                 loading="lazy"
-                alt=""
+                :alt="item.title"
+                decoding="async"
+                :width="item.imageWidth"
+                :height="item.imageHeight"
               />
             </div>
             <!-- 카드 콘텐츠 -->
-            <div class="p-2 h-1/5">
+            <div class="p-2 h-2/5">
               <h3
                 class="font-semibold text-gray-800 text-sm truncate"
                 v-html="item.title"
@@ -55,7 +64,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, inject, watch } from "vue";
 import { searchBlog } from "@/api/news";
 
 const searchQuery = ref("운동");
@@ -64,8 +73,11 @@ const currentPage = ref(1);
 const isLoading = ref(false);
 const hasMore = ref(true);
 
-const INITIAL_LOAD_COUNT = 20; // 초기 로드 개수
-const MORE_LOAD_COUNT = 10; // 추가 로드 개수
+const INITIAL_LOAD_COUNT = 30; // 초기 로드 개수
+const MORE_LOAD_COUNT = 20; // 추가 로드 개수
+
+// App.vue에서 제공하는 검색어 감시
+const providedQuery = inject("searchQuery");
 
 // 스크롤 이벤트 핸들러
 const handleScroll = async (e) => {
@@ -89,11 +101,7 @@ const loadMore = async () => {
     const nextPage = currentPage.value + 1;
     const start = (nextPage - 1) * MORE_LOAD_COUNT + 1; // 시작 위치 계산
 
-    const blogResponse = await searchBlog(
-      searchQuery.value,
-      start,
-      MORE_LOAD_COUNT // 10개만 요청
-    );
+    const blogResponse = await searchBlog(searchQuery.value, start, MORE_LOAD_COUNT);
 
     // 더 이상 데이터가 없으면 hasMore를 false로 설정
     if (!blogResponse.items || blogResponse.items.length === 0) {
@@ -118,6 +126,63 @@ const loadMore = async () => {
   }
 };
 
+// 랜덤 크기 생성 함수
+const getRandomSize = () => {
+  const widths = [300, 350, 400, 450]; // 가능한 너비 값들
+  const heights = [250, 300, 350, 400]; // 가능한 높이 값들
+  return {
+    width: widths[Math.floor(Math.random() * widths.length)],
+    height: heights[Math.floor(Math.random() * heights.length)],
+  };
+};
+
+// 이미지 URL 캐시
+const imageCache = new Map();
+const sizeCache = new Map(); // 크기 캐시 추가
+
+// 이미지 프리로딩을 위한 함수
+const preloadImage = (src) => {
+  return new Promise((resolve) => {
+    if (imageCache.has(src)) {
+      resolve();
+      return;
+    }
+    const img = new Image();
+    img.onload = () => {
+      imageCache.set(src, true);
+      resolve(img);
+    };
+    img.src = src;
+  });
+};
+
+// 이미지 URL 생성 및 캐싱 함수
+const getPicsumImage = (index) => {
+  const cacheKey = `${searchQuery.value}_${index}`;
+
+  if (imageCache.has(cacheKey)) {
+    return {
+      url: imageCache.get(cacheKey),
+      ...sizeCache.get(cacheKey),
+    };
+  }
+
+  // 랜덤 크기 생성 및 캐싱
+  const size = getRandomSize();
+  sizeCache.set(cacheKey, size);
+
+  const imageUrl = `https://picsum.photos/seed/${cacheKey}/${size.width}/${size.height}`;
+  imageCache.set(cacheKey, imageUrl);
+
+  // 백그라운드에서 프리로드
+  preloadImage(imageUrl);
+
+  return {
+    url: imageUrl,
+    ...size,
+  };
+};
+
 // 초기 검색 함수 수정
 const handleSearch = async () => {
   try {
@@ -125,18 +190,28 @@ const handleSearch = async () => {
     currentPage.value = 1;
     hasMore.value = true;
 
-    const blogResponse = await searchBlog(
-      searchQuery.value,
-      1,
-      INITIAL_LOAD_COUNT // 처음에는 20개 요청
-    );
+    const blogResponse = await searchBlog(searchQuery.value, 1, INITIAL_LOAD_COUNT);
 
-    newsItems.value = blogResponse.items.map((item, index) => ({
-      ...item,
-      title: decodeHtmlEntities(item.title),
-      postdate: item.postdate,
-      thumbnail: getPicsumImage(index),
-    }));
+    // 이미지 정보 미리 생성
+    const newItems = blogResponse.items.map((item, index) => {
+      const imageInfo = getPicsumImage(index);
+      return {
+        ...item,
+        title: decodeHtmlEntities(item.title),
+        postdate: item.postdate,
+        thumbnail: imageInfo.url,
+        imageWidth: imageInfo.width,
+        imageHeight: imageInfo.height,
+      };
+    });
+
+    // 다음 페이지 이미지 미리 로드
+    const nextPageImages = Array.from({ length: MORE_LOAD_COUNT }, (_, i) =>
+      getPicsumImage(INITIAL_LOAD_COUNT + i)
+    );
+    Promise.all(nextPageImages.map((imageInfo) => preloadImage(imageInfo.url)));
+
+    newsItems.value = newItems;
   } catch (error) {
     console.error("검색 실패:", error);
   } finally {
@@ -173,10 +248,25 @@ const formatDate = (dateStr) => {
   }
 };
 
+// 이미지 에러 처리 개선
 const handleImageError = (event, item) => {
-  const width = Math.floor(Math.random() * (500 - 300 + 1)) + 300;
-  const height = Math.floor(Math.random() * (400 - 200 + 1)) + 200;
-  item.thumbnail = `https://picsum.photos/${width}/${height}?random=${Math.random()}`;
+  const cacheKey = `error_${item.link}`;
+  if (!imageCache.has(cacheKey)) {
+    const size = getRandomSize();
+    const newUrl = `https://picsum.photos/${size.width}/${
+      size.height
+    }?random=${Date.now()}`;
+    imageCache.set(cacheKey, newUrl);
+    sizeCache.set(cacheKey, size);
+    item.thumbnail = newUrl;
+    item.imageWidth = size.width;
+    item.imageHeight = size.height;
+  } else {
+    item.thumbnail = imageCache.get(cacheKey);
+    const size = sizeCache.get(cacheKey);
+    item.imageWidth = size.width;
+    item.imageHeight = size.height;
+  }
 };
 
 const openNews = (link) => {
@@ -187,15 +277,16 @@ onMounted(() => {
   handleSearch();
 });
 
-// 랜덤 크기의 Picsum 이미지 URL 생성 함수
-const getPicsumImage = (index) => {
-  // 너비는 300~500 사이의 랜덤값
-  const width = Math.floor(Math.random() * (500 - 300 + 1)) + 300;
-  // 높이는 200~400 사이의 랜덤값
-  const height = Math.floor(Math.random() * (400 - 200 + 1)) + 200;
-
-  return `https://picsum.photos/seed/${searchQuery.value}_${index}/${width}/${height}`;
-};
+watch(
+  providedQuery,
+  (newQuery) => {
+    if (newQuery) {
+      searchQuery.value = newQuery;
+      handleSearch();
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <style scoped>

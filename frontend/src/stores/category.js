@@ -129,7 +129,6 @@ export const useCategoryStore = defineStore("category", () => {
         },
       });
       const todosDates = todos.data.map((todo) => todo.date);
-      console.log(todosDates);
       const response = await http.delete(`/category/${categoryId}`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,

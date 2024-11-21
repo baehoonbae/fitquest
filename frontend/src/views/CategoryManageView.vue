@@ -23,7 +23,7 @@
       <div class="flex justify-center">
         <RouterLink
           to="/category-regist"
-          class="flex justify-center items-center w-[120px] h-10 bg-[#f2f2f2] rounded-full mt-6"
+          class="fixed bottom-24 left-1/2 -translate-x-1/2 flex justify-center items-center w-[120px] h-10 bg-[#f2f2f2] rounded-full"
         >
           <PlusIcon class="w-6 h-6 text-gray-600" />
         </RouterLink>

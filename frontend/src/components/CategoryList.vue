@@ -1,20 +1,5 @@
 <template>
   <div>
-    <!-- 카테고리 헤더 -->
-    <div class="flex justify-end items-center mb-4 gap-4">
-      <RouterLink
-        to="/category-regist"
-        class="text-sm text-gray-600 hover:text-gray-800 flex items-center gap-1"
-      >
-        <PlusCircleIcon class="w-7 h-7" />
-      </RouterLink>
-      <RouterLink
-        to="/category-manage"
-        class="text-sm text-gray-600 hover:text-gray-800 flex items-center gap-1"
-      >
-        <Cog6ToothIcon class="w-7 h-7" />
-      </RouterLink>
-    </div>
     <div class="space-y-4">
       <div v-for="category in categoryStore.categories" :key="category.id">
         <div
