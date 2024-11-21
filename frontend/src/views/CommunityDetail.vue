@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-4xl mx-auto px-5 my-1 md:my-2">
+  <div class="max-w-4xl mx-auto px-5 my-1 md:my-2 pb-16">
     <!-- 게시글 헤더 -->
     <div class="mb-10 pb-5 border-b-2 border-gray-200">
       <div class="flex justify-between items-center mb-4">

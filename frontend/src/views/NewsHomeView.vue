@@ -1,7 +1,17 @@
 <template>
-  <div class="h-full">
-    <div class="h-[calc(100vh-8rem)] overflow-y-auto rounded-[15px] z-0" @scroll="handleScroll">
-      <masonry-wall :items="newsItems" :column-width="300" :gap="16" class="px-4">
+  <div class="h-[calc(100vh-4rem)]">
+    <div 
+      ref="scrollContainer"
+      class="h-full overflow-y-auto rounded-[15px]" 
+      @scroll="handleScroll"
+    >
+      <masonry-wall 
+        :items="newsItems" 
+        :column-width="300" 
+        :gap="16" 
+        class="px-4"
+        @layout-complete="handleLayoutComplete"
+      >
         <template #default="{ item }">
           <div
             class="bg-gray-50 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer overflow-hidden flex flex-col"
@@ -49,7 +59,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, inject, watch } from "vue";
+import { ref, onMounted, inject, watch, nextTick } from "vue";
 import { searchBlog } from "@/api/news";
 
 const searchQuery = ref("운동");
@@ -64,16 +74,29 @@ const MORE_LOAD_COUNT = 20; // 추가 로드 개수
 // App.vue에서 제공하는 검색어 감시
 const providedQuery = inject("searchQuery");
 
-// 스크롤 이벤트 핸들러
+const scrollContainer = ref(null);
+const lastScrollPosition = ref(0);
+
+// 스크롤 위치 저장
 const handleScroll = async (e) => {
   const element = e.target;
-  // 스크롤이 바닥에 도달했는지 체크 (여유값 100px)
+  lastScrollPosition.value = element.scrollTop;
+  
   if (
     element.scrollHeight - element.scrollTop <= element.clientHeight + 100 &&
     !isLoading.value &&
     hasMore.value
   ) {
     await loadMore();
+  }
+};
+
+// 레이아웃 완료 후 스크롤 위치 복원
+const handleLayoutComplete = () => {
+  if (scrollContainer.value && lastScrollPosition.value > 0) {
+    nextTick(() => {
+      scrollContainer.value.scrollTop = lastScrollPosition.value;
+    });
   }
 };
 
@@ -84,17 +107,15 @@ const loadMore = async () => {
   try {
     isLoading.value = true;
     const nextPage = currentPage.value + 1;
-    const start = (nextPage - 1) * MORE_LOAD_COUNT + 1; // 시작 위치 계산
+    const start = (nextPage - 1) * MORE_LOAD_COUNT + 1;
 
     const blogResponse = await searchBlog(searchQuery.value, start, MORE_LOAD_COUNT);
 
-    // 더 이상 데이터가 없으면 hasMore를 false로 설정
     if (!blogResponse.items || blogResponse.items.length === 0) {
       hasMore.value = false;
       return;
     }
 
-    // 새 아이템 추가
     const newItems = blogResponse.items.map((item, index) => ({
       ...item,
       title: decodeHtmlEntities(item.title),
@@ -102,7 +123,11 @@ const loadMore = async () => {
       thumbnail: getPicsumImage(newsItems.value.length + index),
     }));
 
-    newsItems.value = [...newsItems.value, ...newItems];
+    // 배열 업데이트를 nextTick으로 감싸서 처리
+    await nextTick(() => {
+      newsItems.value = [...newsItems.value, ...newItems];
+    });
+    
     currentPage.value = nextPage;
   } catch (error) {
     console.error("추가 데이터 로드 실패:", error);
