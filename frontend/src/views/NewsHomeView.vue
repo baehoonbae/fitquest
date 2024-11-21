@@ -15,7 +15,7 @@
         <template #default="{ item }">
           <div
             class="bg-gray-50 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer overflow-hidden flex flex-col"
-            @click="openNews(item.link)"
+            @click="openNews(item)"
           >
             <div
               v-if="item.thumbnail"
@@ -118,6 +118,7 @@ const loadMore = async () => {
 
     const newItems = blogResponse.items.map((item, index) => ({
       ...item,
+      id: `${item.link}_${Date.now()}_${newsItems.value.length + index}`,
       title: decodeHtmlEntities(item.title),
       postdate: item.postdate,
       thumbnail: getPicsumImage(newsItems.value.length + index),
@@ -202,11 +203,11 @@ const handleSearch = async () => {
 
     const blogResponse = await searchBlog(searchQuery.value, 1, INITIAL_LOAD_COUNT);
 
-    // 이미지 정보 미리 생성
     const newItems = blogResponse.items.map((item, index) => {
       const imageInfo = getPicsumImage(index);
       return {
         ...item,
+        id: `${item.link}_${Date.now()}_${index}`,
         title: decodeHtmlEntities(item.title),
         postdate: item.postdate,
         thumbnail: imageInfo.url,
@@ -279,8 +280,40 @@ const handleImageError = (event, item) => {
   }
 };
 
-const openNews = (link) => {
-  window.open(link, "_blank");
+// HTML 태그 제거 함수 추가
+const stripHtmlTags = (html) => {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  return tmp.textContent || tmp.innerText || '';
+};
+
+// 최근 본 카드뉴스 저장 함수 수정
+const saveRecentNews = (news) => {
+  try {
+    let recentNews = JSON.parse(localStorage.getItem("recentNews") || "[]");
+    recentNews = recentNews.filter((p) => p.link !== news.link);
+
+    // 최신 뉴스를 배열 앞에 추가
+    recentNews.unshift({
+      id: news.id || `${news.link}_${Date.now()}`,
+      title: stripHtmlTags(news.title),
+      link: news.link,
+      postdate: formatDate(news.postdate),
+      thumbnail: news.thumbnail
+    });
+
+    // 최대 5개만 유지
+    recentNews = recentNews.slice(0, 5);
+
+    localStorage.setItem("recentNews", JSON.stringify(recentNews));
+  } catch (error) {
+    console.error("최근 본 뉴스 저장 실패:", error);
+  }
+};
+
+const openNews = (news) => {
+  saveRecentNews(news);
+  window.open(news.link, "_blank");
 };
 
 onMounted(() => {
