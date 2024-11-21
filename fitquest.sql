@@ -239,3 +239,15 @@ MODIFY COLUMN date DATETIME DEFAULT CURRENT_TIMESTAMP;
 
 select * from user;
 select * from board;
+
+ALTER TABLE user
+ADD COLUMN profile_image VARCHAR(255) AFTER name;
+
+ALTER TABLE user
+MODIFY profile_image VARCHAR(255) DEFAULT 'backend/uploads/default_profile.png';
+
+SET SQL_SAFE_UPDATES = 0;
+UPDATE user
+SET profile_image = '/uploads/default_profile.png'
+WHERE id>0;
+SET SQL_SAFE_UPDATES = 1;

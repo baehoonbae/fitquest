@@ -11,6 +11,7 @@ export const useAuthStore = defineStore("auth", () => {
     id: null,
     email: null,
     name: "",
+    profileImage: "",
     description: "",
     isAuthenticated: false,
   });
@@ -25,9 +26,7 @@ export const useAuthStore = defineStore("auth", () => {
         loginData,
         { withCredentials: true }
       );
-
       const data = response.data;
-
       if (!data.accessToken) {
         throw new Error('로그인 응답에 토큰이 없습니다.');
       }
@@ -37,6 +36,7 @@ export const useAuthStore = defineStore("auth", () => {
         id: data.id,
         email: data.email,
         name: data.name,
+        profileImage: data.profileImage,
         description: data.description,
         isAuthenticated: true,
       };
@@ -44,9 +44,7 @@ export const useAuthStore = defineStore("auth", () => {
       // 토큰 설정
       sessionStorage.setItem("accessToken", data.accessToken);
       axios.defaults.headers.common["Authorization"] = `Bearer ${data.accessToken}`;
-
       return { success: true };
-
     } catch (error) {
       let errorMessage = '아이디 또는 비밀번호가 올바르지 않습니다.';
       if (error.response) {
@@ -69,6 +67,8 @@ export const useAuthStore = defineStore("auth", () => {
       id: null,
       email: null,
       name: "",
+      profileImage: "",
+      description: "",
       isAuthenticated: false,
     };
     sessionStorage.clear();
@@ -205,7 +205,7 @@ export const useAuthStore = defineStore("auth", () => {
   };
 }, {
   persist: {
-    storage: sessionStorage,  // 브라우저 닫으면 삭제
-    paths: ['user']  // user 상태만 저장
+    storage: sessionStorage,
+    paths: ['user'] 
   }
 });

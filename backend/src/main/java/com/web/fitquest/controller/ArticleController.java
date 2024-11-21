@@ -33,7 +33,10 @@ public class ArticleController {
     private String clientSecret;
 
     @GetMapping("/search/blog")
-    public ResponseEntity<String> searchBlog(@RequestParam String query) {
+    public ResponseEntity<String> searchBlog(
+        @RequestParam String query,
+        @RequestParam int start,
+        @RequestParam int display) {
         String text;
         try {
             text = URLEncoder.encode(query, StandardCharsets.UTF_8.toString());
@@ -41,15 +44,17 @@ public class ArticleController {
             throw new RuntimeException("검색어 인코딩 실패", e);
         }
 
-        String apiURL = "https://openapi.naver.com/v1/search/blog?query=" + text;
+        String apiURL = "https://openapi.naver.com/v1/search/blog?query=" + text 
+        + "&start=" + start
+        + "&display=" + display
+        + "&sort=sim" // 유사도 정렬
+        + "&filter=all";  // 모든 블로그 포함
 
         Map<String, String> requestHeaders = new HashMap<>();
         requestHeaders.put("X-Naver-Client-Id", clientId);
         requestHeaders.put("X-Naver-Client-Secret", clientSecret);
-        log.info("requestHeaders: {}", requestHeaders);
         
         String responseBody = get(apiURL, requestHeaders);
-    
         return ResponseEntity.ok(responseBody);
     }
 

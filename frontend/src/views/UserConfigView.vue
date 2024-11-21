@@ -1,11 +1,27 @@
 <template>
-  <div class="flex flex-col h-full bg-white">
-    <!-- Main Content -->
+  <div class="flex flex-col bg-white">
     <main class="flex-1 flex justify-center items-start bg-white">
-      <div class="w-full max-w-[900px] px-4 mx-auto">
+      <div class="w-[900px] mx-auto">
         <div class="justify-items-center py-10">
-          <div class="w-20 h-20 bg-[#ebeef0] rounded-full"></div>
-          <button class="text-[0.78rem] font-bold text-blue-500 mt-4">
+          <div class="relative w-20 h-20">
+            <img
+              :src="profileImage || '/default-profile.png'"
+              class="w-20 h-20 rounded-full object-cover"
+              alt="프로필 이미지"
+              @error="(e) => (e.target.src = '/default-profile.png')"
+            />
+            <input
+              type="file"
+              ref="fileInput"
+              @change="handleImageUpload"
+              accept="image/*"
+              class="hidden"
+            />
+          </div>
+          <button
+            @click="$refs.fileInput.click()"
+            class="text-[0.78rem] font-bold text-blue-500 mt-4"
+          >
             프로필 이미지
           </button>
         </div>
@@ -72,15 +88,56 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import ChangeName from "@/components/ChangeName.vue";
 import ChangeDescription from "@/components/ChangeDescription.vue";
 import { useAuthStore } from "@/stores/auth";
+import http from "@/api/http";
 
 const authStore = useAuthStore();
+const fileInput = ref(null);
+const profileImage = ref(null);
 
 const showChangeNameModal = ref(false);
 const showChangeDescriptionModal = ref(false);
+
+// 프로필 이미지 로드
+onMounted(() => {
+  if (authStore.user.profileImage) {
+    // 이미지 URL을 직접 사용
+    profileImage.value = `http://70.12.50.63:8097/fitquest/api/file${authStore.user.profileImage}`;
+  }
+});
+
+// 이미지 업로드 처리
+const handleImageUpload = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    alert("파일 크기는 5MB 이하여야 합니다.");
+    return;
+  }
+  try {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const response = await http.post(
+      `/user/${authStore.user.id}/profile-image`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    // 새로운 이미지 URL 설정
+    profileImage.value = `http://70.12.50.63:8097/fitquest/api/file${response.data.imageUrl}`;
+    authStore.user.profileImage = response.data.imageUrl;
+  } catch (error) {
+    console.error("이미지 업로드 실패:", error);
+    alert("이미지 업로드에 실패했습니다.");
+  }
+};
 </script>
 
 <style scoped>

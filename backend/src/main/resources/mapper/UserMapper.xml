@@ -3,32 +3,41 @@
 
 <mapper namespace="com.web.fitquest.mapper.user.UserMapper">
   <select id="selectUserByEmail" resultType="com.web.fitquest.model.user.User">
-    select id, email,password, name, is_admin isAdmin, description from user where email = #{email}
+    select id, email, password, name, profile_image profileImage, is_admin isAdmin, description from user where email = #{email}
   </select>
 
   <select id="selectUserById" resultType="com.web.fitquest.model.user.User">
-    select id, email,password, name, is_admin isAdmin, description from user where id = #{id}
+    select id, email, password, name, profile_image profileImage, is_admin isAdmin, description from user where id = #{id}
   </select>
 
   <select id="selectUserByName" resultType="com.web.fitquest.model.user.User">
-    select id, email, password, name, is_admin isAdmin, description from user where name = #{name}
+    select id, email, password, name, profile_image profileImage, is_admin isAdmin, description from user where name = #{name}
   </select>
 
   <insert id="insertUser">
-    insert into user (email, password, name, is_admin, description) values (#{email}, #{password}, #{name}, #{isAdmin}, #{description})
+    insert into user (email, password, name, is_admin, profile_image, description) values (#{email}, #{password}, #{name}, #{isAdmin}, #{profileImage}, #{description})
   </insert>
 
   <update id="updateUser">
     update user
     <set>
+      <if test="email != null">
+        email = #{email},
+      </if>
       <if test="password != null">
-        password = #{password}
+        password = #{password},
       </if>
       <if test="name != null">
-        name = #{name}
+        name = #{name},
+      </if>
+      <if test="profileImage != null">
+        profile_image = #{profileImage},
+      </if>
+      <if test="isAdmin != null">
+        is_admin = #{isAdmin},
       </if>
       <if test="description != null">
-        description = #{description}
+        description = #{description}  
       </if>
     </set>
     where id = #{id}
