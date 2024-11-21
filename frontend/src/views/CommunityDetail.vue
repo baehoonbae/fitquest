@@ -66,17 +66,17 @@
     </div>
 
     <!-- 댓글 섹션 -->
-    <div class="mt-10 border-t-2 border-gray-200 pt-8">
-      <h2 class="text-xl font-bold text-gray-800 mb-6">댓글</h2>
+    <div class="mt-10 border-t-2 border-gray-200 pt-6">
+      <h2 class="text-xl font-bold text-gray-800 mb-4">댓글</h2>
 
       <!-- 댓글 작성 폼 -->
       <CommentForm
         v-if="authStore.user.isAuthenticated"
         :boardId="Number(route.params.id)"
         @comment-added="refreshComments"
-        class="mb-8"
+        class="mb-4"
       />
-      <div v-else class="mb-8 p-4 bg-gray-50 rounded text-center">
+      <div v-else class="mb-4 p-4 bg-gray-50 rounded text-center">
         <p class="text-gray-600">댓글을 작성하려면 로그인이 필요합니다.</p>
       </div>
 
