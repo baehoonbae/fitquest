@@ -23,7 +23,9 @@
           </button>
         </div>
       </div>
-      <h1 class="text-4xl md:text-2xl font-bold text-gray-800 mb-4 leading-tight">
+      <h1
+        class="text-4xl md:text-2xl font-bold text-gray-800 mb-4 leading-tight"
+      >
         {{ board.title }}
       </h1>
       <div
@@ -39,7 +41,10 @@
             <i class="fas fa-eye"></i>
             <span>{{ board.viewCount }}</span>
           </div>
-          <div class="flex items-center gap-1.5 cursor-pointer" @click="toggleHit">
+          <div
+            class="flex items-center gap-1.5 cursor-pointer"
+            @click="toggleHit"
+          >
             <i
               :class="{
                 'fas fa-heart text-xl transition-all duration-200': true,
@@ -63,7 +68,16 @@
 
     <!-- 댓글 섹션 -->
     <div class="mt-10 border-t-2 border-gray-200 pt-6">
-      <h2 class="text-xl font-bold text-gray-800 mb-4">댓글</h2>
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800">댓글</h2>
+        <button
+          v-if="authStore.user.isAuthenticated"
+          @click="$refs.commentForm.submitComment()"
+          class="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-md hover:bg-gray-800 transition-colors duration-200"
+        >
+          등록
+        </button>
+      </div>
 
       <!-- 댓글 작성 폼 -->
       <CommentForm
@@ -71,6 +85,7 @@
         :boardId="Number(route.params.id)"
         @comment-added="refreshComments"
         class="mb-4"
+        ref="commentForm"
       />
       <div v-else class="mb-4 p-4 bg-gray-50 rounded text-center">
         <p class="text-gray-600">댓글을 작성하려면 로그인이 필요합니다.</p>
@@ -283,7 +298,9 @@ const toggleHit = async () => {
   }
 
   try {
-    const response = await http.post(`/hit/${route.params.id}/${authStore.user.id}`);
+    const response = await http.post(
+      `/hit/${route.params.id}/${authStore.user.id}`
+    );
 
     // 응답 상태 확인 및 데이터 처리
     if (response.status === 200 && response.data) {

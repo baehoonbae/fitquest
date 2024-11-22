@@ -51,13 +51,19 @@ import Calendar from "@/components/Calendar.vue";
 import CategoryList from "@/components/CategoryList.vue";
 import CategoryHeader from "@/components/CategoryHeader.vue";
 import GrassGraph from "@/components/GrassGraph.vue";
-import { ref, onMounted } from "vue";
+import { ref, computed } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import http from "@/api/http";
 
 const authStore = useAuthStore();
 const selectedDate = ref(null);
-const profileImage = ref(null);
+
+const profileImage = computed(() => {
+  if (authStore.user?.profileImage) {
+    return `${http.defaults.baseURL}/file${authStore.user.profileImage}`;
+  }
+  return "/default-profile.png";
+});
 
 const handleDateSelected = (date) => {
   selectedDate.value = date;

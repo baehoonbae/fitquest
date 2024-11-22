@@ -30,31 +30,26 @@ public class BoardServiceImpl implements BoardService {
 	private String uploadPath;
 
 	@Override
-	@Transactional
 	public Optional<List<Board>> allBoards(SearchCondition searchCondition) {
 		return Optional.ofNullable(boardMapper.allBoards(searchCondition));
 	}
 
 	@Override
-	@Transactional
 	public Optional<Board> getBoard(int boardId) {
 		return Optional.ofNullable(boardMapper.getBoard(boardId));
 	}
 
 	@Override
-	@Transactional
 	public Optional<Integer> addBoard(Board board) {
 		return Optional.ofNullable(boardMapper.addBoard(board));
 	}
 
 	@Override
-	@Transactional
 	public Optional<Integer> updateBoard(Board board) {
 		return Optional.ofNullable(boardMapper.updateBoard(board));
 	}
 
 	@Override
-	@Transactional
 	public Optional<Integer> deleteBoard(int boardId) {
 		// 게시글 삭제 전에 이미지 파일 삭제
 		try {

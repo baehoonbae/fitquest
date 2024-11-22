@@ -2,9 +2,9 @@
   <div>
     <div class="flex justify-between items-center h-[50px] px-4">
       <button @click="router.go(-1)" class="flex items-center">
-        <span class="material-icons text-4xl">arrow_back</span>
+        <span class="material-icons text-4xl mt-4">arrow_back</span>
       </button>
-      <h1 class="text-lg font-bold w-[700px] text-center">
+      <h1 class="text-2xl font-bold w-[700px] text-center mt-5">
         <component
           :is="headerComponent"
           v-if="headerComponent"
@@ -14,7 +14,7 @@
       </h1>
       <div class="relative">
         <button @click="isDropdownOpen = !isDropdownOpen">
-          <span class="material-icons text-4xl">menu</span>
+          <span class="material-icons text-4xl mt-4">menu</span>
         </button>
         <Transition name="dropdown">
           <div

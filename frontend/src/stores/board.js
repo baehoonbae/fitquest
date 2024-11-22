@@ -37,9 +37,33 @@ export const useBoardStore = defineStore("board", () => {
     }
   };
 
+  // 검색 기능 추가
+  const searchBoards = async (searchText) => {
+    try {
+      if (!searchText) {
+        return await fetchBoards();
+      }
+
+      const response = await http.get(`/board/search?searchText=${searchText}`);
+      if (response.status === 200) {
+        boards.value = response.data.sort((a, b) => {
+          const dateA = new Date(a.date).getTime();
+          const dateB = new Date(b.date).getTime();
+          return dateB - dateA;
+        });
+      } else if (response.status === 204) {
+        boards.value = [];
+      }
+    } catch (error) {
+      console.error("Error searching boards:", error);
+      throw error;
+    }
+  };
+
   return {
     boards,
     fetchBoards,
     addBoard,
+    searchBoards, // 검색 메서드 추가
   };
 });
