@@ -34,7 +34,6 @@ import CommunitySearch from "@/components/CommunitySearch.vue";
 import CommunityTag from "@/components/CommunityTag.vue";
 import CommunityBoard from "@/components/CommunityBoard.vue";
 import CommunityPagenation from "@/components/CommunityPagenation.vue";
-import { COMMUNITY_TAGS } from "@/stores/tags";
 
 // 반응형 상태 정의
 const router = useRouter();
