@@ -49,4 +49,10 @@ public class BoardServiceImpl implements BoardService {
 		return Optional.ofNullable(boardMapper.deleteBoard(boardId));
 	}
 
+	@Override
+    @Transactional
+    public Optional<List<Board>> searchBoardsByTitle(String searchText) {
+        return Optional.ofNullable(boardMapper.searchBoardsByTitle(searchText));
+    }
+
 }

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.web.fitquest.model.board.Board;
@@ -104,6 +105,21 @@ public class BoardController {
                return new ResponseEntity<Integer>(result.get(), HttpStatus.OK);
            } else {
                return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+           }
+       } catch(Exception e) {
+           return exceptionHandling(e);
+       }
+   }
+
+   @GetMapping("/search")
+   public ResponseEntity<?> searchBoards(@RequestParam String searchText) {
+       log.debug("BoardController/searchBoards: searchText = {}", searchText);
+       try {
+           Optional<List<Board>> result = boardService.searchBoardsByTitle(searchText);
+           if(result.isPresent() && !result.get().isEmpty()) {
+               return new ResponseEntity<List<Board>>(result.get(), HttpStatus.OK);
+           } else {
+               return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
            }
        } catch(Exception e) {
            return exceptionHandling(e);

@@ -66,4 +66,27 @@
         DELETE FROM board
         WHERE id = #{id}
     </delete>
+
+    <select id="searchBoardsByTitle" parameterType="string" 
+            resultType="com.web.fitquest.model.board.Board">
+        SELECT b.id Id, 
+            b.user_id userId, 
+            b.tag, 
+            b.date, 
+            u.name writer,
+            b.title, 
+            b.content, 
+            b.view_count viewCount,
+            (SELECT COUNT(*) 
+                FROM comment c 
+                WHERE c.board_id = b.id 
+                AND c.is_delete = 0) as commentCount,
+            (SELECT COUNT(*) 
+                FROM hit h 
+                WHERE h.board_id = b.id) as hitCount
+        FROM board b
+        JOIN user u ON b.user_id = u.id
+        WHERE REPLACE(b.title, ' ', '') LIKE CONCAT('%', REPLACE(#{searchText}, ' ', ''), '%')
+        ORDER BY b.date DESC
+    </select>
 </mapper>
