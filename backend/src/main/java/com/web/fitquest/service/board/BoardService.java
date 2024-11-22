@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.web.fitquest.model.SearchHistory;
 import com.web.fitquest.model.board.Board;
 import com.web.fitquest.model.searchCondition.SearchCondition;
 
@@ -24,4 +25,8 @@ public interface BoardService {
 	Optional<List<Board>> searchBoardsByTitle(String searchText);
 
 	String updatePostImage(Integer boardId, MultipartFile file) throws IOException;
+
+	Optional<Integer> saveSearchHistory(SearchHistory searchHistory);
+
+	Optional<List<String>> getSearchHistory(SearchHistory searchHistory);
 }
