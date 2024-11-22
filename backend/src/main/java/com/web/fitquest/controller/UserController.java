@@ -1,10 +1,16 @@
 package com.web.fitquest.controller;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -42,7 +48,10 @@ public class UserController {
     private final UserService userService;
     private final TokenService tokenService;
     private final JwtUtil jwtUtil;
-
+    
+    @Value("${upload.path}")
+    private String uploadPath;
+    
     @PostMapping("/regist")
     public ResponseEntity<?> regist(@RequestBody User user) {
         try {
@@ -217,6 +226,30 @@ public class UserController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생");
+        }
+    }
+
+    @GetMapping("/uploads/profiles/{filename:.+}")
+    public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
+        try {            
+            File file = new File(uploadPath + "/profiles/" + filename);            
+            Resource resource = new UrlResource(file.toURI());            
+            if (resource.exists() || resource.isReadable()) {
+                String contentType = Files.probeContentType(file.toPath());
+                if (contentType == null) {
+                    contentType = "application/octet-stream";
+                }
+                return ResponseEntity.ok()
+                        .contentType(MediaType.parseMediaType(contentType))
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                        .body(resource);
+            } else {
+                log.error("파일을 찾을 수 없음: {}", file.getAbsolutePath());
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            log.error("파일 서비스 에러: {}", e.getMessage());
+            return ResponseEntity.notFound().build();
         }
     }
 }

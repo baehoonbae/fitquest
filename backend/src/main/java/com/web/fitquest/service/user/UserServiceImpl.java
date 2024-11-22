@@ -33,14 +33,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> login(LoginRequest loginRequest) {
         User user = userMapper.selectUserByEmail(loginRequest.getEmail());
-        if(user!=null){
+        if (user != null) {
             log.info("user: {}", user);
-            if(user.getPassword().equals(loginRequest.getPassword())){
+            if (user.getPassword().equals(loginRequest.getPassword())) {
                 String encodedPassword = passwordEncoder.encode(loginRequest.getPassword());
                 user.setPassword(encodedPassword);
                 userMapper.updateUser(user);
                 return Optional.of(user);
-            }else if(passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())){
+            } else if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
                 return Optional.of(user);
             }
         }
@@ -75,32 +75,50 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String updateProfileImage(Integer userId, MultipartFile file) throws IOException {
-        // 파일명 고유화
-        String originalFilename = file.getOriginalFilename();
-        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        String uniqueFileName = UUID.randomUUID().toString() + extension;
+        // 기존 이미지 삭제 로직 추가
+        User user = userMapper.selectUserById(userId);
+        if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
+            // DB에 저장된 경로에서 파일명만 추출
+            String oldFileName = user.getProfileImage().substring(user.getProfileImage().lastIndexOf("/") + 1);
+            File oldFile = new File(uploadPath + "/profiles/" + oldFileName);
+            if (oldFile.exists()) {
+                if (oldFile.delete()) {
+                    log.info("이전 프로필 이미지 삭제 성공: {}", oldFile.getAbsolutePath());
+                } else {
+                    log.warn("이전 프로필 이미지 삭제 실패: {}", oldFile.getAbsolutePath());
+                }
+            }
+        }
 
-        // 업로드 디렉토리 생성
-        File uploadDir = new File(uploadPath);
+        String uniqueFileName = UUID.randomUUID().toString() + getExtension(file.getOriginalFilename());
+
+        // profiles 디렉토리 생성
+        File uploadDir = new File(uploadPath + "/profiles");
         if (!uploadDir.exists()) {
             uploadDir.mkdirs();
         }
 
-        // 파일 저장 경로 생성
-        String filePath = uploadPath + "/" + uniqueFileName;
+        // 파일 저장 (uploads/profiles 폴더 아래에)
+        String filePath = uploadPath + "/profiles/" + uniqueFileName;
         File savedFile = new File(filePath);
 
-        // 파일 저장
+        log.info("파일 저장 경로: {}", filePath); // 로그 추가
+
         file.transferTo(savedFile);
 
-        // 데이터베이스에 저장할 상대 경로
-        String dbPath = "/uploads/" + uniqueFileName;
-        
-        // 사용자 정보 업데이트
-        User user = userMapper.selectUserById(userId);
+        // DB에 저장할 경로 (/uploads/profiles/파일명 형식)
+        String dbPath = "/uploads/profiles/" + uniqueFileName;
         user.setProfileImage(dbPath);
         userMapper.updateUser(user);
 
         return dbPath;
+    }
+
+    private String getExtension(String filename) {
+        int dotIndex = filename.lastIndexOf('.');
+        if (dotIndex == -1) {
+            return "";
+        }
+        return filename.substring(dotIndex);
     }
 }
