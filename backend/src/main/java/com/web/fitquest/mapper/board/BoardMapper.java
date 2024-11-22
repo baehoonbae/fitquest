@@ -20,6 +20,4 @@ public interface BoardMapper {
 	
 	Integer deleteBoard(int boardId);
 
-	List<Board> searchBoardsByTitle(String searchText);
-
 }

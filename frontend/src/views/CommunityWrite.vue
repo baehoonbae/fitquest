@@ -12,9 +12,13 @@
           class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600"
         >
           <option value="" disabled>태그를 선택하세요</option>
-          <option v-for="tag in COMMUNITY_TAGS" :key="tag" :value="tag">
-            {{ tag }}
-          </option>
+          <option value="헬스">헬스</option>
+          <option value="요가">요가</option>
+          <option value="필라테스">필라테스</option>
+          <option value="러닝">러닝</option>
+          <option value="크로스핏">크로스핏</option>
+          <option value="식단">식단</option>
+          <option value="기타">기타</option>
         </select>
       </div>
       <div class="mb-6">
@@ -74,7 +78,6 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import { useBoardStore } from "@/stores/board";
-import { COMMUNITY_TAGS } from "@/stores/tags";
 import http from "@/api/http";
 
 const router = useRouter();

@@ -33,7 +33,6 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useBoardStore } from "@/stores/board";
-import { COMMUNITY_TAGS } from "@/stores/tags";
 import CommunitySearch from "@/components/CommunitySearch.vue";
 import CommunityTag from "@/components/CommunityTag.vue";
 import CommunityBoard from "@/components/CommunityBoard.vue";
@@ -65,13 +64,10 @@ const filteredBoards = computed(() => {
   // ID 기준으로 내림차순 정렬
   result.sort((a, b) => b.id - a.id);
 
-  // 검색어 필터링 (공백 제거 후 비교)
+  // 검색어 필터링
   if (searchQuery.value) {
     result = result.filter((board) =>
-      board.title
-        .replace(/\s+/g, "")
-        .toLowerCase()
-        .includes(searchQuery.value.toLowerCase())
+      board.title.toLowerCase().includes(searchQuery.value.toLowerCase())
     );
   }
 
@@ -93,10 +89,9 @@ const totalPages = computed(() => {
   return Math.ceil(filteredBoards.value.length / itemsPerPage.value);
 });
 
-// 검색 처리 함수 수정
+// 메서드 정의
 const handleSearch = (query) => {
-  // 검색어의 공백 제거
-  searchQuery.value = query.replace(/\s+/g, "");
+  searchQuery.value = query;
   currentPage.value = 1;
   updateUrlQuery(1);
 };
@@ -122,18 +117,17 @@ const updateUrlQuery = (page) => {
   });
 };
 
-// API 호출 함수
+// API 호출
 const fetchBoards = async () => {
   await boardStore.fetchBoards();
-  // 정적 태그와 게시글의 태그를 합치고 중복 제거
-  const dynamicTags = [...new Set(boardStore.boards.map((board) => board.tag))];
-  tags.value = [...new Set([...COMMUNITY_TAGS, ...dynamicTags])];
+  // 유니크한 태그 목록 추출
+  tags.value = [...new Set(boardStore.boards.map((board) => board.tag))];
   // 새로운 데이터를 불러올 때 첫 페이지로 이동
   currentPage.value = 1;
   updateUrlQuery(1);
 };
 
-// 전체 보기 메서드
+// 전체 보기 메서드 추가
 const viewAllPosts = () => {
   selectedTag.value = null;
   searchQuery.value = "";
@@ -141,20 +135,21 @@ const viewAllPosts = () => {
   updateUrlQuery(1);
 };
 
-// 글쓰기 페이지로 이동하는 메서드
+// 글쓰기 페이지로 이동하는 메서드 추가
 const goToWrite = () => {
   router.push("/community/write");
 };
 
-// 컴포넌트 마운트 시 실행
+// 컴포넌트 마운트 시 데이터 로드 및 페이지 파라미터 확인
 onMounted(async () => {
   await fetchBoards();
+  // URL에 페이지 파라미터가 있으면 해당 페이지로 이동
   if (route.query.page) {
     currentPage.value = Number(route.query.page);
   }
 });
 
-// 라우트 변경 감시
+// 라우트 변경 감지 (페이지 새로 진입할 때마다 데이터 갱신)
 watch(
   () => route.path,
   async (newPath, oldPath) => {

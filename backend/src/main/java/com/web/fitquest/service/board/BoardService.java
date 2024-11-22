@@ -21,7 +21,5 @@ public interface BoardService {
 	
 	Optional<Integer> deleteBoard(int boardId);
 
-	Optional<List<Board>> searchBoardsByTitle(String searchText);
-
 	String updatePostImage(Integer boardId, MultipartFile file) throws IOException;
 }
