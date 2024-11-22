@@ -1,25 +1,26 @@
 <template>
   <div>
-    <div class="flex justify-between items-center h-[50px] px-4">
+    <div class="flex justify-between items-center h-[50px] px-4 mt-1">
       <button @click="router.go(-1)" class="flex items-center">
-        <span class="material-icons text-4xl mt-4">arrow_back</span>
+        <span class="material-icons text-4xl">arrow_back</span>
       </button>
       <h1 class="text-2xl font-bold w-[700px] text-center mt-5">
         <component
           :is="headerComponent"
           v-if="headerComponent"
+          :enable-related-searches="shouldEnableRelatedSearches"
           @search="$emit('search', $event)"
         />
         <template v-else>{{ headerTitle }}</template>
       </h1>
-      <div class="relative">
+      <div class="relative" ref="dropdownContainer">
         <button @click="isDropdownOpen = !isDropdownOpen">
-          <span class="material-icons text-4xl mt-4">menu</span>
+          <span class="material-icons text-4xl">menu</span>
         </button>
         <Transition name="dropdown">
           <div
             v-if="isDropdownOpen"
-            class="absolute right-0 mt-2 w-[155px] font-semibold bg-white rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.15)] py-2"
+            class="absolute right-0 mt-2 w-[155px] font-semibold bg-white rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.15)] py-2 z-50"
           >
             <button
               @click="showRecentPosts"
@@ -71,6 +72,11 @@ const headerTitle = computed(() => {
   return route.meta.title || "";
 });
 
+// 현재 라우트에 따라 연관검색어 활성화 여부 결정
+const shouldEnableRelatedSearches = computed(() => {
+  return route.name !== "news";
+});
+
 // 최근 본 게시물 모달 표시
 const showRecentPosts = () => {
   isRecentPostsModalOpen.value = true;
@@ -105,9 +111,9 @@ const loadHeaderComponent = async () => {
 watch(() => route.name, loadHeaderComponent, { immediate: true });
 
 // 드롭다운 외부 클릭 감지를 위한 이벤트 리스너
+const dropdownContainer = ref(null);
 const handleClickOutside = (event) => {
-  const dropdown = document.querySelector(".relative");
-  if (dropdown && !dropdown.contains(event.target)) {
+  if (dropdownContainer.value && !dropdownContainer.value.contains(event.target)) {
     isDropdownOpen.value = false;
   }
 };

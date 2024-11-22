@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.web.fitquest.mapper.board.BoardMapper;
+import com.web.fitquest.model.SearchHistory;
 import com.web.fitquest.model.board.Board;
 import com.web.fitquest.model.searchCondition.SearchCondition;
 
@@ -124,5 +125,15 @@ public class BoardServiceImpl implements BoardService {
 			return "";
 		}
 		return filename.substring(dotIndex);
+	}
+
+	@Override
+	public Optional<Integer> saveSearchHistory(SearchHistory searchHistory) {
+		return Optional.ofNullable(boardMapper.saveSearchHistory(searchHistory));
+	}
+
+	@Override
+	public Optional<List<String>> getSearchHistory(SearchHistory searchHistory) {
+		return Optional.ofNullable(boardMapper.getSearchHistory(searchHistory));
 	}
 }

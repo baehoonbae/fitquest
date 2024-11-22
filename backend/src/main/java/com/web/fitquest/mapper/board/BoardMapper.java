@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import com.web.fitquest.model.SearchHistory;
 import com.web.fitquest.model.board.Board;
 import com.web.fitquest.model.searchCondition.SearchCondition;
 
@@ -22,4 +23,7 @@ public interface BoardMapper {
 
 	List<Board> searchBoardsByTitle(String searchText);
 
+	Integer saveSearchHistory(SearchHistory searchHistory);
+
+	List<String> getSearchHistory(SearchHistory searchHistory);
 }

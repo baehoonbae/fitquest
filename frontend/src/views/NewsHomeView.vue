@@ -1,14 +1,14 @@
 <template>
   <div class="h-[calc(100vh-4rem)]">
-    <div 
+    <div
       ref="scrollContainer"
-      class="h-full overflow-y-auto rounded-[15px]" 
+      class="h-full overflow-y-auto rounded-[15px]"
       @scroll="handleScroll"
     >
-      <masonry-wall 
-        :items="newsItems" 
-        :column-width="300" 
-        :gap="16" 
+      <masonry-wall
+        :items="newsItems"
+        :column-width="300"
+        :gap="16"
         class="px-4"
         @layout-complete="handleLayoutComplete"
       >
@@ -36,7 +36,10 @@
               />
             </div>
             <div class="p-2 h-2/5">
-              <h3 class="font-semibold text-gray-800 text-sm truncate" v-html="item.title"></h3>
+              <h3
+                class="font-semibold text-gray-800 text-sm truncate"
+                v-html="item.title"
+              ></h3>
               <div class="flex items-center justify-between mt-1">
                 <span class="text-xs text-gray-600">{{ formatDate(item.postdate) }}</span>
               </div>
@@ -47,7 +50,9 @@
 
       <!-- 로딩 인디케이터 -->
       <div v-if="isLoading" class="text-center py-4">
-        <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
+        <div
+          class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"
+        ></div>
       </div>
 
       <!-- 더 이상 데이터가 없을 때 메시지 -->
@@ -81,7 +86,7 @@ const lastScrollPosition = ref(0);
 const handleScroll = async (e) => {
   const element = e.target;
   lastScrollPosition.value = element.scrollTop;
-  
+
   if (
     element.scrollHeight - element.scrollTop <= element.clientHeight + 100 &&
     !isLoading.value &&
@@ -128,7 +133,7 @@ const loadMore = async () => {
     await nextTick(() => {
       newsItems.value = [...newsItems.value, ...newItems];
     });
-    
+
     currentPage.value = nextPage;
   } catch (error) {
     console.error("추가 데이터 로드 실패:", error);
@@ -282,9 +287,9 @@ const handleImageError = (event, item) => {
 
 // HTML 태그 제거 함수 추가
 const stripHtmlTags = (html) => {
-  const tmp = document.createElement('div');
+  const tmp = document.createElement("div");
   tmp.innerHTML = html;
-  return tmp.textContent || tmp.innerText || '';
+  return tmp.textContent || tmp.innerText || "";
 };
 
 // 최근 본 카드뉴스 저장 함수 수정
@@ -299,7 +304,7 @@ const saveRecentNews = (news) => {
       title: stripHtmlTags(news.title),
       link: news.link,
       postdate: formatDate(news.postdate),
-      thumbnail: news.thumbnail
+      thumbnail: news.thumbnail,
     });
 
     // 최대 5개만 유지
