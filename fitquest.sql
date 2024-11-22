@@ -243,11 +243,16 @@ select * from board;
 ALTER TABLE user
 ADD COLUMN profile_image VARCHAR(255) AFTER name;
 
+
+# 11/22 추가 sql
 ALTER TABLE user
-MODIFY profile_image VARCHAR(255) DEFAULT '/uploads/default_profile.png';
+MODIFY profile_image VARCHAR(255) DEFAULT '/uploads/profiles/default_profile.png';
 
 SET SQL_SAFE_UPDATES = 0;
 UPDATE user
-SET profile_image = '/uploads/default_profile.png'
+SET profile_image = '/uploads/profiles/default_profile.png'
 WHERE id>0;
 SET SQL_SAFE_UPDATES = 1;
+
+ALTER TABLE board
+ADD COLUMN post_image VARCHAR(255);
