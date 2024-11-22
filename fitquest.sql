@@ -256,3 +256,15 @@ SET SQL_SAFE_UPDATES = 1;
 
 ALTER TABLE board
 ADD COLUMN post_image VARCHAR(255);
+
+CREATE TABLE search_history (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    content VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES user(id)
+);
+
+select * from search_history;
+ALTER TABLE search_history 
+ADD UNIQUE INDEX unique_user_content (user_id, content);

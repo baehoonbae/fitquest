@@ -79,8 +79,8 @@ import http from "@/api/http";
 const router = useRouter();
 const authStore = useAuthStore();
 const boardStore = useBoardStore();
-const fileInput = ref(null);
 
+const fileInput = ref(null);
 const post = ref({
   userId: null,
   writer: "",

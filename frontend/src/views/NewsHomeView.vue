@@ -115,7 +115,6 @@ const getUniqueRandomImage = () => {
   if (imageItems.value.length === 0) return null;
   if (usedImageIndices.value.size >= imageItems.value.length) {
     usedImageIndices.value.clear(); // 모든 이미지가 사용되었다면 초기화
-  }
 
   let randomIndex;
   do {

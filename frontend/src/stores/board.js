@@ -60,10 +60,38 @@ export const useBoardStore = defineStore("board", () => {
     }
   };
 
+  const fetchPost = async (id) => {
+    try {
+      const response = await http.get(`/board/${id}`);
+      if (response.status === 200) {
+        return response.data;
+      }
+      throw new Error("게시글 조회에 실패했습니다.");
+    } catch (error) {
+      console.error("Error fetching post:", error);
+      throw error;
+    }
+  };
+
+  const fetchUpdateBoard = async (id, postData) => {
+    try {
+      const response = await http.put(`/board/${id}`, postData);
+      if (response.status === 200) {
+        return response.data;
+      }
+      throw new Error("게시글 수정에 실패했습니다.");
+    } catch (error) {
+      console.error("Error updating board:", error);
+      throw error;
+    }
+  };
+
   return {
     boards,
     fetchBoards,
     addBoard,
     searchBoards,
+    fetchPost,
+    fetchUpdateBoard,
   };
 });

@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.web.fitquest.model.SearchHistory;
 import com.web.fitquest.model.board.Board;
 import com.web.fitquest.model.searchCondition.SearchCondition;
 import com.web.fitquest.service.board.BoardService;
@@ -172,6 +173,42 @@ public class BoardController {
         } catch (Exception e) {
             log.error("파일을 찾을 수 없습니다: {}", filename, e);
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/history")
+    public ResponseEntity<?> saveSearchHistory(@RequestBody SearchHistory searchHistory) {
+        log.debug("BoardController/saveSearchHistory: searchHistory = {}", searchHistory);
+        try {
+            Optional<Integer> result = boardService.saveSearchHistory(searchHistory);
+            if(result.isPresent() && result.get() > 0) {
+                return ResponseEntity.ok(Map.of("message", "검색어 저장 성공"));
+            } else {
+                return ResponseEntity.ok(Map.of("message", "검색어 저장 실패"));
+            }
+        } catch (Exception e) {
+            log.error("검색어 저장 실패: {}", e);
+            return exceptionHandling(e);
+        }
+    }
+
+    @GetMapping("/history/{userId}/{content}")
+    public ResponseEntity<?> getSearchHistory(@PathVariable int userId, @PathVariable String content) {
+        log.debug("BoardController/getSearchHistory: userId = {}, content = {}", userId, content);
+        try {
+            SearchHistory searchHistory = SearchHistory.builder()
+                .userId(userId)
+                .content(content)
+                .build();
+            Optional<List<String>> result = boardService.getSearchHistory(searchHistory);
+            if(result.isPresent() && !result.get().isEmpty()) {
+                return ResponseEntity.ok(result.get());
+            } else {
+                return ResponseEntity.ok(List.of());
+            }
+        } catch (Exception e) {
+            log.error("연관 검색어 조회 실패: {}", e);
+            return exceptionHandling(e);
         }
     }
 

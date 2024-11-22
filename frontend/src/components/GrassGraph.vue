@@ -12,11 +12,19 @@
           </option>
         </select>
       </div>
-      <div class="flex items-center gap-5 justify-center">
+      <div class="hidden md:flex items-center gap-5 justify-center">
         <template v-for="(level, index) in activityLevels" :key="index">
           <div class="flex gap-1 items-center">
             <span class="text-xs text-gray-400">{{ level.label }}</span>
             <div class="w-4 h-4 rounded-sm" :class="level.color"></div>
+          </div>
+        </template>
+      </div>
+      <div class="flex md:hidden items-center gap-2 justify-center">
+        <template v-for="(level, index) in activityLevels" :key="index">
+          <div class="flex gap-0.5 items-center">
+            <span class="text-[10px] text-gray-400">{{ level.label }}</span>
+            <div class="w-3 h-3 rounded-sm" :class="level.color"></div>
           </div>
         </template>
       </div>

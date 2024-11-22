@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "es-hangul": "^2.2.3",
     "tailwind-scrollbar-hide": "^1.1.7"
   }
 }

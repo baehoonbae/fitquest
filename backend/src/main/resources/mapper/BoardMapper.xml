@@ -56,12 +56,14 @@
 
     <update id="updateBoard" parameterType="com.web.fitquest.model.board.Board">
         UPDATE board
-        SET
-        <if test="tag != null">tag = #{tag},</if>
-        <if test="title != null">title = #{title},</if>
-        <if test="content != null">content = #{content},</if>
-        <if test="viewCount >= 0">view_count = #{viewCount},</if>
-        <if test="postImage != null">post_image = #{postImage}</if>
+        <set>
+            <if test="tag != null">tag = #{tag},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="viewCount >= 0">view_count = #{viewCount},</if>
+            <if test="postImage != null">post_image = #{postImage},</if>
+            date = date  <!-- 날짜는 기존 값 유지 -->
+        </set>
         WHERE id = #{id}
     </update>
 
@@ -91,5 +93,24 @@
         JOIN user u ON b.user_id = u.id
         WHERE REPLACE(b.title, ' ', '') LIKE CONCAT('%', REPLACE(#{searchText}, ' ', ''), '%')
         ORDER BY b.date DESC
+    </select>
+
+    <insert id="saveSearchHistory" parameterType="com.web.fitquest.model.SearchHistory">
+        INSERT INTO search_history (user_id, content)
+        SELECT #{userId}, #{content}
+        WHERE NOT EXISTS (
+            SELECT 1 
+            FROM search_history 
+            WHERE user_id = #{userId} 
+            AND content = #{content}
+        )
+    </insert>
+
+    <select id="getSearchHistory" parameterType="com.web.fitquest.model.SearchHistory" resultType="string">
+        SELECT DISTINCT content
+        FROM search_history
+        WHERE user_id = #{userId}
+        AND content LIKE CONCAT('%', #{content}, '%')  
+        LIMIT 7
     </select>
 </mapper>
