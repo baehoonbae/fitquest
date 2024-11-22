@@ -296,3 +296,5 @@ CREATE TABLE board_choseong (
     INDEX idx_writer_cho (writer_choseong)
 );
 
+ALTER TABLE category
+MODIFY COLUMN color VARCHAR(255);

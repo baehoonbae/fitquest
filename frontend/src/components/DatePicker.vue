@@ -117,19 +117,18 @@ const confirmDate = async () => {
   const newDate = localSelectedDate.value;
 
   try {
-    // todo 날짜 업데이트
     await todoStore.fetchTodoUpdate({
       ...todo,
       date: newDate,
     });
 
-    // 이전 날짜와 새로운 날짜의 todos와 activity 동시 갱신
     await Promise.all([
       todoStore.fetchTodos(oldDate),
       todoStore.fetchTodos(newDate),
       activityStore.fetchUpdateDailyActivity(oldDate, todo.userId),
       activityStore.fetchUpdateDailyActivity(newDate, todo.userId)
     ]);
+    dateStore.selectedDate = newDate;
     emit("closeDatePicker");
   } catch (error) {
     console.error("날짜 수정 실패:", error);

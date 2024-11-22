@@ -32,8 +32,10 @@
       </div>
     </template>
   </draggable>
-  <TodoMenu v-if="!contentUpdateMode && selectedTodoId !== null" :selectedTodoId="selectedTodoId" @close="closeMenu"
-    @edit="handleContent" @delete="goDelete" @moveTomorrow="handleMoveTomorrow" />
+  <Transition name="menu">
+    <TodoMenu v-if="!contentUpdateMode && selectedTodoId !== null" :selectedTodoId="selectedTodoId" @close="closeMenu"
+      @edit="handleContent" @delete="goDelete" @moveTomorrow="handleMoveTomorrow" />
+  </Transition>
 </template>
 
 <script setup>
@@ -176,15 +178,18 @@ const handleMoveTomorrow = async (id) => {
     const tomorrow = new Date(todo.date);
     tomorrow.setDate(tomorrow.getDate() + 1);
     const newDate = tomorrow.toISOString().split("T")[0];
-    todo.date = newDate;
-    await todoStore.fetchTodoUpdate(todo);
 
+    await todoStore.fetchTodoUpdate({
+      ...todo,
+      date: newDate,
+    });
     await Promise.all([
       todoStore.fetchTodos(oldDate),
       todoStore.fetchTodos(newDate),
       activityStore.fetchUpdateDailyActivity(oldDate, todo.userId),
       activityStore.fetchUpdateDailyActivity(newDate, todo.userId),
     ]);
+    dateStore.selectedDate = newDate;
     closeMenu();
   } catch (error) {
     console.error("할 일 내일로 이동 실패:", error);
@@ -344,5 +349,16 @@ watch(
 /* GPU 가속을 위한 transform 힌트 */
 .will-change-transform {
   will-change: transform;
+}
+
+/* TodoMenu 트랜지션 효과 추가 */
+.menu-enter-active,
+.menu-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.menu-enter-from,
+.menu-leave-to {
+  opacity: 0;
 }
 </style>

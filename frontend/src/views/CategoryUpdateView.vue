@@ -1,25 +1,21 @@
 <template>
-  <div
-    class="max-w-[900px] mx-auto"
-    @click="showDropdown = false"
-    @keydown.esc="showDropdown = false"
-    @keydown.enter="handleUpdate"
-  >
+  <div class="max-w-[900px] mx-auto" @click="showDropdown = false" @keydown.esc="showDropdown = false"
+    @keydown.enter="handleUpdate">
     <!-- 메인 컨텐츠 -->
     <main class="flex-1 flex justify-center items-start">
       <div class="w-[900px] p-4 mx-auto">
         <div class="space-y-6">
           <!-- 카테고리 입력 -->
           <div class="space-y-2">
-            <input
-              type="text"
-              v-model="localCategory.title"
-              class="w-full p-2 rounded-md border-b-[3px] focus:outline-none"
-              :style="{
-                borderBottomColor: localCategory.color,
-                color: localCategory.color,
-              }"
-            />
+            <input type="text" v-model="localCategory.title"
+              class="w-full p-2 rounded-md border-b-[3px] focus:outline-none" :style="{
+                borderBottomColor: localCategory.color.includes('gradient') ?
+                  localCategory.color.match(/(?:to right,\s*)([^,]+)/)[1].trim() :
+                  localCategory.color,
+                color: localCategory.color.includes('gradient') ?
+                  localCategory.color.match(/(?:to right,\s*)([^,]+)/)[1].trim() :
+                  localCategory.color,
+              }" />
           </div>
           <!-- 에러 메시지 표시 -->
           <p v-if="error" class="text-sm text-red-500">{{ error }}</p>
@@ -44,55 +40,112 @@
                   </span>
                   <ChevronDownIcon class="h-5 w-5 text-gray-400" />
                 </button>
-                <!-- 드롭다운 메뉴 -->
-                <div
-                  v-if="showDropdown"
-                  @click.stop
-                  class="absolute right-0 top-8 w-32 bg-white border rounded-md shadow-lg z-[998]"
-                >
+                <!-- 드롭다운 메뉴에 Transition 추가 -->
+                <Transition name="dropdown">
                   <div
-                    @click="selectVisibility(1)"
-                    class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm whitespace-nowrap"
+                    v-if="showDropdown"
+                    class="absolute right-0 top-8 w-32 bg-white border rounded-md shadow-lg z-10 origin-top-right"
                   >
-                    <GlobeAltIcon class="w-4 h-4 inline-block" />
-                    전체공개
+                    <div
+                      @click="selectVisibility(1)"
+                      class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm whitespace-nowrap"
+                    >
+                      <GlobeAltIcon class="w-4 h-4 inline-block" />
+                      전체공개
+                    </div>
+                    <div
+                      @click="selectVisibility(0)"
+                      class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm whitespace-nowrap"
+                    >
+                      <LockClosedIcon class="w-4 h-4 inline-block" />
+                      나만보기
+                    </div>
                   </div>
-                  <div
-                    @click="selectVisibility(0)"
-                    class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm whitespace-nowrap"
-                  >
-                    <LockClosedIcon class="w-4 h-4 inline-block" />
-                    나만보기
-                  </div>
-                </div>
+                </Transition>
               </div>
             </div>
 
             <!-- 색상 선택 -->
             <div class="pb-2 border-b-[1px]">
-              <div class="flex items-center justify-between relative">
+              <div class="flex items-center justify-between mb-3">
                 <span class="text-sm text-gray-700">색상</span>
-                <input
-                  type="color"
-                  v-model="localCategory.color"
-                  class="w-8 h-8 rounded-full overflow-hidden [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:border-none [&::-webkit-color-swatch]:rounded-full left-0"
-                  style="direction: ltr"
-                />
+                <button 
+                  @click="toggleColorOptions" 
+                  class="text-sm text-gray-600 flex items-center gap-2"
+                >
+                  <div 
+                    class="w-8 h-8 rounded-full border"
+                    :style="{ background: localCategory.color }"
+                  ></div>
+                  <ChevronDownIcon class="h-5 w-5 text-gray-400" />
+                </button>
               </div>
+
+              <Transition name="color-picker">
+                <div v-if="showColorOptions" 
+                  class="mt-2 p-4 bg-white rounded-lg shadow-lg origin-top-right"
+                >
+                  <!-- 탭 선택 -->
+                  <div class="flex gap-4 mb-4 border-b">
+                    <button 
+                      @click="activeTab = 'solid'"
+                      :class="['px-3 py-2', activeTab === 'solid' ? 'border-b-2 border-blue-500' : '']"
+                    >
+                      단색
+                    </button>
+                    <button 
+                      @click="activeTab = 'gradient'"
+                      :class="['px-3 py-2', activeTab === 'gradient' ? 'border-b-2 border-blue-500' : '']"
+                    >
+                      그라데이션
+                    </button>
+                  </div>
+
+                  <!-- 단색 탭 내용 -->
+                  <div v-if="activeTab === 'solid'" class="space-y-4">
+                    <div class="grid grid-cols-8 gap-2">
+                      <button 
+                        v-for="color in defaultColors" 
+                        :key="color"
+                        @click="selectColor(color)"
+                        class="w-8 h-8 rounded-full hover:scale-110 transition-transform"
+                        :style="{ backgroundColor: color }"
+                      ></button>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <input
+                        type="color"
+                        v-model="localCategory.color"
+                        class="w-8 h-8 rounded-full overflow-hidden [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:border-none [&::-webkit-color-swatch]:rounded-full"
+                      />
+                      <span class="text-sm text-gray-600">커스텀 색상</span>
+                    </div>
+                  </div>
+
+                  <!-- 그라데이션 탭 내용 -->
+                  <div v-if="activeTab === 'gradient'" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-2">
+                      <button 
+                        v-for="gradient in gradients" 
+                        :key="gradient.name"
+                        @click="selectGradient(gradient.value)"
+                        class="h-12 rounded-lg hover:scale-105 transition-transform"
+                        :style="{ background: gradient.value }"
+                      ></button>
+                    </div>
+                  </div>
+                </div>
+              </Transition>
             </div>
 
             <!-- 삭제 버튼 -->
             <div class="flex justify-center gap-3">
-              <button
-                @click="showDeleteModal = true"
-                class="py-2 px-12 font-semibold rounded-md bg-[#f5f5f5] text-red-500 hover:bg-red-100"
-              >
+              <button @click="showDeleteModal = true"
+                class="py-2 px-12 font-semibold rounded-md bg-[#f5f5f5] text-red-500 hover:bg-red-100">
                 삭제
               </button>
-              <button
-                @click="handleUpdate"
-                class="py-2 px-12 font-semibold rounded-md bg-[#f5f5f5] text-blue-500 hover:bg-blue-100"
-              >
+              <button @click="handleUpdate"
+                class="py-2 px-12 font-semibold rounded-md bg-[#f5f5f5] text-blue-500 hover:bg-blue-100">
                 확인
               </button>
             </div>
@@ -103,24 +156,17 @@
 
     <!-- 삭제 확인 모달 -->
     <Transition name="modal">
-      <div
-        v-if="showDeleteModal"
-        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[999]"
-        @click="showDeleteModal = false"
-      >
+      <div v-if="showDeleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[999]"
+        @click="showDeleteModal = false">
         <div class="bg-white rounded-lg p-6 w-80" @click.stop>
           <p class="text-gray-600 mb-6 text-center">카테고리를 삭제하시겠습니까?</p>
           <div class="flex justify-center gap-3">
-            <button
-              @click="showDeleteModal = false"
-              class="w-full px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md"
-            >
+            <button @click="showDeleteModal = false"
+              class="w-full px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md">
               취소
             </button>
-            <button
-              @click="categoryStore.fetchDeleteCategory(id)"
-              class="w-full px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-            >
+            <button @click="categoryStore.fetchDeleteCategory(id)"
+              class="w-full px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
               삭제
             </button>
           </div>
@@ -147,6 +193,24 @@ const localCategory = ref({
   isPublic: 1,
 });
 const error = ref("");
+const activeTab = ref('solid');
+const showColorOptions = ref(false);
+
+const defaultColors = [
+  '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD',
+  '#D4A5A5', '#9B59B6', '#3498DB', '#E74C3C', '#2ECC71',
+  '#F1C40F', '#1ABC9C', '#34495E', '#7F8C8D', '#D35400',
+  '#C0392B', '#8E44AD', '#2980B9', '#27AE60', '#F39C12'
+];
+
+const gradients = [
+  { name: 'Sunset', value: 'linear-gradient(to right, #FF512F, #DD2476)' },
+  { name: 'Ocean', value: 'linear-gradient(to right, #2193b0, #6dd5ed)' },
+  { name: 'Purple', value: 'linear-gradient(to right, #834d9b, #d04ed6)' },
+  { name: 'Forest', value: 'linear-gradient(to right, #134E5E, #71B280)' },
+  { name: 'Morning', value: 'linear-gradient(to right, #FDC830, #F37335)' },
+  { name: 'Royal', value: 'linear-gradient(to right, #141E30, #243B55)' }
+];
 
 const toggleDropdown = () => {
   showDropdown.value = !showDropdown.value;
@@ -211,6 +275,18 @@ const handleUpdate = async () => {
     error.value = err.message;
   }
 };
+
+const toggleColorOptions = () => {
+  showColorOptions.value = !showColorOptions.value;
+};
+
+const selectColor = (color) => {
+  localCategory.value.color = color;
+};
+
+const selectGradient = (gradient) => {
+  localCategory.value.color = gradient;
+};
 </script>
 
 <style scoped>
@@ -222,5 +298,50 @@ const handleUpdate = async () => {
 .modal-enter-from,
 .modal-leave-to {
   opacity: 0;
+}
+
+.color-picker-enter-active {
+  animation: bounce-in 0.5s;
+}
+.color-picker-leave-active {
+  animation: bounce-in 0.5s reverse;
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 기존 스타일은 유지하고 dropdown 애니메이션 추가 */
+.dropdown-enter-active {
+  animation: bounce-in 0.5s;
+}
+.dropdown-leave-active {
+  animation: bounce-in 0.5s reverse;
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 </style>
