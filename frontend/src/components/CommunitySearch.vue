@@ -8,7 +8,7 @@
         @keyup.enter="search"
         class="flex-1 border-none outline-none px-1"
       />
-      <button 
+      <button
         class="p-1 px-2 cursor-pointer hover:text-gray-600 transition-colors duration-200"
         @click="search"
       >
@@ -19,12 +19,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref } from "vue";
 
-const emit = defineEmits(['search']);
-const searchText = ref('');
+const emit = defineEmits(["search"]);
+const searchText = ref("");
 
 const search = () => {
-  emit('search', searchText.value);
+  // 검색어의 모든 공백 제거
+  const processedSearchText = searchText.value.replace(/\s+/g, "");
+  emit("search", processedSearchText);
 };
 </script>

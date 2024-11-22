@@ -1,11 +1,7 @@
 <template>
   <div class="max-w-4xl mx-auto px-4 pb-16">
     <CommunitySearch @search="handleSearch" />
-    <CommunityTag
-      :tags="tags"
-      :selectedTag="selectedTag"
-      @select-tag="handleTagSelect"
-    />
+    <CommunityTag :tags="tags" :selectedTag="selectedTag" @select-tag="handleTagSelect" />
     <div class="flex justify-end gap-3 my-2">
       <button
         class="px-3 py-1.5 rounded-md font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200"
@@ -37,6 +33,7 @@ import CommunitySearch from "@/components/CommunitySearch.vue";
 import CommunityTag from "@/components/CommunityTag.vue";
 import CommunityBoard from "@/components/CommunityBoard.vue";
 import CommunityPagenation from "@/components/CommunityPagenation.vue";
+import { COMMUNITY_TAGS } from "@/stores/tags";
 
 // 반응형 상태 정의
 const router = useRouter();
@@ -67,7 +64,10 @@ const filteredBoards = computed(() => {
   // 검색어 필터링
   if (searchQuery.value) {
     result = result.filter((board) =>
-      board.title.toLowerCase().includes(searchQuery.value.toLowerCase())
+      board.title
+        .replace(/\s+/g, "")
+        .toLowerCase()
+        .includes(searchQuery.value.toLowerCase())
     );
   }
 
@@ -91,7 +91,7 @@ const totalPages = computed(() => {
 
 // 메서드 정의
 const handleSearch = (query) => {
-  searchQuery.value = query;
+  searchQuery.value = query.replace(/\s+/g, "");
   currentPage.value = 1;
   updateUrlQuery(1);
 };
@@ -120,8 +120,9 @@ const updateUrlQuery = (page) => {
 // API 호출
 const fetchBoards = async () => {
   await boardStore.fetchBoards();
-  // 유니크한 태그 목록 추출
-  tags.value = [...new Set(boardStore.boards.map((board) => board.tag))];
+  // 정적 태그와 게시글의 태그를 합치고 중복 제거
+  const dynamicTags = [...new Set(boardStore.boards.map((board) => board.tag))];
+  tags.value = [...new Set([...COMMUNITY_TAGS, ...dynamicTags])];
   // 새로운 데이터를 불러올 때 첫 페이지로 이동
   currentPage.value = 1;
   updateUrlQuery(1);

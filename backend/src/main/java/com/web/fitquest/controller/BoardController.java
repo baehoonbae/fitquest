@@ -123,6 +123,21 @@ public class BoardController {
         }
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<?> searchBoards(@RequestParam String searchText) {
+        log.debug("BoardController/searchBoards: searchText = {}", searchText);
+        try {
+            Optional<List<Board>> result = boardService.searchBoardsByTitle(searchText);
+            if(result.isPresent() && !result.get().isEmpty()) {
+                return new ResponseEntity<List<Board>>(result.get(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+            }
+        } catch(Exception e) {
+            return exceptionHandling(e);
+        }
+    }
+
     @PostMapping("/{boardId}/post-image")
     public ResponseEntity<?> updatePostImage(@PathVariable Integer boardId,
             @RequestParam("image") MultipartFile image) {

@@ -17,12 +17,6 @@
           >
             취소
           </button>
-          <button
-            @click="submitComment"
-            class="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-md hover:bg-gray-800 transition-colors duration-200"
-          >
-            등록
-          </button>
         </div>
       </div>
     </div>
@@ -79,6 +73,11 @@ console.log("전송할 댓글 데이터:", {
   writer: authStore.user.name,
   content: content.value.trim(),
   parentId: props.parentId || 0,
+});
+
+// submitComment 메서드를 defineExpose를 통해 외부에서 접근 가능하게 만듦
+defineExpose({
+  submitComment,
 });
 </script>
 
