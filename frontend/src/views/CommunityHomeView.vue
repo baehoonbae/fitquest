@@ -1,6 +1,9 @@
 <template>
   <div class="max-w-4xl mx-auto px-4 pb-16">
-    <CommunitySearch @search="handleSearch" />
+    <CommunitySearch 
+      v-model="searchText" 
+      @search="handleSearch" 
+    />
     <CommunityTag :tags="tags" :selectedTag="selectedTag" @select-tag="handleTagSelect" />
     <div class="flex justify-end gap-3 my-2">
       <button
@@ -41,7 +44,7 @@ const route = useRoute();
 const boardStore = useBoardStore();
 const tags = ref([]);
 const selectedTag = ref(null);
-const searchQuery = ref("");
+const searchText = ref('');
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
 
@@ -60,16 +63,6 @@ const filteredBoards = computed(() => {
 
   // ID 기준으로 내림차순 정렬
   result.sort((a, b) => b.id - a.id);
-
-  // 검색어 필터링 (공백 제거 후 비교)
-  if (searchQuery.value) {
-    result = result.filter((board) =>
-      board.title
-        .replace(/\s+/g, "")
-        .toLowerCase()
-        .includes(searchQuery.value.toLowerCase())
-    );
-  }
 
   // 태그 필터링
   if (selectedTag.value) {
@@ -133,9 +126,9 @@ const fetchBoards = async () => {
 // 전체 보기 메서드
 const viewAllPosts = () => {
   selectedTag.value = null;
-  searchQuery.value = "";
+  searchText.value = "";
   currentPage.value = 1;
-  updateUrlQuery(1);
+  fetchBoards();
 };
 
 // 글쓰기 페이지로 이동하는 메서드

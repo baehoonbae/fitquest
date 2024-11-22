@@ -28,4 +28,5 @@ public class Board {
     private int commentCount; 
     private int hitCount;
     private String postImage;
+    private BoardChoseong choseong;
 }

@@ -75,6 +75,7 @@ import { useAuthStore } from "@/stores/auth";
 import { useBoardStore } from "@/stores/board";
 import { COMMUNITY_TAGS } from "@/stores/tags";
 import http from "@/api/http";
+import { getChoseong } from "es-hangul";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -116,16 +117,19 @@ const submitPost = async () => {
       return;
     }
 
-    // 이미지 파일을 제외한 게시글 데이터
+    // 초성 데이터 추가
     const postData = {
       userId: post.value.userId,
       writer: post.value.writer,
       tag: post.value.tag,
       title: post.value.title,
       content: post.value.content,
+      choseong: {
+        titleChoseong: getChoseong(post.value.title.replace(/\s+/g, '')),
+        contentChoseong: getChoseong(post.value.content.replace(/\s+/g, '')),
+        writerChoseong: getChoseong(post.value.writer.replace(/\s+/g, ''))
+      }
     };
-
-    // 먼저 게시글을 등록합니다
     const response = await boardStore.addBoard(postData);
     const boardId = response.id; // 서버에서 반환한 게시글 ID
 

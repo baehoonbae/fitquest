@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.web.fitquest.mapper.board.BoardMapper;
 import com.web.fitquest.model.SearchHistory;
 import com.web.fitquest.model.board.Board;
+import com.web.fitquest.model.board.BoardChoseong;
 import com.web.fitquest.model.searchCondition.SearchCondition;
 
 import lombok.RequiredArgsConstructor;
@@ -42,11 +43,27 @@ public class BoardServiceImpl implements BoardService {
 
 	@Override
 	public Optional<Integer> addBoard(Board board) {
-		return Optional.ofNullable(boardMapper.addBoard(board));
+		boardMapper.addBoard(board);
+
+		BoardChoseong boardChoseong = board.getChoseong();
+		boardChoseong.setBoardId(board.getId());
+
+		boardMapper.addBoardChoseong(boardChoseong);
+		return Optional.ofNullable(board.getId());
 	}
 
 	@Override
 	public Optional<Integer> updateBoard(Board board) {
+		boardMapper.updateBoard(board);
+		BoardChoseong boardChoseong = board.getChoseong();
+		boardChoseong.setBoardId(board.getId());
+		
+		if (boardMapper.getBoardChoseong(board.getId()) == null) {
+			boardMapper.addBoardChoseong(boardChoseong);
+		} else {
+			boardMapper.updateBoardChoseong(boardChoseong);
+		}
+
 		return Optional.ofNullable(boardMapper.updateBoard(board));
 	}
 
@@ -135,5 +152,10 @@ public class BoardServiceImpl implements BoardService {
 	@Override
 	public Optional<List<String>> getSearchHistory(SearchHistory searchHistory) {
 		return Optional.ofNullable(boardMapper.getSearchHistory(searchHistory));
+	}
+
+	@Override
+	public Optional<Integer> updateWriterChoseongByUserId(int userId, String writerChoseong) {
+		return Optional.ofNullable(boardMapper.updateWriterChoseongByUserId(userId, writerChoseong));
 	}
 }

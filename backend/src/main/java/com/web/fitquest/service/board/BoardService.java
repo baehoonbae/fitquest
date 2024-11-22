@@ -29,4 +29,6 @@ public interface BoardService {
 	Optional<Integer> saveSearchHistory(SearchHistory searchHistory);
 
 	Optional<List<String>> getSearchHistory(SearchHistory searchHistory);
+
+	Optional<Integer> updateWriterChoseongByUserId(int userId, String writerChoseong);
 }

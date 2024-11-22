@@ -19,5 +19,5 @@ public class SearchCondition {
 	private String word;
 	private String orderByDir;
 	private String orderBy;
-
+	private boolean isChoseong;
 }

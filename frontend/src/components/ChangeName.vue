@@ -48,6 +48,7 @@ import { ref, computed, onMounted } from "vue";
 import axios from "axios";
 import { useAuthStore } from "@/stores/auth";
 import http from "@/api/http";
+import { getChoseong } from "es-hangul";
 
 const newName = ref("");
 const error = ref("");
@@ -138,12 +139,13 @@ const changeUserName = async () => {
     const accessToken = sessionStorage.getItem("accessToken");
     loading.value = true;
 
+    const newNameChoseong = getChoseong(newName.value.replace(/\s+/g, ''));
     await http.put(
       `/user/${userId}`,
       {
         id: userId,
         email: authStore.user.email,
-        name: newName.value,
+        name: newName.value + "," + newNameChoseong,
       },
       {
         headers: {

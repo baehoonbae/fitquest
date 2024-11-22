@@ -124,14 +124,10 @@ public class BoardController {
         }
     }
 
-    @GetMapping("/search/{key}/{word}")
-    public ResponseEntity<?> searchBoards(@PathVariable String key, @PathVariable String word) {
-        log.debug("BoardController/searchBoards: key = {}, word = {}", key, word);
+    @PostMapping("/search")
+    public ResponseEntity<?> searchBoards(@RequestBody SearchCondition searchCondition) {
+        log.debug("BoardController/searchBoards: searchCondition = {}", searchCondition);
         try {
-            SearchCondition searchCondition = SearchCondition.builder()
-                    .key(key)
-                    .word(word)
-                    .build();
             Optional<List<Board>> result = boardService.searchBoardsByCondition(searchCondition);
             if (result.isPresent() && !result.get().isEmpty()) {
                 return new ResponseEntity<List<Board>>(result.get(), HttpStatus.OK);

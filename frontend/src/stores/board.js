@@ -43,7 +43,7 @@ export const useBoardStore = defineStore("board", () => {
       if (!searchCondition.word) {
         return await fetchBoards();
       }
-      const response = await http.get(`/board/search/${searchCondition.key}/${searchCondition.word}`);
+      const response = await http.post(`/board/search`, searchCondition);
       if (response.status === 200) {
         boards.value = response.data.sort((a, b) => {
           const dateA = new Date(a.date).getTime();
