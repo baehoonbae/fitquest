@@ -22,11 +22,13 @@ public interface BoardService {
 	
 	Optional<Integer> deleteBoard(int boardId);
 
-	Optional<List<Board>> searchBoardsByTitle(String searchText);
+	Optional<List<Board>> searchBoardsByCondition(SearchCondition searchCondition);
 
 	String updatePostImage(Integer boardId, MultipartFile file) throws IOException;
 
 	Optional<Integer> saveSearchHistory(SearchHistory searchHistory);
 
 	Optional<List<String>> getSearchHistory(SearchHistory searchHistory);
+
+	Optional<Integer> updateWriterChoseongByUserId(int userId, String writerChoseong);
 }

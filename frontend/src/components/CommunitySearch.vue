@@ -1,32 +1,29 @@
 <template>
   <div class="py-4 relative search-container">
-    <div class="flex items-center border border-gray-200 rounded-md px-3 mb-5">
-      <input
-        type="text"
-        placeholder="글 검색"
-        :value="searchText"
-        @input="handleInput"
-        @keyup.enter="search"
-        class="flex-1 border-none outline-none px-1 text-[20px]"
-      />
-      <button
-        class="p-1 px-2 cursor-pointer hover:text-gray-600 transition-colors duration-200"
-        @click="search"
-      >
-        <i class="fas fa-search"></i>
-      </button>
+    <div class="flex items-center gap-2 mb-5">
+      <!-- 검색 필터 선택 -->
+      <select v-model="searchType" class="border border-gray-200 rounded-md px-2 py-1">
+        <option value="all">전체</option>
+        <option value="title">제목</option>
+        <option value="writer">작성자</option>
+        <option value="content">내용</option>
+      </select>
+
+      <!-- 검색창 -->
+      <div class="flex items-center border border-gray-200 rounded-md px-3 flex-1">
+        <input type="text" :placeholder="getPlaceholder" v-model="searchText" @input="handleInput" @keyup.enter="search"
+          class="flex-1 border-none outline-none px-1 text-[20px]" autocomplete="off" />
+        <button class="p-1 px-2 cursor-pointer hover:text-gray-600 transition-colors duration-200" @click="search">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
     </div>
-    <!-- showRelatedSearches와 enableRelatedSearches 모두 true일 때만 연관검색어 표시 -->
-    <div
-      v-if="enableRelatedSearches && showRelatedSearches && relatedSearches.length > 0"
-      class="absolute w-full bg-white border border-gray-200 rounded-md mt-1 shadow-lg z-10"
-    >
-      <div
-        v-for="(search, index) in relatedSearches"
-        :key="index"
-        class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-        @click="selectRelatedSearch(search)"
-      >
+
+    <!-- 연관검색어 부분은 동일하게 유지 -->
+    <div v-if="enableRelatedSearches && showRelatedSearches && relatedSearches.length > 0"
+      class="absolute w-full bg-white border border-gray-200 rounded-md mt-1 shadow-lg z-10">
+      <div v-for="(search, index) in relatedSearches" :key="index" class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+        @click="selectRelatedSearch(search)">
         {{ search }}
       </div>
     </div>
@@ -34,12 +31,17 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, computed } from "vue";
 import { useAuthStore } from "@/stores/auth";
+import { disassemble, getChoseong } from "es-hangul";
 import http from "@/api/http";
 
-const emit = defineEmits(["search"]);
-const searchText = ref("");
+const emit = defineEmits(["update:modelValue", "search"]);
+const searchType = ref("all");
+const searchText = computed({
+  get: () => props.modelValue,
+  set: (value) => emit('update:modelValue', value)
+});
 const relatedSearches = ref([]);
 const showRelatedSearches = ref(false);
 const authStore = useAuthStore();
@@ -49,10 +51,20 @@ let debounceTimer;
 let clickOutsideHandler;
 
 const props = defineProps({
+  modelValue: String,
   enableRelatedSearches: {
     type: Boolean,
     default: true,
   },
+});
+
+const getPlaceholder = computed(() => {
+  switch (searchType.value) {
+    case "title": return "제목으로 검색";
+    case "writer": return "작성자로 검색";
+    case "content": return "내용으로 검색";
+    default: return "전체 검색";
+  }
 });
 
 const debounceFetchSearchHistory = () => {
@@ -101,14 +113,26 @@ const search = async () => {
   } catch (error) {
     console.error("검색 기록 저장 실패:", error);
   }
+  const isChoseong = getChoseong(searchText.value.trim()) === searchText.value.trim();
 
-  emit("search", searchText.value.trim());
+  // 검색어 처리
+  // 초성으로만 이루어져 있으면 초성으로 검색, 아니면 그냥 검색
+  // 만약 초성으로 이루어져 있다면 초성을 분해하여 검색(ㄳ,ㄵ,ㄶ,ㄺ,ㄻ,ㄼ,ㄽ,ㄾ,ㄿ,ㅀ,ㅄ 예외처리 위함)
+  emit("search", {
+    key: searchType.value,
+    word: isChoseong ? disassemble(getChoseong(searchText.value.replace(/\s+/g, ''))) : searchText.value.replace(/\s+/g, ''),
+    isChoseong: isChoseong,
+  });
   showRelatedSearches.value = false;
 };
 
-const selectRelatedSearch = (search) => {
-  searchText.value = search;
-  search();
+const selectRelatedSearch = (selectedSearch) => {
+  searchText.value = selectedSearch;
+  emit("search", {
+    key: searchType.value,
+    word: selectedSearch.trim(),
+  });
+  showRelatedSearches.value = false;
 };
 
 onMounted(() => {

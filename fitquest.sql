@@ -237,8 +237,25 @@ MODIFY COLUMN date DATETIME DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE comment 
 MODIFY COLUMN date DATETIME DEFAULT CURRENT_TIMESTAMP;
 
+-- 기존 외래 키 제약조건 삭제
+ALTER TABLE board
+DROP FOREIGN KEY fk_board_writer;
+
+-- writer 컬럼의 외래 키 제약조건 제거
+ALTER TABLE board 
+MODIFY COLUMN writer VARCHAR(50);
+
+-- comment 테이블의 외래 키 제약조건 삭제
+ALTER TABLE comment
+DROP FOREIGN KEY fk_comment_writer;
+
+-- writer 컬럼의 외래 키 제약조건 제거
+ALTER TABLE comment 
+MODIFY COLUMN writer VARCHAR(50);
+
 select * from user;
 select * from board;
+select * from board_choseong;
 
 ALTER TABLE user
 ADD COLUMN profile_image VARCHAR(255) AFTER name;
@@ -268,3 +285,14 @@ CREATE TABLE search_history (
 select * from search_history;
 ALTER TABLE search_history 
 ADD UNIQUE INDEX unique_user_content (user_id, content);
+
+CREATE TABLE board_choseong (
+    board_id INT PRIMARY KEY,
+    title_choseong VARCHAR(200),
+    content_choseong TEXT,
+    writer_choseong VARCHAR(100),
+    FOREIGN KEY (board_id) REFERENCES board(id) ON DELETE CASCADE,
+    INDEX idx_title_cho (title_choseong),
+    INDEX idx_writer_cho (writer_choseong)
+);
+

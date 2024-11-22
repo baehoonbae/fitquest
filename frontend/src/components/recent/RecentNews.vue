@@ -25,7 +25,7 @@
                             <button class="flex flex-col w-full">
                                 <span class="text-gray-800 font-medium">{{
                                     news.title
-                                }}</span>
+                                    }}</span>
                                 <span class="text-sm text-gray-500 mt-1">
                                     {{ news.postdate }}
                                 </span>
@@ -70,7 +70,6 @@ const navigateToNews = (link) => {
 
 const loadRecentNews = () => {
     const news = JSON.parse(localStorage.getItem("recentNews") || "[]");
-    console.log("Loaded recent news:", news);
     recentNews.value = news;
 };
 

@@ -1,45 +1,25 @@
 <template>
+  <div class="fixed top-0 left-0 right-0 z-[9999]">
+    <div class="max-w-[950px] mx-auto px-5 md:px-4">
+      <NewsHeader @search="(query) => handleSearch(query)" />
+    </div>
+  </div>
   <div class="h-[calc(100vh-4rem)]">
-    <div
-      ref="scrollContainer"
-      class="h-full overflow-y-auto rounded-[15px]"
-      @scroll="handleScroll"
-    >
-      <masonry-wall
-        :items="newsItems"
-        :column-width="300"
-        :gap="16"
-        class="px-4"
-        @layout-complete="handleLayoutComplete"
-      >
+    <div ref="scrollContainer" class="h-full overflow-y-auto rounded-[15px]" @scroll="handleScroll">
+      <masonry-wall :items="newsItems" :column-width="300" :gap="16" class="px-4"
+        @layout-complete="handleLayoutComplete">
         <template #default="{ item }">
           <div
             class="bg-gray-50 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer overflow-hidden flex flex-col"
-            @click="openNews(item)"
-          >
-            <div
-              v-if="item.thumbnail"
-              class="w-full overflow-hidden"
-              :style="{
-                aspectRatio: `${item.imageWidth}/${item.imageHeight}`,
-              }"
-            >
-              <img
-                :src="item.thumbnail"
-                @error="handleImageError($event, item)"
-                class="w-full h-full object-cover"
-                loading="lazy"
-                :alt="item.title"
-                decoding="async"
-                :width="item.imageWidth"
-                :height="item.imageHeight"
-              />
+            @click="openNews(item)">
+            <div v-if="item.thumbnail" class="w-full overflow-hidden" :style="{
+              aspectRatio: `${item.imageWidth}/${item.imageHeight}`,
+            }">
+              <img :src="item.thumbnail" @error="handleImageError($event, item)" class="w-full h-full object-cover"
+                loading="lazy" :alt="item.title" decoding="async" :width="item.imageWidth" :height="item.imageHeight" />
             </div>
             <div class="p-2 h-2/5">
-              <h3
-                class="font-semibold text-gray-800 text-sm truncate"
-                v-html="item.title"
-              ></h3>
+              <h3 class="font-semibold text-gray-800 text-sm truncate" v-html="item.title"></h3>
               <div class="flex items-center justify-between mt-1">
                 <span class="text-xs text-gray-600">{{ formatDate(item.postdate) }}</span>
               </div>
@@ -50,9 +30,7 @@
 
       <!-- 로딩 인디케이터 -->
       <div v-if="isLoading" class="text-center py-4">
-        <div
-          class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"
-        ></div>
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
       </div>
 
       <!-- 더 이상 데이터가 없을 때 메시지 -->
@@ -66,7 +44,7 @@
 <script setup>
 import { ref, onMounted, inject, watch, nextTick } from "vue";
 import { searchBlog, searchImage } from "@/api/news";
-import { COMMUNITY_TAGS } from "@/stores/tags";
+import NewsHeader from "@/components/NewsHeader.vue";
 const imageQuery = ref("Cross Fit Exercises");
 
 const searchQuery = ref("운동");
@@ -144,7 +122,7 @@ const preloadImage = (src) => {
 };
 
 // 초기 검색 함수
-const handleSearch = async () => {
+const handleSearch = async (query) => {
   try {
     isLoading.value = true;
     currentPage.value = 1;
@@ -152,7 +130,7 @@ const handleSearch = async () => {
 
     // 블로그와 이미지 동시 검색
     const [blogResponse, imageResponse] = await Promise.all([
-      searchBlog(searchQuery.value, 1, INITIAL_LOAD_COUNT),
+      searchBlog(query, 1, INITIAL_LOAD_COUNT),
       searchImage(imageQuery.value),
     ]);
 
@@ -215,9 +193,8 @@ const loadMore = async () => {
     const newItems = blogResponse.items.map((item, index) => {
       const uniqueImage = getUniqueRandomImage();
       const imageInfo = uniqueImage || {
-        thumbnail: `https://picsum.photos/400/300?random=${
-          newsItems.value.length + index
-        }`,
+        thumbnail: `https://picsum.photos/400/300?random=${newsItems.value.length + index
+          }`,
         width: 400,
         height: 300,
       };
@@ -339,7 +316,7 @@ const openNews = (news) => {
 };
 
 onMounted(() => {
-  handleSearch();
+  handleSearch(searchQuery.value);
 });
 
 watch(

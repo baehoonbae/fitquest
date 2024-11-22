@@ -76,6 +76,7 @@ import { useAuthStore } from "@/stores/auth";
 import { useBoardStore } from "@/stores/board";
 import http from "@/api/http";
 import { COMMUNITY_TAGS } from "@/stores/tags";
+import { getChoseong } from "es-hangul";
 
 const router = useRouter();
 const route = useRoute();
@@ -120,6 +121,11 @@ const submitPost = async () => {
       tag: post.value.tag,
       title: post.value.title,
       content: post.value.content,
+      choseong: {
+        titleChoseong: getChoseong(post.value.title.replace(/\s+/g, '')),
+        contentChoseong: getChoseong(post.value.content.replace(/\s+/g, '')),
+        writerChoseong: getChoseong(post.value.writer.replace(/\s+/g, ''))
+      }
     };
 
     // 먼저 게시글을 등록합니다

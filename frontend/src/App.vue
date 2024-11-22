@@ -1,36 +1,24 @@
 <template>
   <div class="min-h-[calc(100vh-10rem)] flex flex-col">
     <header v-if="!hideLayout" class="flex-none fixed top-0 left-0 right-0 bg-white z-[99]">
-      <div class="max-w-[950px] mx-auto px-5 md:px-4">
-        <Header @search="handleSearch" />
+      <div v-if="route.name !== 'news'" class="max-w-[950px] mx-auto px-5 md:px-4">
+        <Header />
       </div>
     </header>
-
-    <main 
-      :class="[
-        'flex-1 overflow-hidden',
-        { 'pt-[60px]': !hideLayout, 'pt-0': hideLayout }
-      ]"
-    >
-      <div 
-        v-if="route.name === 'news'" 
-        class="max-w-[1600px] h-full mx-auto px-5 md:px-4"
-      >
+    <main :class="[
+      'flex-1 overflow-hidden',
+      { 'pt-[60px]': !hideLayout, 'pt-0': hideLayout }
+    ]">
+      <div v-if="route.name === 'news'" class="max-w-[1600px] h-full mx-auto px-5 md:px-4">
         <RouterView />
       </div>
-      <div 
-        v-else 
-        class="max-w-7xl h-full mx-auto px-5 md:px-4"
-      >
+      <div v-else class="max-w-7xl h-full mx-auto px-5 md:px-4">
         <RouterView />
       </div>
     </main>
 
-    <footer 
-      v-if="!hideLayout" 
-      class="flex-none fixed bottom-0 left-0 right-0 transition-transform duration-300"
-      :class="[isFooterVisible ? 'translate-y-0' : 'translate-y-full']"
-    >
+    <footer v-if="!hideLayout" class="flex-none fixed bottom-0 left-0 right-0 transition-transform duration-300"
+      :class="[isFooterVisible ? 'translate-y-0' : 'translate-y-full']">
       <div class="relative" @mouseenter="showFooter" @mouseleave="hideFooter">
         <!-- 호버 영역 -->
         <div class="absolute bottom-full left-0 right-0 h-2 bg-transparent">

@@ -124,17 +124,17 @@ public class BoardController {
         }
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<?> searchBoards(@RequestParam String searchText) {
-        log.debug("BoardController/searchBoards: searchText = {}", searchText);
+    @PostMapping("/search")
+    public ResponseEntity<?> searchBoards(@RequestBody SearchCondition searchCondition) {
+        log.debug("BoardController/searchBoards: searchCondition = {}", searchCondition);
         try {
-            Optional<List<Board>> result = boardService.searchBoardsByTitle(searchText);
-            if(result.isPresent() && !result.get().isEmpty()) {
+            Optional<List<Board>> result = boardService.searchBoardsByCondition(searchCondition);
+            if (result.isPresent() && !result.get().isEmpty()) {
                 return new ResponseEntity<List<Board>>(result.get(), HttpStatus.OK);
             } else {
                 return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             return exceptionHandling(e);
         }
     }
@@ -181,7 +181,7 @@ public class BoardController {
         log.debug("BoardController/saveSearchHistory: searchHistory = {}", searchHistory);
         try {
             Optional<Integer> result = boardService.saveSearchHistory(searchHistory);
-            if(result.isPresent() && result.get() > 0) {
+            if (result.isPresent() && result.get() > 0) {
                 return ResponseEntity.ok(Map.of("message", "검색어 저장 성공"));
             } else {
                 return ResponseEntity.ok(Map.of("message", "검색어 저장 실패"));
@@ -197,11 +197,11 @@ public class BoardController {
         log.debug("BoardController/getSearchHistory: userId = {}, content = {}", userId, content);
         try {
             SearchHistory searchHistory = SearchHistory.builder()
-                .userId(userId)
-                .content(content)
-                .build();
+                    .userId(userId)
+                    .content(content)
+                    .build();
             Optional<List<String>> result = boardService.getSearchHistory(searchHistory);
-            if(result.isPresent() && !result.get().isEmpty()) {
+            if (result.isPresent() && !result.get().isEmpty()) {
                 return ResponseEntity.ok(result.get());
             } else {
                 return ResponseEntity.ok(List.of());

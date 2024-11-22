@@ -114,6 +114,7 @@ import { useAuthStore } from "@/stores/auth";
 import http from "@/api/http";
 import CommentForm from "@/components/comment/CommentForm.vue";
 import CommentList from "@/components/comment/CommentList.vue";
+import { getChoseong } from "es-hangul";
 
 const route = useRoute();
 const router = useRouter();
@@ -150,6 +151,11 @@ const incrementViewCount = async (boardData) => {
       title: boardData.title,
       content: boardData.content,
       viewCount: (boardData.viewCount || 0) + 1,
+      choseong: {
+        titleChoseong: getChoseong(boardData.title.replace(/\s+/g, '')),
+        contentChoseong: getChoseong(boardData.content.replace(/\s+/g, '')),
+        writerChoseong: getChoseong(boardData.writer.replace(/\s+/g, ''))
+      }
     };
 
     console.log("업데이트할 데이터:", updatedBoard);

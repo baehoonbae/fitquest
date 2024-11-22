@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.web.fitquest.mapper.user.UserMapper;
 import com.web.fitquest.model.user.User;
 import com.web.fitquest.requests.LoginRequest;
+import com.web.fitquest.service.board.BoardService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +31,9 @@ public class UserServiceImpl implements UserService {
 
     @Value("${upload.path}")
     private String uploadPath;
+
+    @Autowired
+    private BoardService boardService;
 
     @Override
     public Optional<User> login(LoginRequest loginRequest) {
@@ -54,8 +59,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public boolean updateUser(User user) {
-        return userMapper.updateUser(user) > 0;
+        try {
+            String[] parts = user.getName().split(",");
+            String name = parts[0];
+            String choseong = parts[1];
+            user.setName(name);
+            boardService.updateWriterChoseongByUserId(user.getId(), choseong);
+            return userMapper.updateUser(user) > 0;
+        } catch (Exception e) {
+            log.error("사용자 정보 수정 실패", e);
+            throw e;
+        }
     }
 
     @Override
