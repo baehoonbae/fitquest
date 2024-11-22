@@ -9,10 +9,10 @@
           <!-- 프로필 이미지 -->
           <div class="relative">
             <img
-              :src="profileImage || '/default-profile.png'"
+              :src="profileImage || ''"
               class="w-20 h-20 rounded-full object-cover"
               alt="프로필 이미지"
-              @error="(e) => (e.target.src = '/default-profile.png')"
+              @error="(e) => (e.target.src = '')"
             />
           </div>
           <!-- 사용자 정보 -->
@@ -33,9 +33,7 @@
       <!-- 오른쪽 섹션: 카테고리 -->
       <div class="md:w-1/2 p-4 rounded-[15px]">
         <CategoryHeader />
-        <div
-          class="min-h-[calc(100vh-30rem)] max-h-[calc(100vh-30rem)] overflow-y-auto"
-        >
+        <div class="min-h-[calc(100vh-30rem)] max-h-[calc(100vh-30rem)] overflow-y-auto">
           <CategoryList :selectedDate="selectedDate" />
         </div>
       </div>
@@ -69,7 +67,7 @@ const handleDateSelected = (date) => {
 onMounted(() => {
   if (authStore.user.profileImage) {
     // 이미지 URL을 직접 사용
-    profileImage.value = `${http.defaults.baseURL}/file${authStore.user.profileImage}`;
+    profileImage.value = `${http.defaults.baseURL}/user${authStore.user.profileImage}`;
   }
 });
 </script>

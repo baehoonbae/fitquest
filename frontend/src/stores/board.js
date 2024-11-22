@@ -28,9 +28,9 @@ export const useBoardStore = defineStore("board", () => {
       if (response.status === 201 || response.status === 200) {
         // 게시글 추가 후 즉시 목록 갱신
         await fetchBoards();
-        return true;
+        return response.data;
       }
-      return false;
+      throw new Error("게시글 등록에 실패했습니다.");
     } catch (error) {
       console.error("Error adding board:", error);
       throw error;

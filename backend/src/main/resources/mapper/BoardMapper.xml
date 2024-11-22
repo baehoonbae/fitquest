@@ -14,6 +14,7 @@
             b.title, 
             b.content, 
             b.view_count viewCount,
+            b.post_image postImage,
             (SELECT COUNT(*) 
                 FROM comment c 
                 WHERE c.board_id = b.id 
@@ -39,13 +40,14 @@
                u.name writer,  <!-- user_name을 name으로 변경 -->
                b.title, 
                b.content, 
-               b.view_count viewCount
+               b.view_count viewCount,
+               b.post_image postImage
         FROM board b
         JOIN user u ON b.user_id = u.id
         WHERE b.id = #{id}
     </select>
 
-    <insert id="addBoard" parameterType="com.web.fitquest.model.board.Board">
+    <insert id="addBoard" parameterType="com.web.fitquest.model.board.Board" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO board (user_id, tag, writer, title, content)
         SELECT #{userId}, #{tag}, name, #{title}, #{content}  <!-- user_name을 name으로 변경 -->
         FROM user
@@ -58,7 +60,8 @@
         <if test="tag != null">tag = #{tag},</if>
         <if test="title != null">title = #{title},</if>
         <if test="content != null">content = #{content},</if>
-        <if test="viewCount >= 0">view_count = #{viewCount}</if>
+        <if test="viewCount >= 0">view_count = #{viewCount},</if>
+        <if test="postImage != null">post_image = #{postImage}</if>
         WHERE id = #{id}
     </update>
 

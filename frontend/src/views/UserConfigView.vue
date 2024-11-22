@@ -92,8 +92,9 @@ const showChangeDescriptionModal = ref(false);
 // 프로필 이미지 로드
 onMounted(() => {
   if (authStore.user.profileImage) {
+    console.log(authStore.user.profileImage);
     // 이미지 URL을 직접 사용
-    profileImage.value = `${http.defaults.baseURL}/file${authStore.user.profileImage}`;
+    profileImage.value = `${http.defaults.baseURL}/user${authStore.user.profileImage}`;
   }
 });
 
@@ -119,7 +120,7 @@ const handleImageUpload = async (event) => {
       }
     );
     // 새로운 이미지 URL 설정
-    profileImage.value = `http://70.12.50.63:8097/fitquest/api/file${response.data.imageUrl}`;
+    profileImage.value = `${http.defaults.baseURL}/user${response.data.imageUrl}`;
     authStore.user.profileImage = response.data.imageUrl;
   } catch (error) {
     console.error("이미지 업로드 실패:", error);
