@@ -13,7 +13,7 @@
         </button>
         <Transition name="dropdown">
           <div v-if="isDropdownOpen"
-            class="absolute right-0 mt-2 w-[155px] font-semibold bg-white rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.15)] py-2">
+            class="absolute right-0 mt-2 w-[155px] font-semibold bg-white rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.15)] py-2 origin-top-right">
             <button @click="showRecentPosts"
               class="rounded-xl block px-4 py-2 text-sm text-gray-700 w-full text-left transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900 active:bg-gray-100">
               최근 본 게시물
@@ -100,14 +100,25 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.dropdown-enter-active,
+.dropdown-enter-active {
+  animation: bounce-in 0.5s;
+}
 .dropdown-leave-active {
-  transition: all 0.3s ease;
+  animation: bounce-in 0.5s reverse;
 }
 
-.dropdown-enter-from,
-.dropdown-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 </style>

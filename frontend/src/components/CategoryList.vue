@@ -9,7 +9,14 @@
           <div class="flex items-center gap-1.5">
             <GlobeAltIcon v-if="category.isPublic" class="w-3.5 h-3.5 text-gray-400" />
             <LockClosedIcon v-else class="w-3.5 h-3.5 text-gray-400" />
-            <span class="text-sm font-bold" :style="{ color: category.color }">
+            <span 
+              class="text-sm font-bold" 
+              :style="{ 
+                color: category.color.includes('gradient') ? 
+                  category.color.match(/(?:to right,\s*)([^,]+)/)[1].trim() : 
+                  category.color 
+              }"
+            >
               {{ truncateText(category.title) }}
             </span>
           </div>
@@ -17,30 +24,36 @@
         </div>
         <div class="mb-7">
           <TodoList :categoryId="category.id" :group="'todos'" />
-          <div
-            v-if="selectedCategory && selectedCategory.id === category.id"
-            class="mt-3.5 mb-7"
-          >
-            <div class="flex items-center gap-1.5">
-              <input
-                class="w-[19px] h-[19px] rounded border bg-[#dddfe0] border-[#dddfe0]"
-              />
-              <input
-                type="text"
-                placeholder="할 일 입력"
-                class="pb-1.5 w-full text-sm outline-none caret-blue-500"
-                :ref="
-                  (el) => {
-                    if (selectedCategory?.id === category.id) todoInput = el;
-                  }
-                "
-                :style="{ 'border-bottom': `2px solid ${selectedCategory.color}` }"
-                v-model="todo.content"
-                @click.stop
-                @keyup.enter="handleAddTodo(todo)"
-              />
+          <Transition name="todo-form">
+            <div
+              v-if="selectedCategory && selectedCategory.id === category.id"
+              class="mt-3.5 mb-7"
+            >
+              <div class="flex items-center gap-1.5">
+                <input
+                  class="w-[19px] h-[19px] rounded border bg-[#dddfe0] border-[#dddfe0]"
+                />
+                <input
+                  type="text"
+                  placeholder="할 일 입력"
+                  class="pb-1.5 w-full text-sm outline-none caret-blue-500"
+                  :ref="
+                    (el) => {
+                      if (selectedCategory?.id === category.id) todoInput = el;
+                    }
+                  "
+                  :style="{ 
+                    borderBottom: selectedCategory.color.includes('gradient') ? 
+                      `2px solid ${selectedCategory.color.match(/(?:to right,\s*)([^,]+)/)[1].trim()}` :
+                      `2px solid ${selectedCategory.color}`
+                  }"
+                  v-model="todo.content"
+                  @click.stop
+                  @keyup.enter="handleAddTodo(todo)"
+                />
+              </div>
             </div>
-          </div>
+          </Transition>
         </div>
       </div>
     </div>
@@ -51,10 +64,8 @@
 import { useAuthStore } from "@/stores/auth";
 import { useCategoryStore } from "@/stores/category";
 import {
-  Cog6ToothIcon,
   GlobeAltIcon,
   LockClosedIcon,
-  PlusCircleIcon,
 } from "@heroicons/vue/24/outline";
 import { onMounted, watch, ref, onUnmounted } from "vue";
 import TodoList from "@/components/TodoList.vue";
@@ -149,3 +160,27 @@ onUnmounted(() => {
   window.removeEventListener("keydown", closeAddTodo);
 });
 </script>
+
+<style scoped>
+.todo-form-enter-active {
+  animation: bounce-in 0.5s;
+}
+.todo-form-leave-active {
+  animation: bounce-in 0.5s reverse;
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+</style>

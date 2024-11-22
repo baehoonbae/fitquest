@@ -5,16 +5,23 @@
     <form @submit.prevent="submitPost" class="bg-white p-8 md:p-5 rounded-lg shadow-sm">
       <div class="mb-6">
         <label for="tag" class="block font-semibold text-gray-700 mb-2">태그</label>
-        <select
-          id="tag"
-          v-model="post.tag"
-          required
-          class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600"
-        >
-          <option v-for="tag in COMMUNITY_TAGS" :key="tag" :value="tag">
-            {{ tag }}
-          </option>
-        </select>
+        <div class="relative">
+          <button type="button" @click.stop="toggleDropdown"
+            class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600 flex justify-between items-center">
+            <span class="text-gray-700">{{ post.tag || '태그를 선택하세요' }}</span>
+            <ChevronDownIcon class="h-5 w-5 text-gray-400" />
+          </button>
+
+          <Transition name="dropdown">
+            <div v-if="showDropdown"
+              class="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg origin-top-right max-h-[240px] overflow-y-scroll">
+              <div v-for="tag in COMMUNITY_TAGS" :key="tag" @click="selectTag(tag)"
+                class="px-4 py-2.5 hover:bg-gray-100 cursor-pointer text-sm text-gray-700">
+                {{ tag }}
+              </div>
+            </div>
+          </Transition>
+        </div>
       </div>
       <div class="mb-6">
         <label for="title" class="block font-semibold text-gray-700 mb-2">제목</label>
@@ -70,13 +77,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import { useBoardStore } from "@/stores/board";
 import http from "@/api/http";
 import { COMMUNITY_TAGS } from "@/stores/tags";
 import { getChoseong } from "es-hangul";
+import { ChevronDownIcon } from '@heroicons/vue/24/outline'
 
 const router = useRouter();
 const route = useRoute();
@@ -91,6 +99,31 @@ const post = ref({
   title: "",
   content: "",
   postImage: null,
+});
+
+const showDropdown = ref(false);
+
+const toggleDropdown = () => {
+  showDropdown.value = !showDropdown.value;
+};
+
+const selectTag = (tag) => {
+  post.value.tag = tag;
+  showDropdown.value = false;
+};
+
+const handleClickOutside = (event) => {
+  if (showDropdown.value) {
+    showDropdown.value = false;
+  }
+};
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside);
 });
 
 const fetchPost = async () => {
@@ -179,3 +212,36 @@ onMounted(async () => {
   await fetchPost();
 });
 </script>
+
+<style scoped>
+/* 슬라이드 + 페이드 효과 */
+.dropdown-enter-active,
+.dropdown-leave-active {
+  transition: all 0.3s ease;
+}
+
+.dropdown-enter-from,
+.dropdown-leave-to {
+  transform: translateY(-10px);
+  opacity: 0;
+}
+
+/* 스크롤바 스타일링 */
+.absolute::-webkit-scrollbar {
+  width: 8px;
+}
+
+.absolute::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.absolute::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.absolute::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+</style>
