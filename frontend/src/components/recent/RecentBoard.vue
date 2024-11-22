@@ -69,7 +69,6 @@ const navigateToPost = (postId) => {
 
 const loadRecentPosts = () => {
   const posts = JSON.parse(localStorage.getItem("recentPosts") || "[]");
-  console.log("Loaded recent posts:", posts); // 데이터 확인용 로그
   recentPosts.value = posts;
 };
 
