@@ -72,7 +72,7 @@
         WHERE id = #{id}
     </delete>
 
-    <select id="searchBoardsByTitle" parameterType="string" 
+    <select id="searchBoardsByCondition" parameterType="com.web.fitquest.model.searchCondition.SearchCondition" 
             resultType="com.web.fitquest.model.board.Board">
         SELECT b.id Id, 
             b.user_id userId, 
@@ -91,7 +91,24 @@
                 WHERE h.board_id = b.id) as hitCount
         FROM board b
         JOIN user u ON b.user_id = u.id
-        WHERE REPLACE(b.title, ' ', '') LIKE CONCAT('%', REPLACE(#{searchText}, ' ', ''), '%')
+        <where>
+            <choose>
+                <when test="key == 'title'">
+                    REPLACE(b.title, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%')
+                </when>
+                <when test="key == 'writer'">
+                    REPLACE(u.name, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%')
+                </when>
+                <when test="key == 'content'">
+                    REPLACE(b.content, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%')
+                </when>
+                <when test="key == 'all'">
+                    (REPLACE(b.title, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%')
+                    OR REPLACE(u.name, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%')
+                    OR REPLACE(b.content, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%'))
+                </when>
+            </choose>
+        </where>
         ORDER BY b.date DESC
     </select>
 

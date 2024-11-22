@@ -38,13 +38,12 @@ export const useBoardStore = defineStore("board", () => {
   };
 
   // 검색 기능 추가
-  const searchBoards = async (searchText) => {
+  const searchBoards = async (searchCondition) => {
     try {
-      if (!searchText) {
+      if (!searchCondition.word) {
         return await fetchBoards();
       }
-
-      const response = await http.get(`/board/search?searchText=${searchText}`);
+      const response = await http.get(`/board/search/${searchCondition.key}/${searchCondition.word}`);
       if (response.status === 200) {
         boards.value = response.data.sort((a, b) => {
           const dateA = new Date(a.date).getTime();

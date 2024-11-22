@@ -51,9 +51,9 @@ public class BoardServiceImpl implements BoardService {
 	}
 
 	@Override
-    public Optional<List<Board>> searchBoardsByTitle(String searchText) {
-        return Optional.ofNullable(boardMapper.searchBoardsByTitle(searchText));
-    }
+	public Optional<List<Board>> searchBoardsByCondition(SearchCondition searchCondition) {
+		return Optional.ofNullable(boardMapper.searchBoardsByCondition(searchCondition));
+	}
 
 	@Override
 	public Optional<Integer> deleteBoard(int boardId) {

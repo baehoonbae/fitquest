@@ -22,7 +22,7 @@ public interface BoardService {
 	
 	Optional<Integer> deleteBoard(int boardId);
 
-	Optional<List<Board>> searchBoardsByTitle(String searchText);
+	Optional<List<Board>> searchBoardsByCondition(SearchCondition searchCondition);
 
 	String updatePostImage(Integer boardId, MultipartFile file) throws IOException;
 

@@ -90,11 +90,12 @@ const totalPages = computed(() => {
 });
 
 // 검색 처리 함수 수정
-const handleSearch = (query) => {
-  // 검색어의 공백 제거
-  searchQuery.value = query.replace(/\s+/g, "");
-  currentPage.value = 1;
-  updateUrlQuery(1);
+const handleSearch = async (searchCondition) => {
+  try {
+    await boardStore.searchBoards(searchCondition);
+  } catch (error) {
+    console.error("검색 중 오류 발생:", error);
+  }
 };
 
 const handleTagSelect = (tag) => {

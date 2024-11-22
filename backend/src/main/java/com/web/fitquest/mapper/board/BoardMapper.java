@@ -21,7 +21,7 @@ public interface BoardMapper {
 	
 	Integer deleteBoard(int boardId);
 
-	List<Board> searchBoardsByTitle(String searchText);
+	List<Board> searchBoardsByCondition(SearchCondition searchCondition);
 
 	Integer saveSearchHistory(SearchHistory searchHistory);
 
