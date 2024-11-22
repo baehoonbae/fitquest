@@ -2,14 +2,9 @@
   <div class="max-w-4xl mx-auto px-5 my-1 md:my-2">
     <h1 class="text-3xl font-bold text-gray-800 mb-8">게시글 작성</h1>
 
-    <form
-      @submit.prevent="submitPost"
-      class="bg-white p-8 md:p-5 rounded-lg shadow-sm"
-    >
+    <form @submit.prevent="submitPost" class="bg-white p-8 md:p-5 rounded-lg shadow-sm">
       <div class="mb-6">
-        <label for="tag" class="block font-semibold text-gray-700 mb-2"
-          >태그</label
-        >
+        <label for="tag" class="block font-semibold text-gray-700 mb-2">태그</label>
         <select
           id="tag"
           v-model="post.tag"
@@ -22,11 +17,8 @@
           </option>
         </select>
       </div>
-
       <div class="mb-6">
-        <label for="title" class="block font-semibold text-gray-700 mb-2"
-          >제목</label
-        >
+        <label for="title" class="block font-semibold text-gray-700 mb-2">제목</label>
         <input
           type="text"
           id="title"
@@ -36,11 +28,8 @@
           class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600"
         />
       </div>
-
       <div class="mb-6">
-        <label for="content" class="block font-semibold text-gray-700 mb-2"
-          >내용</label
-        >
+        <label for="content" class="block font-semibold text-gray-700 mb-2">내용</label>
         <textarea
           id="content"
           v-model="post.content"
@@ -48,14 +37,24 @@
           placeholder="내용을 입력하세요"
           rows="10"
           class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600 min-h-[200px] resize-y"
-        ></textarea>
+        />
       </div>
-
+      <div class="mb-6">
+        <label for="image" class="block font-semibold text-gray-700 mb-2">이미지</label>
+        <input
+          type="file"
+          id="image"
+          ref="fileInput"
+          @change="handleImageChange"
+          accept="image/*"
+          class="px-3 py-2.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600"
+        />
+      </div>
       <div class="flex justify-end gap-3 mt-8">
         <button
           type="button"
           class="px-5 py-2.5 rounded-md font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200"
-          @click="goBack"
+          @click="router.go(-1)"
         >
           취소
         </button>
@@ -81,6 +80,7 @@ import http from "@/api/http";
 const router = useRouter();
 const authStore = useAuthStore();
 const boardStore = useBoardStore();
+const fileInput = ref(null);
 
 const post = ref({
   userId: null,
@@ -88,6 +88,7 @@ const post = ref({
   tag: "",
   title: "",
   content: "",
+  postImage: null,
 });
 
 onMounted(() => {
@@ -100,6 +101,13 @@ onMounted(() => {
   post.value.writer = authStore.user.name;
 });
 
+const handleImageChange = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    post.value.postImage = file;
+  }
+};
+
 const submitPost = async () => {
   try {
     const token = authStore.getToken();
@@ -109,16 +117,47 @@ const submitPost = async () => {
       return;
     }
 
-    const success = await boardStore.addBoard(post.value);
-    if (success) {
-      alert("게시글이 등록되었습니다.");
-      // 게시글 목록 갱신 후 페이지 이동
-      await boardStore.fetchBoards();
-      router.push({
-        path: "/community",
-        query: { page: 1 }, // 무조건 첫 페이지로 이동하도록 설정
-      });
+    // 이미지 파일을 제외한 게시글 데이터
+    const postData = {
+      userId: post.value.userId,
+      writer: post.value.writer,
+      tag: post.value.tag,
+      title: post.value.title,
+      content: post.value.content,
+    };
+
+    // 먼저 게시글을 등록합니다
+    const response = await boardStore.addBoard(postData);
+    const boardId = response.id; // 서버에서 반환한 게시글 ID
+
+    // 이미지가 있는 경우에만 이미지 업로드를 진행합니다
+    const file = fileInput.value?.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("파일 크기는 5MB 이하여야 합니다.");
+        return;
+      }
+      try {
+        const formData = new FormData();
+        formData.append("image", file);
+        await http.post(`/board/${boardId}/post-image`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        console.log("이미지 업로드 성공");
+      } catch (error) {
+        console.error("이미지 업로드 실패:", error);
+        alert("이미지 업로드에 실패했습니다.");
+      }
     }
+
+    alert("게시글이 등록되었습니다.");
+    await boardStore.fetchBoards();
+    router.push({
+      path: "/community",
+      query: { page: 1 },
+    });
   } catch (error) {
     console.error("Error posting:", error);
     if (error.response?.status === 401) {
@@ -128,9 +167,5 @@ const submitPost = async () => {
       alert(error.response?.data?.message || "게시글 등록에 실패했습니다.");
     }
   }
-};
-
-const goBack = () => {
-  router.push("/community");
 };
 </script>

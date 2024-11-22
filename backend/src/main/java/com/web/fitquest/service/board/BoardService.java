@@ -1,10 +1,13 @@
 package com.web.fitquest.service.board;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-import com.web.fitquest.model.searchCondition.SearchCondition;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.web.fitquest.model.board.Board;
+import com.web.fitquest.model.searchCondition.SearchCondition;
 
 public interface BoardService {
     
@@ -20,4 +23,5 @@ public interface BoardService {
 
 	Optional<List<Board>> searchBoardsByTitle(String searchText);
 
+	String updatePostImage(Integer boardId, MultipartFile file) throws IOException;
 }

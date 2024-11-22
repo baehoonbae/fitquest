@@ -59,9 +59,10 @@
     </div>
 
     <!-- 게시글 내용 -->
-    <div
-      class="min-h-[300px] text-lg md:text-base text-gray-700 leading-relaxed mb-10"
-    >
+    <div class="min-h-[300px] text-lg md:text-base text-gray-700 leading-relaxed mb-10">
+      <div v-if="board.postImage !== null">
+        <img :src="board.postImage" alt="게시글 이미지" class="w-full mb-4" />
+      </div>
       <p>{{ board.content }}</p>
     </div>
 
@@ -180,6 +181,9 @@ const fetchBoardDetail = async () => {
       if (updatedResponse.status === 200) {
         board.value = updatedResponse.data;
         console.log("업데이트된 게시글 데이터:", board.value);
+      }
+      if (board.value.postImage !== null) {
+        board.value.postImage = `${http.defaults.baseURL}/board${board.value.postImage}`;
       }
     }
   } catch (error) {
