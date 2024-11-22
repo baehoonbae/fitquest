@@ -11,7 +11,6 @@
           required
           class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600"
         >
-          <option value="" disabled>태그를 선택하세요</option>
           <option v-for="tag in COMMUNITY_TAGS" :key="tag" :value="tag">
             {{ tag }}
           </option>
@@ -76,6 +75,7 @@ import { useAuthStore } from "@/stores/auth";
 import { useBoardStore } from "@/stores/board";
 import { COMMUNITY_TAGS } from "@/stores/tags";
 import http from "@/api/http";
+import { COMMUNITY_TAGS } from "@/stores/tags";
 
 const router = useRouter();
 const authStore = useAuthStore();

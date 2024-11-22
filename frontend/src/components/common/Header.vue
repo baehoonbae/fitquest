@@ -47,14 +47,8 @@
     </div>
 
     <!-- 최근 본 게시물 모달 -->
-    <RecentPostsModal
-      :is-open="isRecentPostsModalOpen"
-      @close="closeRecentPostsModal"
-    />
-    <RecentNewsModal
-      :is-open="isRecentNewsModalOpen"
-      @close="closeRecentNewsModal"
-    />
+    <RecentPostsModal :is-open="isRecentPostsModalOpen" @close="closeRecentPostsModal" />
+    <RecentNewsModal :is-open="isRecentNewsModalOpen" @close="closeRecentNewsModal" />
   </div>
 </template>
 
@@ -100,8 +94,7 @@ const closeRecentNewsModal = () => {
 // 현재 라우트에 따라 컴포넌트 동적 로드
 const loadHeaderComponent = async () => {
   if (route.name === "news") {
-    const CommunitySearch = (await import("@/components/CommunitySearch.vue"))
-      .default;
+    const CommunitySearch = (await import("@/components/CommunitySearch.vue")).default;
     headerComponent.value = CommunitySearch;
   } else {
     headerComponent.value = null;

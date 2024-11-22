@@ -64,6 +64,6 @@ export const useBoardStore = defineStore("board", () => {
     boards,
     fetchBoards,
     addBoard,
-    searchBoards, // 검색 메서드 추가
+    searchBoards,
   };
 });

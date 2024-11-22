@@ -50,6 +50,11 @@ public class BoardServiceImpl implements BoardService {
 	}
 
 	@Override
+    public Optional<List<Board>> searchBoardsByTitle(String searchText) {
+        return Optional.ofNullable(boardMapper.searchBoardsByTitle(searchText));
+    }
+
+	@Override
 	public Optional<Integer> deleteBoard(int boardId) {
 		// 게시글 삭제 전에 이미지 파일 삭제
 		try {

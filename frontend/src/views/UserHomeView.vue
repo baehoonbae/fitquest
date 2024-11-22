@@ -57,7 +57,6 @@ import http from "@/api/http";
 
 const authStore = useAuthStore();
 const selectedDate = ref(null);
-
 const profileImage = computed(() => {
   if (authStore.user?.profileImage) {
     return `${http.defaults.baseURL}/file${authStore.user.profileImage}`;
@@ -68,12 +67,4 @@ const profileImage = computed(() => {
 const handleDateSelected = (date) => {
   selectedDate.value = date;
 };
-
-// 프로필 이미지 로드
-onMounted(() => {
-  if (authStore.user.profileImage) {
-    // 이미지 URL을 직접 사용
-    profileImage.value = `${http.defaults.baseURL}/user${authStore.user.profileImage}`;
-  }
-});
 </script>
