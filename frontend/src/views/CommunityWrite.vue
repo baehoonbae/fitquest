@@ -73,6 +73,7 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import { useBoardStore } from "@/stores/board";
+import { COMMUNITY_TAGS } from "@/stores/tags";
 import http from "@/api/http";
 import { COMMUNITY_TAGS } from "@/stores/tags";
 

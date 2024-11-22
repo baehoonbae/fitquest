@@ -71,7 +71,7 @@
     </delete>
 
     <select id="searchBoardsByTitle" parameterType="string" 
-    resultType="com.web.fitquest.model.board.Board">
+            resultType="com.web.fitquest.model.board.Board">
         SELECT b.id Id, 
             b.user_id userId, 
             b.tag, 

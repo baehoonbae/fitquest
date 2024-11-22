@@ -41,10 +41,12 @@ const selectTag = (tag) => {
 .flex-wrap button {
   transition: all 0.2s ease;
 }
+
 /* 선택적: 태그들 사이의 간격을 더 조정하고 싶다면 */
 .flex-wrap {
   margin: -4px; /* 네거티브 마진으로 정렬 보정 */
 }
+
 .flex-wrap button {
   margin: 4px; /* 각 버튼의 실제 마진 */
 }

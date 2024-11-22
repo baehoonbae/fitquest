@@ -23,7 +23,9 @@
           </button>
         </div>
       </div>
-      <h1 class="text-4xl md:text-2xl font-bold text-gray-800 mb-4 leading-tight">
+      <h1
+        class="text-4xl md:text-2xl font-bold text-gray-800 mb-4 leading-tight"
+      >
         {{ board.title }}
       </h1>
       <div
@@ -39,7 +41,10 @@
             <i class="fas fa-eye"></i>
             <span>{{ board.viewCount }}</span>
           </div>
-          <div class="flex items-center gap-1.5 cursor-pointer" @click="toggleHit">
+          <div
+            class="flex items-center gap-1.5 cursor-pointer"
+            @click="toggleHit"
+          >
             <i
               :class="{
                 'fas fa-heart text-xl transition-all duration-200': true,
@@ -293,7 +298,9 @@ const toggleHit = async () => {
   }
 
   try {
-    const response = await http.post(`/hit/${route.params.id}/${authStore.user.id}`);
+    const response = await http.post(
+      `/hit/${route.params.id}/${authStore.user.id}`
+    );
 
     // 응답 상태 확인 및 데이터 처리
     if (response.status === 200 && response.data) {
