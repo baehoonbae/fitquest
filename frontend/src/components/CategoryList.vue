@@ -3,11 +3,11 @@
     <div class="space-y-4">
       <div v-for="category in categoryStore.categories" :key="category.id">
         <div class="flex items-center bg-gray-100 rounded-[16px] py-1.5 px-2.5 cursor-pointer hover:bg-gray-200 w-fit"
-          @click.stop="openTodoForm(category)">
-          <div class="flex items-center gap-1.5">
+          @click.stop="props.userId === authStore.user.id && openTodoForm(category)">
+          <div class="flex items-center">
             <GlobeAltIcon v-if="category.isPublic" class="w-3.5 h-3.5 text-gray-400" />
             <LockClosedIcon v-else class="w-3.5 h-3.5 text-gray-400" />
-            <span class="text-sm font-bold bg-clip-text" :style="{
+            <span class="text-sm font-bold bg-clip-text mx-1.5" :style="{
               color: category.color.includes('gradient') ? 'transparent' : category.color,
               backgroundImage: category.color.includes('gradient') ? category.color : 'none',
               '-webkit-background-clip': 'text'
@@ -15,12 +15,12 @@
               {{ truncateText(category.title) }}
             </span>
           </div>
-          <span class="text-gray-400 ml-1.5">+</span>
+          <span v-if="props.userId === authStore.user.id" class="text-gray-400">+</span>
         </div>
         <div class="mb-7">
-          <TodoList :categoryId="category.id" :group="'todos'" />
+          <TodoList :categoryId="category.id" :group="'todos'" :userId="Number(props.userId)" />
           <Transition name="todo-form">
-            <div v-if="selectedCategory && selectedCategory.id === category.id" class="mt-3.5 mb-7">
+            <div v-if="selectedCategory && selectedCategory.id === category.id && props.userId === authStore.user.id" class="mt-3.5 mb-7">
               <div class="flex items-center gap-1.5">
                 <input class="w-[19px] h-[19px] rounded border bg-[#dddfe0] border-[#dddfe0]" />
                 <input type="text" placeholder="할 일 입력" class="pb-1.5 w-full text-sm outline-none caret-blue-500" :ref="(el) => {
@@ -57,6 +57,17 @@ import { useTodoStore } from "@/stores/todo";
 import { useDateStore } from "@/stores/date";
 import { useActivityStore } from "@/stores/activity";
 
+const props = defineProps({
+  selectedDate: {
+    type: String,
+    required: false
+  },
+  userId: {
+    type: Number,
+    required: true
+  }
+});
+
 const authStore = useAuthStore();
 const categoryStore = useCategoryStore();
 const todoStore = useTodoStore();
@@ -64,10 +75,10 @@ const dateStore = useDateStore();
 const activityStore = useActivityStore();
 const selectedCategory = ref(null);
 const todo = ref({
-  userId: authStore.user.id,
+  userId: props.userId || authStore.user.id,
   categoryId: null,
   content: "",
-  date: dateStore.selectedDate,
+  date: props.selectedDate || dateStore.selectedDate,
 });
 const todoInput = ref(null);
 
@@ -79,7 +90,7 @@ const closeAddTodo = () => {
 const openTodoForm = (category) => {
   selectedCategory.value = category;
   todo.value.categoryId = category.id;
-  todo.value.date = dateStore.selectedDate;
+  todo.value.date = props.selectedDate || dateStore.selectedDate;
 
   setTimeout(() => {
     if (todoInput.value) {
@@ -93,7 +104,7 @@ const handleAddTodo = async (todo) => {
     try {
       const result = await todoStore.fetchAddTodo(todo);
       if (result?.success) {
-        await todoStore.fetchTodos(todo.date);
+        await todoStore.fetchTodos(todo.date, props.userId);
         todo.content = "";
         await activityStore.fetchUpdateDailyActivity(todo.date, todo.userId);
       }
@@ -109,13 +120,17 @@ const truncateText = (text) => {
 };
 
 onMounted(async () => {
-  if (!dateStore.selectedDate) {
+  if (!props.selectedDate && !dateStore.selectedDate) {
     dateStore.setSelectedDate(new Date().toISOString().split("T")[0]);
   }
-  if (authStore.user.isAuthenticated) {
-    await categoryStore.fetchCategories();
-    await todoStore.fetchTodos(dateStore.selectedDate);
+  
+  if (props.userId) {
+    await Promise.all([
+      categoryStore.fetchCategories(props.userId),
+      todoStore.fetchTodos(props.selectedDate || dateStore.selectedDate, props.userId)
+    ]);
   }
+  
   window.addEventListener("click", closeAddTodo);
   window.addEventListener("keydown", (event) => {
     if (event.key === "Escape") closeAddTodo();
@@ -123,20 +138,16 @@ onMounted(async () => {
 });
 
 watch(
-  () => dateStore.selectedDate,
-  async (newDate) => {
-    await todoStore.fetchTodos(newDate);
-  }
-);
-
-watch(
-  () => authStore.user.isAuthenticated,
-  async (isAuthenticated) => {
-    if (isAuthenticated) {
-      await categoryStore.fetchCategories();
-      await todoStore.fetchTodos(dateStore.selectedDate);
+  [
+    () => props.selectedDate || dateStore.selectedDate,
+    () => props.userId
+  ],
+  async ([newDate, userId]) => {
+    if (newDate && userId) {
+      await todoStore.fetchTodos(newDate, userId);
     }
-  }
+  },
+  { immediate: true }
 );
 
 onUnmounted(() => {
