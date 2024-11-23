@@ -5,7 +5,7 @@
         <div class="justify-items-center py-10">
           <div class="relative w-20 h-20">
             <img
-              :src="profileImage || '/default-profile.png'"
+              :src="computedProfileImage"
               class="w-20 h-20 rounded-full object-cover"
               alt="프로필 이미지"
               @error="(e) => (e.target.src = '/default-profile.png')"
@@ -75,7 +75,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, computed } from "vue";
 import ChangeName from "@/components/ChangeName.vue";
 import ChangeDescription from "@/components/ChangeDescription.vue";
 import { useAuthStore } from "@/stores/auth";
@@ -84,16 +84,16 @@ import { ChevronRightIcon } from "@heroicons/vue/24/outline";
 
 const authStore = useAuthStore();
 const fileInput = ref(null);
-const profileImage = ref(null);
 
 const showChangeNameModal = ref(false);
 const showChangeDescriptionModal = ref(false);
 
-// 프로필 이미지 로드
-onMounted(() => {
-  if (authStore.user.profileImage) {
-    profileImage.value = `${http.defaults.baseURL}/user${authStore.user.profileImage}`;
+// computed 속성으로 프로필 이미지 URL 계산
+const computedProfileImage = computed(() => {
+  if (authStore.user?.profileImage) {
+    return `${http.defaults.baseURL}/user${authStore.user.profileImage}`;
   }
+  return '/default-profile.png';
 });
 
 // 이미지 업로드 처리
@@ -117,8 +117,7 @@ const handleImageUpload = async (event) => {
         },
       }
     );
-    // 새로운 이미지 URL 설정
-    profileImage.value = `${http.defaults.baseURL}/user${response.data.imageUrl}`;
+    // authStore 업데이트만 하면 computed가 자동으로 새 URL 계산
     authStore.user.profileImage = response.data.imageUrl;
   } catch (error) {
     console.error("이미지 업로드 실패:", error);

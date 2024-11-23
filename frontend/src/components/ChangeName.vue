@@ -158,7 +158,6 @@ const changeUserName = async () => {
     authStore.user.name = newName.value;
     emit("update:name", newName.value);
     emit("close");
-    window.location.reload();
   } catch (err) {
     error.value = "닉네임 변경에 실패했습니다.";
     loading.value = false;

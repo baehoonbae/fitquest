@@ -8,11 +8,17 @@
     <main :class="[
       'flex-1 overflow-hidden',
       { 'pt-[60px]': !hideLayout, 'pt-0': hideLayout }
-    ]">
+    ]" tabindex="0" @click="openUserSearchModal = false" @keyup.esc="openUserSearchModal = false">
       <div v-if="route.name === 'news'" class="max-w-[1600px] h-full mx-auto px-5 md:px-4">
+        <div v-if="openUserSearchModal" class="fixed top-0 left-0 right-0 bottom-0 z-[105]">
+          <UserSearchModal @closeModal="openUserSearchModal = false" />
+        </div>
         <RouterView />
       </div>
       <div v-else class="max-w-7xl h-full mx-auto px-5 md:px-4">
+        <div v-if="openUserSearchModal" class="fixed top-0 left-0 right-0 bottom-0 z-[105]">
+          <UserSearchModal @closeModal="openUserSearchModal = false" />
+        </div>
         <RouterView />
       </div>
     </main>
@@ -27,8 +33,8 @@
           </div>
         </div>
         <!-- Footer 컨텐츠 -->
-        <div class="bg-white rounded-t-xl w-[500px] mx-auto px-5 md:px-4 shadow-[0_-2px_2px_rgba(0,0,0,0.1)]">
-          <Footer />
+        <div class="bg-white rounded-t-xl w-[570px] mx-auto px-5 md:px-4 shadow-[0_-2px_2px_rgba(0,0,0,0.1)]">
+          <Footer @openUserSearchModal="openUserSearchModal = true" />
         </div>
       </div>
     </footer>
@@ -36,25 +42,19 @@
 </template>
 
 <script setup>
-import { onMounted, computed, provide, ref } from "vue";
+import { onMounted, computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import Header from "@/components/common/Header.vue";
 import Footer from "@/components/common/Footer.vue";
+import UserSearchModal from "./components/UserSearchModal.vue";
 
 const route = useRoute();
 const authStore = useAuthStore();
+const openUserSearchModal = ref(false);
 
 // 현재 라우트의 meta.hideLayout 값을 확인
 const hideLayout = computed(() => route.meta.hideLayout);
-
-const searchQuery = ref(null);
-provide("searchQuery", searchQuery);
-
-// 검색 이벤트를 하위 컴포넌트에 제공
-const handleSearch = (query) => {
-  searchQuery.value = query;
-};
 
 const isFooterVisible = ref(false);
 
@@ -64,6 +64,10 @@ const showFooter = () => {
 
 const hideFooter = () => {
   isFooterVisible.value = false;
+};
+
+const openRandomUsers = () => {
+  openUserSearchModal.value = true;
 };
 
 onMounted(() => {
@@ -89,14 +93,19 @@ onMounted(() => {
 
 /* 텍스트 선택 비활성화 */
 * {
-  -webkit-user-select: none;  /* Chrome, Safari, Opera */
-  -moz-user-select: none;     /* Firefox */
-  -ms-user-select: none;      /* IE, Edge */
-  user-select: none;          /* 표준 문법 */
+  -webkit-user-select: none;
+  /* Chrome, Safari, Opera */
+  -moz-user-select: none;
+  /* Firefox */
+  -ms-user-select: none;
+  /* IE, Edge */
+  user-select: none;
+  /* 표준 문법 */
 }
 
 /* 입력 필드에서는 텍스트 선택 활성화 */
-input, textarea {
+input,
+textarea {
   -webkit-user-select: text;
   -moz-user-select: text;
   -ms-user-select: text;

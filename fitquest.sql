@@ -298,3 +298,11 @@ CREATE TABLE board_choseong (
 
 ALTER TABLE category
 MODIFY COLUMN color VARCHAR(255);
+
+# 11/23 추가 sql
+CREATE TABLE user_choseong (
+    user_id INT PRIMARY KEY,
+    name_choseong VARCHAR(200),
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+    INDEX idx_name_cho (name_choseong)
+);

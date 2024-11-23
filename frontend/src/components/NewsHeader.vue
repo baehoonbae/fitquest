@@ -110,6 +110,7 @@ onUnmounted(() => {
 .dropdown-enter-active {
     animation: bounce-in 0.5s;
 }
+
 .dropdown-leave-active {
     animation: bounce-in 0.5s reverse;
 }
@@ -119,10 +120,12 @@ onUnmounted(() => {
         transform: scale(0.3);
         opacity: 0;
     }
+
     50% {
         transform: scale(1.05);
         opacity: 0.5;
     }
+
     100% {
         transform: scale(1);
         opacity: 1;

@@ -6,6 +6,9 @@
     <RouterLink to="/community" class="text-gray-700 hover:text-blue-600 transition-colors duration-200">
       <span class="material-icons text-4xl">groups</span>
     </RouterLink>
+    <button @click="openUserSearchModal" class="text-gray-700 hover:text-blue-600 transition-colors duration-200 focus:outline-none">
+      <span class="material-icons text-3xl">search</span>
+    </button>
     <RouterLink to="/news" class="text-gray-700 hover:text-blue-600 transition-colors duration-200">
       <span class="material-icons text-4xl">newspaper</span>
     </RouterLink>
@@ -17,4 +20,10 @@
 
 <script setup>
 import { RouterLink } from 'vue-router';
+
+const emit = defineEmits(['openUserSearchModal']);
+
+const openUserSearchModal = () => {
+  emit('openUserSearchModal');
+};
 </script>

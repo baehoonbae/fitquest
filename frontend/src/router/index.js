@@ -14,6 +14,7 @@ import CategoryRegistView from "@/views/CategoryRegistView.vue";
 import CategoryManageView from "@/views/CategoryManageView.vue";
 import CategoryUpdateView from "@/views/CategoryUpdateView.vue";
 import CommunitySearch from "@/components/CommunitySearch.vue";
+import OtherUserHomeView from "@/views/OtherUserHomeView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -39,6 +40,11 @@ const router = createRouter({
       meta: {
         requiresAuth: true,
       },
+    },
+    {
+      path: "/home/:userId",
+      name: "userHomeDetail",
+      component: OtherUserHomeView,
     },
     {
       path: "/signup",
