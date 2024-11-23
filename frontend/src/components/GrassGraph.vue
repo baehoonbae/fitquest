@@ -63,15 +63,23 @@
 </template>
 
 <script setup>
-import { onMounted, computed, ref } from "vue";
+import { onMounted, computed, ref, watch } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { useActivityStore } from "@/stores/activity";
 import { useDateStore } from "@/stores/date";
+import { useTodoStore } from "@/stores/todo";
 
 const authStore = useAuthStore();
 const activityStore = useActivityStore();
 const dateStore = useDateStore();
+const todoStore = useTodoStore();
 const thisYear = ref(new Date().getFullYear());
+const props = defineProps({
+  userId: {
+    type: Number,
+    required: false,
+  },
+});
 
 const activityLevels = [
   { label: "0%", color: "bg-[#dddfe0]" },
@@ -91,8 +99,8 @@ const availableYears = computed(() => {
 });
 
 const fetchActivities = async () => {
-  const userId = authStore.user.id;
-  await activityStore.fetchActivities(userId, thisYear.value);
+  const targetUserId = props.userId || authStore.user.id;
+  await activityStore.fetchActivities(targetUserId, thisYear.value);
 };
 
 // 1년치 날짜 배열 생성
@@ -161,16 +169,23 @@ const getDate = (row, col) => {
 };
 
 // 날짜 클릭 핸들러 추가
-const handleDateClick = (dateString) => {
+const handleDateClick = async (dateString) => {
   if (dateString && isCurrentYear(dateString)) {
-    dateStore.setSelectedDate(dateString);
+    await dateStore.setSelectedDate(dateString);
+    const targetUserId = props.userId || authStore.user.id;
+    await todoStore.fetchTodos(dateString, targetUserId);
   }
 };
 
 onMounted(() => {
   fetchActivities();
 });
+
+watch([() => props.userId, thisYear], () => {
+  fetchActivities();
+});
 </script>
+
 <style scoped>
 /* 툴팁이 잘리지 않도록 부모 요소에 overflow 처리 */
 .grass-graph {

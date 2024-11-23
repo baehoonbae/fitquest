@@ -18,14 +18,10 @@
     <div class="mb-8">
       <!-- Weekdays -->
       <div class="grid grid-cols-7 mb-3 font-semibold gap-2">
-        <div
-          v-for="{ day, color } in weekdays"
-          :key="day"
-          :class="[
-            'text-center text-[0.85rem] w-full sm:w-12 h-8 flex items-center justify-center',
-            color,
-          ]"
-        >
+        <div v-for="{ day, color } in weekdays" :key="day" :class="[
+          'text-center text-[0.85rem] w-full sm:w-12 h-8 flex items-center justify-center',
+          color,
+        ]">
           {{ day }}
         </div>
       </div>
@@ -40,19 +36,13 @@
         <template v-for="day in daysInMonth" :key="day">
           <div
             class="aspect-square font-semibold w-full sm:w-12 h-auto sm:h-[3.3rem] flex flex-col items-center justify-center rounded-lg text-[0.85rem] cursor-pointer relative"
-            @click="selectDate(day)"
-          >
-            <div
-              class="w-6 h-6 text-center text-gray-600 border border-[#dddfe0] bg-[#dddfe0] rounded-[0.3rem] mb-0.5"
-            >
+            @click="selectDate(day)">
+            <div class="w-6 h-6 text-center text-gray-600 border border-[#dddfe0] bg-[#dddfe0] rounded-[0.3rem] mb-0.5">
               <div v-if="todoStore.getUndoneTodoCount(formatDate(day)) > 0">
                 {{ todoStore.getUndoneTodoCount(formatDate(day)) }}
               </div>
             </div>
-            <div
-              class="text-center rounded-full px-2 py-1"
-              :class="[{ 'bg-black text-white': isSelectedDate(day) }]"
-            >
+            <div class="text-center rounded-full px-2 py-1" :class="[{ 'bg-black text-white': isSelectedDate(day) }]">
               {{ day }}
             </div>
           </div>
@@ -63,11 +53,18 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { useCategoryStore } from "@/stores/category";
 import { useDateStore } from "@/stores/date";
 import { useTodoStore } from "@/stores/todo";
+
+const props = defineProps({
+  userId: {
+    type: Number,
+    required: true
+  }
+});
 
 const authStore = useAuthStore();
 const categoryStore = useCategoryStore();
@@ -76,7 +73,9 @@ const todoStore = useTodoStore();
 
 onMounted(async () => {
   await authStore.fetchUserInfo();
-  await categoryStore.fetchCategories();
+  if (props.userId) {
+    await categoryStore.fetchCategories(props.userId);
+  }
 });
 
 // 현재 날짜 상태 관리
@@ -122,7 +121,7 @@ const previousMonth = async () => {
   ).getFullYear();
   dateStore.currentMonth =
     new Date(currentYear.value, currentMonth.value - 2, 1).getMonth() + 1;
-  await todoStore.fetchMonthlyTodos(currentYear.value, currentMonth.value);
+  await todoStore.fetchMonthlyTodos(currentYear.value, currentMonth.value, props.userId);
 };
 
 // 다음 달로 이동
@@ -134,11 +133,11 @@ const nextMonth = async () => {
   ).getFullYear();
   dateStore.currentMonth =
     new Date(currentYear.value, currentMonth.value, 1).getMonth() + 1;
-  await todoStore.fetchMonthlyTodos(currentYear.value, currentMonth.value);
+  await todoStore.fetchMonthlyTodos(currentYear.value, currentMonth.value, props.userId);
 };
 
 // 날짜 선택
-const selectDate = (day) => {
+const selectDate = async (day) => {
   const selectedDate = new Date(
     dateStore.currentYear,
     dateStore.currentMonth - 1,
@@ -146,7 +145,11 @@ const selectDate = (day) => {
   );
   const formattedDate = selectedDate.toISOString().split("T")[0];
   dateStore.setSelectedDate(formattedDate);
+  await todoStore.fetchTodos(formattedDate, props.userId);
+  emit('dateSelected', formattedDate);
 };
+
+const emit = defineEmits(['dateSelected']);
 
 // YYYY-MM-DD 형식으로 날짜 변환
 const formatDate = (date) => {
@@ -158,7 +161,19 @@ const formatDate = (date) => {
   return selectedDate.toISOString().split("T")[0];
 };
 
-onMounted(async () => {
-  await todoStore.fetchMonthlyTodos(dateStore.currentYear, dateStore.currentMonth);
-});
+watch(
+  [() => dateStore.currentYear, () => dateStore.currentMonth, () => props.userId],
+  async ([year, month, userId]) => {
+    if (userId) {
+      await todoStore.fetchMonthlyTodos(year, month, userId);
+    }
+  },
+  { immediate: true }
+);
+
+watch(() => props.userId, async (newUserId) => {
+  if (newUserId) {
+    await categoryStore.fetchCategories(newUserId);
+  }
+}, { immediate: true });
 </script>

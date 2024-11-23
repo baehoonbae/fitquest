@@ -1,40 +1,61 @@
 <template>
-  <draggable v-model="filteredTodos" :group="{ name: 'todos', pull: true, put: true }" item-key="id"
-    @end="handleDragEnd" @start="handleDragStart" @change="handleChange" :animation="300" :delay="50"
-    :delayOnTouchOnly="true" :force-fallback="true">
+  <draggable v-model="filteredTodos" 
+    :group="isOwner ? { name: props.group, pull: true, put: true } : false"
+    item-key="id"
+    @end="handleDragEnd" 
+    @start="handleDragStart" 
+    @change="handleChange" 
+    :animation="300" 
+    :delay="50"
+    :delayOnTouchOnly="true" 
+    :force-fallback="true"
+    :disabled="!isOwner">
     <template #item="{ element: todo }">
       <div class="flex items-center gap-1.5 pt-3.5">
-        <div class="relative w-[19px] h-[19px] cursor-pointer" @click="handleDone(todo.id)">
+        <div class="relative w-[19px] h-[19px]" 
+          :class="{ 'cursor-pointer': isOwner }"
+          @click="isOwner && handleDone(todo.id)">
           <svg v-if="todo.isDone" class="w-[19px] h-[19px] text-black" viewBox="0 0 20 20" fill="currentColor">
             <rect width="18" height="18" x="1" y="1" rx="4" fill="currentColor" />
-            <path fill="white"
-              d="M13.293 7.293a1 1 0 0 1 1.414 1.414l-5 5a1 1 0 0 1-1.414 0l-2.5-2.5a1 1 0 0 1 1.414-1.414L9 11.586l4.293-4.293z" />
+            <path fill="white" d="M13.293 7.293a1 1 0 0 1 1.414 1.414l-5 5a1 1 0 0 1-1.414 0l-2.5-2.5a1 1 0 0 1 1.414-1.414L9 11.586l4.293-4.293z" />
           </svg>
           <div v-else class="w-[19px] h-[19px] rounded border bg-[#dadddf] border-gray-300"></div>
         </div>
-        <div v-if="contentUpdateMode && todo.id === selectedTodoId" class="flex-1">
+        <div v-if="isOwner && contentUpdateMode && todo.id === selectedTodoId" class="flex-1">
           <div class="flex" @click.stop>
-            <input type="text" placeholder="할 일 입력" class="pb-1.5 w-full text-xs outline-none caret-blue-500"
-              v-model="newTodoContent" :style="{
-                'border-bottom': `2px solid ${categoryStore.category.color}`,
+            <input type="text" placeholder="할 일 입력" 
+              class="pb-1.5 w-full text-sm outline-none caret-blue-500"
+              v-model="newTodoContent" 
+              :style="{
+                borderImage: categoryStore.category.color.includes('gradient') ? 
+                  `${categoryStore.category.color} 1` : 'none',
+                borderBottom: categoryStore.category.color.includes('gradient') ?
+                  '2px solid transparent' : `2px solid ${categoryStore.category.color}`,
+                borderImageSlice: categoryStore.category.color.includes('gradient') ? 1 : 'none'
               }" />
             <EllipsisHorizontalIcon class="w-[19px] h-[19px] flex-shrink-0" />
           </div>
         </div>
         <div v-else class="flex-1">
-          <button @click="toggleMenu(todo.id)" class="flex w-full">
+          <button @click="isOwner && toggleMenu(todo.id)" class="flex w-full">
             <div class="w-full text-[14.3px] text-left">
               {{ truncateText(todo.content) }}
             </div>
-            <EllipsisHorizontalIcon class="w-[19px] h-[19px] flex-shrink-0" />
+            <EllipsisHorizontalIcon v-if="isOwner" class="w-[19px] h-[19px] flex-shrink-0" />
           </button>
         </div>
       </div>
     </template>
   </draggable>
   <Transition name="menu">
-    <TodoMenu v-if="!contentUpdateMode && selectedTodoId !== null" :selectedTodoId="selectedTodoId" @close="closeMenu"
-      @edit="handleContent" @delete="goDelete" @moveTomorrow="handleMoveTomorrow" />
+    <TodoMenu 
+      v-if="isOwner && !contentUpdateMode && selectedTodoId !== null" 
+      :selectedTodoId="selectedTodoId" 
+      @close="closeMenu"
+      @edit="handleContent" 
+      @delete="goDelete" 
+      @moveTomorrow="handleMoveTomorrow" 
+    />
   </Transition>
 </template>
 
@@ -54,6 +75,10 @@ const props = defineProps({
   categoryId: {
     type: Number,
     required: true,
+  },
+  userId: {
+    type: Number,
+    required: true
   },
   group: {
     type: String,
@@ -100,7 +125,12 @@ const truncateText = (text) => {
   return text.length > 20 ? text.slice(0, 20) + "..." : text;
 };
 
+const isOwner = computed(() => {
+  return props.userId === authStore.user.id;
+});
+
 const toggleMenu = (id) => {
+  if (!isOwner.value) return;
   selectedTodoId.value = selectedTodoId.value === id ? null : id;
 };
 
@@ -142,6 +172,7 @@ const closeMenu = () => {
 };
 
 const handleDone = async (id) => {
+  if (!isOwner.value) return;
   try {
     const todo = todoStore.dailyTodos.find((t) => t.id === id);
     const updatedTodo = {
@@ -161,6 +192,7 @@ const handleDone = async (id) => {
 };
 
 const handleContent = async (id) => {
+  if (!isOwner.value) return;
   const todo = todoStore.dailyTodos.find((t) => t.id === id);
   if (todo) {
     await categoryStore.fetchCategory(todo.categoryId);
@@ -170,6 +202,7 @@ const handleContent = async (id) => {
 };
 
 const handleMoveTomorrow = async (id) => {
+  if (!isOwner.value) return;
   try {
     const todo = todoStore.dailyTodos.find((t) => t.id === id);
     const oldDate = todo.date;
@@ -195,12 +228,15 @@ const handleMoveTomorrow = async (id) => {
 };
 
 const handleDragStart = (event) => {
+  if (!isOwner.value) return;
   isDragging.value = true;
   const draggedTodo = event.item.__draggable_context.element;
   dragStore.setDragStart(draggedTodo.id, props.categoryId, event.oldIndex);
+  props.onDragstart?.(event);
 };
 
 const handleDragEnd = async (event) => {
+  if (!isOwner.value) return;
   if (!isDragging.value || !dragStore.dragState.todoId) return;
 
   try {
@@ -265,9 +301,10 @@ const handleDragEnd = async (event) => {
       .map(todo => todoStore.fetchTodoUpdate(todo));
 
     await Promise.all(updates);
+    props.onDragend?.(event);
   } catch (error) {
     console.error("Todo 순서 업데이트 실패:", error);
-    await todoStore.fetchTodos(dateStore.selectedDate);
+    await todoStore.fetchTodos(dateStore.selectedDate, props.userId);
   } finally {
     dragStore.resetDragState();
     isDragging.value = false;
@@ -275,6 +312,7 @@ const handleDragEnd = async (event) => {
 };
 
 const handleChange = (event) => {
+  if (!isOwner.value) return;
   if (event.added || event.moved) {
     dragStore.setDragEnd(props.categoryId, event.added?.newIndex ?? event.moved.newIndex);
   }
@@ -299,7 +337,7 @@ onBeforeUnmount(() => {
 
 watch(() => props.categoryId, async (newCategoryId) => {
   if (newCategoryId) {
-    await todoStore.fetchTodos(new Date().toISOString().split("T")[0]);
+    await todoStore.fetchTodos(dateStore.selectedDate, props.userId);
   }
 });
 </script>

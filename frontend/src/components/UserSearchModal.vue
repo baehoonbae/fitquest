@@ -48,18 +48,6 @@
                   <h3 class="font-semibold">{{ user.name }}</h3>
                   <p class="text-sm text-gray-500">{{ user.description || "자기소개가 없습니다." }}</p>
                 </div>
-
-                <!-- 통계 -->
-                <div class="flex gap-4 text-sm text-gray-500">
-                  <div class="text-center">
-                    <div>게시글</div>
-                    <div class="font-semibold">{{ user.postCount || 0 }}</div>
-                  </div>
-                  <div class="text-center">
-                    <div>댓글</div>
-                    <div class="font-semibold">{{ user.commentCount || 0 }}</div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -79,12 +67,14 @@ import {
 import http from '@/api/http';
 import { debounce } from 'lodash';
 import { getChoseong, disassemble } from "es-hangul";
+import { useAuthStore } from '@/stores/auth';
 
 const router = useRouter();
 const emit = defineEmits(['closeModal']);
 const searchQuery = ref('');
 const users = ref([]);
 const loading = ref(false);
+const authStore = useAuthStore();
 
 // 디바운스된 검색 함수
 const handleSearch = debounce(async () => {
@@ -102,7 +92,7 @@ const handleSearch = debounce(async () => {
       word: searchQuery.value,
       isChoseong: isChoseong,
     });
-    users.value = response.data;
+    users.value = response.data.filter(user => user.id !== authStore.user.id);
   } catch (error) {
     console.error('Failed to search users:', error);
   } finally {

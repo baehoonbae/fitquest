@@ -22,7 +22,7 @@
 
         <!-- 캘린더 섹션 -->
         <div class="p-4 rounded-[15px]">
-          <Calendar @dateSelected="handleDateSelected" />
+          <Calendar @dateSelected="handleDateSelected" :userId="Number(authStore.user.id)" />
         </div>
       </div>
 
@@ -30,13 +30,13 @@
       <div class="md:w-1/2 p-4 rounded-[15px]">
         <CategoryHeader />
         <div class="min-h-[calc(100vh-30rem)] max-h-[calc(100vh-20rem)] overflow-y-auto">
-          <CategoryList :selectedDate="selectedDate" />
+          <CategoryList :selectedDate="selectedDate" :userId="Number(authStore.user.id)" />
         </div>
       </div>
     </div>
     <!-- 잔디 그래프 섹션 (전체 너비) -->
     <div class="w-full bg-[#f7f8f9] p-2 rounded-[15px]">
-      <GrassGraph />
+      <GrassGraph :userId="Number(authStore.user.id)" />
     </div>
   </div>
 </template>
@@ -52,7 +52,6 @@ import http from "@/api/http";
 
 const authStore = useAuthStore();
 const selectedDate = ref(null);
-const showRandomUsers = ref(false);
 const profileImage = computed(() => {
   if (authStore.user?.profileImage) {
     return `${http.defaults.baseURL}/user${authStore.user.profileImage}`;

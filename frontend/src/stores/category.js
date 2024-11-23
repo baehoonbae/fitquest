@@ -16,8 +16,7 @@ export const useCategoryStore = defineStore("category", () => {
   const router = useRouter();
 
   // 카테고리 목록 조회
-  const fetchCategories = async () => {
-    const userId = authStore.user.id;
+  const fetchCategories = async (userId) => {
     const accessToken = authStore.getToken();
 
     try {
@@ -36,9 +35,6 @@ export const useCategoryStore = defineStore("category", () => {
         "카테고리 조회 실패:",
         error.response?.data || error.message
       );
-      if (error.response?.status === 401) {
-        console.error("인증 토큰이 만료되었거나 유효하지 않습니다");
-      }
     }
   };
 
