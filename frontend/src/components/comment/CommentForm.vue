@@ -9,14 +9,23 @@
           placeholder="댓글을 남겨주세요."
           class="flex-1 p-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         ></textarea>
-        <div class="flex items-start">
-          <button
-            v-if="parentId"
-            @click="$emit('cancel')"
-            class="mr-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors duration-200"
-          >
-            취소
-          </button>
+        <!-- 버튼을 세로로 배치하기 위해 flex-col 추가 -->
+        <div class="flex flex-col items-stretch gap-2">
+          <!-- 대댓글일 경우에만 취소와 등록 버튼 표시 -->
+          <template v-if="parentId">
+            <button
+              @click="submitComment"
+              class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-200"
+            >
+              등록
+            </button>
+            <button
+              @click="$emit('cancel')"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors duration-200"
+            >
+              취소
+            </button>
+          </template>
         </div>
       </div>
     </div>

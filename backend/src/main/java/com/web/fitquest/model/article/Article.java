@@ -1,5 +1,6 @@
 package com.web.fitquest.model.article;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,7 @@ import lombok.ToString;
 @AllArgsConstructor 
 @NoArgsConstructor
 @RequiredArgsConstructor
+@Schema(description = "블로그 글 DTO")
 public class Article {
     private int id;
     @NonNull private String title;
