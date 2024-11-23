@@ -4,15 +4,18 @@
     <div
       class="space-y-2 h-[calc(100vh-160px)] overflow-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       <div v-for="category in categoryStore.categories" :key="category.id" @click="goUpdate(category.id)"
-        class="flex items-center p-3 rounded-lg transition-colors cursor-pointer">
-        <span class="text-base font-semibold bg-[#f2f2f2] px-3.5 py-2 rounded-full" :style="{
-          color: category.color.includes('gradient') ?
-            category.color.match(/(?:to right,\s*)([^,]+)/)[1].trim() :
-            category.color
-        }">{{ category.title }}</span>
-        <div class="ml-auto flex items-center gap-2">
-          <GlobeAltIcon v-if="category.isPublic" class="w-5 h-5 text-gray-400" />
-          <LockClosedIcon v-else class="w-5 h-5 text-gray-400" />
+        class="flex items-center p-3 rounded-lg transition-colors cursor-pointer hover:bg-gray-100">
+        <div class="flex items-center gap-2 bg-[#f2f2f2] px-3.5 py-2 rounded-full">
+          <span class="text-base font-semibold" :style="{
+            color: category.color.includes('gradient') ? 'transparent' : category.color,
+            backgroundImage: category.color.includes('gradient') ? category.color : 'none',
+            '-webkit-background-clip': 'text',
+            'background-clip': 'text'
+          }">{{ category.title }}</span>
+          <div class="flex items-center">
+            <GlobeAltIcon v-if="category.isPublic" class="w-5 h-5 text-gray-400" />
+            <LockClosedIcon v-else class="w-5 h-5 text-gray-400" />
+          </div>
         </div>
       </div>
       <div class="flex justify-center">

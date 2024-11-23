@@ -59,7 +59,7 @@ const isValid = computed(() => {
     newDescription.value &&
     !loading.value &&
     !error.value &&
-    newDescription.value.length <= 25
+    newDescription.value.length <= 20
   );
 });
 
@@ -68,8 +68,8 @@ const changeDescription = async () => {
     error.value = "자기소개를 입력해주세요.";
     return;
   }
-  if (newDescription.value.length > 25) {
-    error.value = "자기소개는 25자를 초과할 수 없습니다.";
+  if (newDescription.value.length > 20) {
+    error.value = "자기소개는 20자를 초과할 수 없습니다.";
     return;
   }
   try {
@@ -102,8 +102,8 @@ const changeDescription = async () => {
 };
 
 watch(newDescription, (newValue) => {
-  if (newValue.length > 25) {
-    error.value = "자기소개는 25자를 초과할 수 없습니다.";
+  if (newValue.length > 20) {
+    error.value = "자기소개는 20자를 초과할 수 없습니다.";
   } else {
     error.value = "";
   }

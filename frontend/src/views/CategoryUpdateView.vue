@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-[900px] mx-auto" @click="showDropdown = false" @keydown.esc="showDropdown = false"
+  <div class="max-w-[900px] mx-auto" @click="closeAllDropdowns" @keydown.esc="closeAllDropdowns"
     @keydown.enter="handleUpdate">
     <!-- 메인 컨텐츠 -->
     <main class="flex-1 flex justify-center items-start">
@@ -9,12 +9,16 @@
           <div class="space-y-2">
             <input type="text" v-model="localCategory.title"
               class="w-full p-2 rounded-md border-b-[3px] focus:outline-none" :style="{
-                borderBottomColor: localCategory.color.includes('gradient') ?
-                  localCategory.color.match(/(?:to right,\s*)([^,]+)/)[1].trim() :
-                  localCategory.color,
-                color: localCategory.color.includes('gradient') ?
-                  localCategory.color.match(/(?:to right,\s*)([^,]+)/)[1].trim() :
-                  localCategory.color,
+                borderImage: localCategory.color.includes('gradient') ? 
+                  `${localCategory.color} 1` : 'none',
+                borderBottom: localCategory.color.includes('gradient') ?
+                  '3px solid transparent' :
+                  `3px solid ${localCategory.color}`,
+                borderImageSlice: localCategory.color.includes('gradient') ? 1 : 'none',
+                color: localCategory.color.includes('gradient') ? 'transparent' : localCategory.color,
+                backgroundImage: localCategory.color.includes('gradient') ? localCategory.color : 'none',
+                '-webkit-background-clip': 'text',
+                'background-clip': 'text'
               }" />
           </div>
           <!-- 에러 메시지 표시 -->
@@ -70,7 +74,7 @@
               <div class="flex items-center justify-between mb-3">
                 <span class="text-sm text-gray-700">색상</span>
                 <button 
-                  @click="toggleColorOptions" 
+                  @click.stop="toggleColorOptions" 
                   class="text-sm text-gray-600 flex items-center gap-2"
                 >
                   <div 
@@ -84,6 +88,7 @@
               <Transition name="color-picker">
                 <div v-if="showColorOptions" 
                   class="mt-2 p-4 bg-white rounded-lg shadow-lg origin-top-right"
+                  @click.stop
                 >
                   <!-- 탭 선택 -->
                   <div class="flex gap-4 mb-4 border-b">
@@ -132,6 +137,27 @@
                         class="h-12 rounded-lg hover:scale-105 transition-transform"
                         :style="{ background: gradient.value }"
                       ></button>
+                    </div>
+
+                    <!-- 커스텀 그라데이션 -->
+                    <div class="space-y-2 pt-4 border-t">
+                      <p class="text-sm text-gray-600 mb-2">커스텀 그라데이션</p>
+                      <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-2">
+                          <input type="color" v-model="gradientStart" @input="updateCustomGradient"
+                            class="w-8 h-8 rounded-full overflow-hidden [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:border-none [&::-webkit-color-swatch]:rounded-full" />
+                          <span class="text-sm text-gray-600">시작</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <input type="color" v-model="gradientEnd" @input="updateCustomGradient"
+                            class="w-8 h-8 rounded-full overflow-hidden [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:border-none [&::-webkit-color-swatch]:rounded-full" />
+                          <span class="text-sm text-gray-600">끝</span>
+                        </div>
+                      </div>
+                      <!-- 미리보기 -->
+                      <button @click="selectGradient(customGradient)"
+                        class="w-full h-12 rounded-lg mt-2 hover:scale-105 transition-transform"
+                        :style="{ background: customGradient }"></button>
                     </div>
                   </div>
                 </div>
@@ -195,6 +221,9 @@ const localCategory = ref({
 const error = ref("");
 const activeTab = ref('solid');
 const showColorOptions = ref(false);
+const gradientStart = ref('#FF512F');
+const gradientEnd = ref('#DD2476');
+const customGradient = ref('linear-gradient(to right, #FF512F, #DD2476)');
 
 const defaultColors = [
   '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD',
@@ -212,6 +241,11 @@ const gradients = [
   { name: 'Royal', value: 'linear-gradient(to right, #141E30, #243B55)' }
 ];
 
+const closeAllDropdowns = () => {
+  showDropdown.value = false;
+  showColorOptions.value = false;
+};
+
 const toggleDropdown = () => {
   showDropdown.value = !showDropdown.value;
 };
@@ -222,8 +256,13 @@ const selectVisibility = (isPublic) => {
 };
 
 const handleEscape = (e) => {
-  if (e.key === "Escape" && showDeleteModal.value) {
-    showDeleteModal.value = false;
+  if (e.key === "Escape") {
+    if (showDeleteModal.value) {
+      showDeleteModal.value = false;
+    }
+    if (showColorOptions.value) {
+      showColorOptions.value = false;
+    }
   }
 };
 
@@ -286,6 +325,10 @@ const selectColor = (color) => {
 
 const selectGradient = (gradient) => {
   localCategory.value.color = gradient;
+};
+
+const updateCustomGradient = () => {
+  customGradient.value = `linear-gradient(to right, ${gradientStart.value}, ${gradientEnd.value})`;
 };
 </script>
 

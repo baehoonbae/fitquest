@@ -10,11 +10,11 @@
             <GlobeAltIcon v-if="category.isPublic" class="w-3.5 h-3.5 text-gray-400" />
             <LockClosedIcon v-else class="w-3.5 h-3.5 text-gray-400" />
             <span 
-              class="text-sm font-bold" 
+              class="text-sm font-bold bg-clip-text" 
               :style="{ 
-                color: category.color.includes('gradient') ? 
-                  category.color.match(/(?:to right,\s*)([^,]+)/)[1].trim() : 
-                  category.color 
+                color: category.color.includes('gradient') ? 'transparent' : category.color,
+                backgroundImage: category.color.includes('gradient') ? category.color : 'none',
+                '-webkit-background-clip': 'text'
               }"
             >
               {{ truncateText(category.title) }}
@@ -43,9 +43,13 @@
                     }
                   "
                   :style="{ 
-                    borderBottom: selectedCategory.color.includes('gradient') ? 
-                      `2px solid ${selectedCategory.color.match(/(?:to right,\s*)([^,]+)/)[1].trim()}` :
-                      `2px solid ${selectedCategory.color}`
+                    borderImage: selectedCategory.color.includes('gradient') ? 
+                      `${selectedCategory.color} 1` :
+                      'none',
+                    borderBottom: selectedCategory.color.includes('gradient') ?
+                      '2px solid transparent' :
+                      `2px solid ${selectedCategory.color}`,
+                    borderImageSlice: selectedCategory.color.includes('gradient') ? 1 : 'none'
                   }"
                   v-model="todo.content"
                   @click.stop

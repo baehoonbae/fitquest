@@ -80,6 +80,13 @@ const closeRecentNewsModal = () => {
   isRecentNewsModalOpen.value = false;
 };
 
+// ESC 키 이벤트 핸들러
+const handleEscKey = (event) => {
+  if (event.key === 'Escape') {
+    isDropdownOpen.value = false;
+  }
+};
+
 // 드롭다운 외부 클릭 감지를 위한 이벤트 리스너
 const handleClickOutside = (event) => {
   const dropdown = document.querySelector(".relative");
@@ -91,11 +98,13 @@ const handleClickOutside = (event) => {
 // 컴포넌트가 마운트될 때 이벤트 리스너 추가
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
+  document.addEventListener("keydown", handleEscKey);
 });
 
 // 컴포넌트가 언마운트될 때 이벤트 리스너 제거
 onUnmounted(() => {
   document.removeEventListener("click", handleClickOutside);
+  document.removeEventListener("keydown", handleEscKey);
 });
 </script>
 
