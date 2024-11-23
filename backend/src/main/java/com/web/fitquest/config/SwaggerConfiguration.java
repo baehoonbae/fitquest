@@ -8,6 +8,8 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 
+// http://172.30.1.32:8097/fitquest/swagger-ui/index.html#/
+
 @Configuration
 public class SwaggerConfiguration {
     
