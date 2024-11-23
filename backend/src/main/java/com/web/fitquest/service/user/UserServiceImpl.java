@@ -62,11 +62,13 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public boolean updateUser(User user) {
         try {
-            String[] parts = user.getName().split(",");
-            String name = parts[0];
-            String choseong = parts[1];
-            user.setName(name);
-            boardService.updateWriterChoseongByUserId(user.getId(), choseong);
+            if (user.getName() != null) {
+                String[] parts = user.getName().split(",");
+                String name = parts[0];
+                String choseong = parts[1];
+                user.setName(name);
+                boardService.updateWriterChoseongByUserId(user.getId(), choseong);
+            }
             return userMapper.updateUser(user) > 0;
         } catch (Exception e) {
             log.error("사용자 정보 수정 실패", e);
@@ -136,5 +138,10 @@ public class UserServiceImpl implements UserService {
             return "";
         }
         return filename.substring(dotIndex);
+    }
+
+    @Override
+    public Optional<User> selectRandomUser() {
+        return Optional.ofNullable(userMapper.selectRandomUser());
     }
 }

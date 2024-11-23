@@ -7,9 +7,16 @@ import com.web.fitquest.model.user.User;
 @Mapper
 public interface UserMapper {
     User selectUserByEmail(String email);
+
     User selectUserById(Integer id);
+
     User selectUserByName(String name);
+
     int insertUser(User user);
+
     int updateUser(User user);
+
     int updateProfileImage(Integer userId, String imageUrl);
+
+    User selectRandomUser();
 }

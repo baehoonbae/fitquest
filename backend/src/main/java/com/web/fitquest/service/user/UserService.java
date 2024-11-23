@@ -16,4 +16,5 @@ public interface UserService {
     Optional<User> selectUserByEmail(String email);
     Optional<User> selectUserById(Integer id);
     String updateProfileImage(Integer userId, MultipartFile image) throws IOException;
+    Optional<User> selectRandomUser();
 }

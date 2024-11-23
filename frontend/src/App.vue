@@ -86,4 +86,20 @@ onMounted(() => {
 * {
   -ms-overflow-style: none;
 }
+
+/* 텍스트 선택 비활성화 */
+* {
+  -webkit-user-select: none;  /* Chrome, Safari, Opera */
+  -moz-user-select: none;     /* Firefox */
+  -ms-user-select: none;      /* IE, Edge */
+  user-select: none;          /* 표준 문법 */
+}
+
+/* 입력 필드에서는 텍스트 선택 활성화 */
+input, textarea {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
 </style>

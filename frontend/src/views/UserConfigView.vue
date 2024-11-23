@@ -92,8 +92,6 @@ const showChangeDescriptionModal = ref(false);
 // 프로필 이미지 로드
 onMounted(() => {
   if (authStore.user.profileImage) {
-    console.log(authStore.user.profileImage);
-    // 이미지 URL을 직접 사용
     profileImage.value = `${http.defaults.baseURL}/user${authStore.user.profileImage}`;
   }
 });
