@@ -48,10 +48,23 @@ public class UserController {
     private final UserService userService;
     private final TokenService tokenService;
     private final JwtUtil jwtUtil;
-    
+
     @Value("${upload.path}")
     private String uploadPath;
-    
+
+    @GetMapping("/random")
+    public ResponseEntity<?> getRandomUser() {
+        try {
+            Optional<User> opUser = userService.selectRandomUser();
+            return opUser
+                    .map(user -> ResponseEntity.status(HttpStatus.OK).body(user))
+                    .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생");
+        }
+    }
+
     @PostMapping("/regist")
     public ResponseEntity<?> regist(@RequestBody User user) {
         try {
@@ -231,9 +244,9 @@ public class UserController {
 
     @GetMapping("/uploads/profiles/{filename:.+}")
     public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
-        try {            
-            File file = new File(uploadPath + "/profiles/" + filename);            
-            Resource resource = new UrlResource(file.toURI());            
+        try {
+            File file = new File(uploadPath + "/profiles/" + filename);
+            Resource resource = new UrlResource(file.toURI());
             if (resource.exists() || resource.isReadable()) {
                 String contentType = Files.probeContentType(file.toPath());
                 if (contentType == null) {
