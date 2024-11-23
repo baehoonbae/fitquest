@@ -105,24 +105,24 @@
         <where>
             <choose>
                 <when test="key == 'title'">
-                    (b.title LIKE CONCAT('%', #{word}, '%') 
-                    OR bc.title_choseong LIKE CONCAT('%', #{word}, '%'))
+                    (REPLACE(b.title, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%')
+                    OR REPLACE(bc.title_choseong, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%'))
                 </when>
                 <when test="key == 'writer'">
-                    (u.name LIKE CONCAT('%', #{word}, '%')
-                    OR bc.writer_choseong LIKE CONCAT('%', #{word}, '%'))
+                    (REPLACE(u.name, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%')
+                    OR REPLACE(bc.writer_choseong, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%'))
                 </when>
                 <when test="key == 'content'">
-                    (b.content LIKE CONCAT('%', #{word}, '%')
-                    OR bc.content_choseong LIKE CONCAT('%', #{word}, '%'))
+                    (REPLACE(b.content, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%')
+                    OR REPLACE(bc.content_choseong, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%'))
                 </when>
                 <when test="key == 'all'">
-                    (b.title LIKE CONCAT('%', #{word}, '%')
-                    OR u.name LIKE CONCAT('%', #{word}, '%')
-                    OR b.content LIKE CONCAT('%', #{word}, '%')
-                    OR bc.title_choseong LIKE CONCAT('%', #{word}, '%')
-                    OR bc.writer_choseong LIKE CONCAT('%', #{word}, '%')
-                    OR bc.content_choseong LIKE CONCAT('%', #{word}, '%'))
+                    (REPLACE(b.title, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%')
+                    OR REPLACE(u.name, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%')
+                    OR REPLACE(b.content, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%')
+                    OR REPLACE(bc.title_choseong, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%')
+                    OR REPLACE(bc.writer_choseong, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%')
+                    OR REPLACE(bc.content_choseong, ' ', '') LIKE CONCAT('%', REPLACE(#{word}, ' ', ''), '%'))
                 </when>
             </choose>
         </where>
