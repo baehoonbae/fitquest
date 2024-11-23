@@ -40,22 +40,30 @@ public class SecurityConfig {
 
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-                http
-                        .csrf(AbstractHttpConfigurer::disable)
-                        .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 활성화
-                        .httpBasic(AbstractHttpConfigurer::disable) // 기본 인증 로그인 비활성화
-                        .formLogin(AbstractHttpConfigurer::disable) // 기본 login form 비활성화
-                        .logout(AbstractHttpConfigurer::disable) // 기본 logout 비활성화
-                        .headers(c -> c.frameOptions(
-                                        HeadersConfigurer.FrameOptionsConfig::disable))
-                        .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용하지 않음
-                        .authorizeHttpRequests(
-                                request -> request
-                                        .requestMatchers("/api/**", "/fitquest/api/**")
-                                        .permitAll()
-                                        .anyRequest().authenticated());
-                                                        
-                return http.build();
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 활성화
+                .httpBasic(AbstractHttpConfigurer::disable) // 기본 인증 로그인 비활성화
+                .formLogin(AbstractHttpConfigurer::disable) // 기본 login form 비활성화
+                .logout(AbstractHttpConfigurer::disable) // 기본 logout 비활성화
+                .headers(c -> c.frameOptions(
+                                HeadersConfigurer.FrameOptionsConfig::disable))
+                .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용하지 않음
+                .authorizeHttpRequests(
+                        request -> request
+                                // Swagger UI 관련 경로 추가
+                                .requestMatchers(
+                                        "/swagger-ui/**",
+                                        "/swagger-ui.html",
+                                        "/v3/api-docs/**",
+                                        "/swagger-resources/**",
+                                        "/api/**", 
+                                        "/fitquest/api/**"
+                                )
+                                .permitAll()
+                                .anyRequest().authenticated());
+                                                
+        return http.build();
         }
 
         @Bean

@@ -1,10 +1,11 @@
 <template>
   <div class="max-w-4xl mx-auto px-4 pb-16">
-    <CommunitySearch 
-      v-model="searchText" 
-      @search="handleSearch" 
+    <CommunitySearch v-model="searchText" @search="handleSearch" />
+    <CommunityTag
+      :tags="tags"
+      :selectedTag="selectedTag"
+      @select-tag="handleTagSelect"
     />
-    <CommunityTag :tags="tags" :selectedTag="selectedTag" @select-tag="handleTagSelect" />
     <div class="flex justify-end gap-3 my-2">
       <button
         class="px-3 py-1.5 rounded-md font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200"
@@ -44,7 +45,7 @@ const route = useRoute();
 const boardStore = useBoardStore();
 const tags = ref([]);
 const selectedTag = ref(null);
-const searchText = ref('');
+const searchText = ref("");
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
 
@@ -61,12 +62,23 @@ watch(
 const filteredBoards = computed(() => {
   let result = [...boardStore.boards];
 
-  // ID 기준으로 내림차순 정렬
-  result.sort((a, b) => b.id - a.id);
+  // 공지사항과 일반 게시글 분리
+  const notices = result.filter((board) => board.tag === "공지");
+  const regularPosts = result.filter((board) => board.tag !== "공지");
 
-  // 태그 필터링
-  if (selectedTag.value) {
-    result = result.filter((board) => board.tag === selectedTag.value);
+  // 각각 ID 기준으로 내림차순 정렬
+  notices.sort((a, b) => b.id - a.id);
+  regularPosts.sort((a, b) => b.id - a.id);
+
+  // 공지사항을 항상 위에 배치
+  result = [...notices, ...regularPosts];
+
+  // 태그 필터링 (공지사항은 제외)
+  if (selectedTag.value && selectedTag.value !== "공지") {
+    result = [
+      ...notices,
+      ...regularPosts.filter((board) => board.tag === selectedTag.value),
+    ];
   }
 
   return result;

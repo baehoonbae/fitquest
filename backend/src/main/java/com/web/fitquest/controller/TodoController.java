@@ -17,6 +17,10 @@ import com.web.fitquest.model.todo.Todo;
 import com.web.fitquest.requests.TodoRequest;
 import com.web.fitquest.service.todo.TodoService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,10 +28,17 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/todo")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "할 일 API", description = "운동 할 일(Todo) 관리 API")
 public class TodoController {
 
     private final TodoService todoService;
 
+    @Operation(summary = "일별 할 일 목록 조회", description = "특정 날짜와 사용자의 모든 할 일 목록을 조회합니다.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "조회 성공"),
+        @ApiResponse(responseCode = "404", description = "데이터 없음"),
+        @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     // 날짜와 userId에 해당하는 모든 todo를 가져온다.
     @GetMapping("/{date}/{userId}")
     public ResponseEntity<?> getTodoList(@PathVariable String date, @PathVariable int userId) {
@@ -41,6 +52,12 @@ public class TodoController {
         }
     }
 
+    @Operation(summary = "할 일 추가", description = "새로운 할 일을 추가합니다.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "추가 성공"),
+        @ApiResponse(responseCode = "404", description = "추가 실패"),
+        @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     // todo를 추가한다.
     @PostMapping("")
     public ResponseEntity<?> addTodo(@RequestBody Todo todo) {
@@ -53,6 +70,12 @@ public class TodoController {
         }
     }
 
+    @Operation(summary = "할 일 수정", description = "기존 할 일의 정보를 수정합니다.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "수정 성공"),
+        @ApiResponse(responseCode = "404", description = "할 일을 찾을 수 없음"),
+        @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     // todo를 수정한다.
     @PutMapping("/{id}")
     public ResponseEntity<?> updateTodo(@PathVariable int id, @RequestBody Todo todo) {
@@ -65,6 +88,12 @@ public class TodoController {
         }
     }
 
+    @Operation(summary = "연간 통계 조회", description = "특정 연도의 할 일 통계를 조회합니다.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "조회 성공"),
+        @ApiResponse(responseCode = "404", description = "데이터 없음"),
+        @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     // year 별 통계
     // year와 userId에 해당하는 모든 todo를 가져온다.
     @GetMapping("/statistics/{year}")
@@ -79,6 +108,12 @@ public class TodoController {
         }
     }
 
+    @Operation(summary = "특정 할 일 조회", description = "ID로 특정 할 일을 조회합니다.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "조회 성공"),
+        @ApiResponse(responseCode = "404", description = "할 일을 찾을 수 없음"),
+        @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     // id에 해당하는 todo를 가져온다.
     @GetMapping("/{id}")
     public ResponseEntity<?> getTodo(@PathVariable int id) {
@@ -91,6 +126,12 @@ public class TodoController {
         }
     }
 
+    @Operation(summary = "할 일 삭제", description = "특정 할 일을 삭제합니다.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "삭제 성공"),
+        @ApiResponse(responseCode = "404", description = "할 일을 찾을 수 없음"),
+        @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     // id에 해당하는 todo를 삭제한다.
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteTodo(@PathVariable int id) {
@@ -103,6 +144,12 @@ public class TodoController {
         }
     }
 
+    @Operation(summary = "월별 할 일 목록 조회", description = "특정 연도와 월의 할 일 목록을 조회합니다.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "조회 성공"),
+        @ApiResponse(responseCode = "404", description = "데이터 없음"),
+        @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     // year와 month에 해당하는 모든 todo를 가져온다.
     @GetMapping("/{userId}/{year}/{month}")
     public ResponseEntity<?> getTodoListByYearAndMonth(
@@ -119,6 +166,12 @@ public class TodoController {
         }
     }
 
+    @Operation(summary = "카테고리별 할 일 목록 조회", description = "특정 카테고리의 모든 할 일 목록을 조회합니다.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "조회 성공"),
+        @ApiResponse(responseCode = "404", description = "데이터 없음"),
+        @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     // 카테고리 id에 해당하는 모든 todo를 가져온다.
     @GetMapping("/list/{categoryId}/{userId}")
     public ResponseEntity<?> getTodoListByCategoryId(@PathVariable int categoryId, @PathVariable int userId) {
