@@ -4,6 +4,7 @@ import { ref } from "vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
 import http from "@/api/http";
+import { disassemble, getChoseong } from "es-hangul";
 
 export const useAuthStore = defineStore("auth", () => {
   const router = useRouter();
@@ -98,7 +99,13 @@ export const useAuthStore = defineStore("auth", () => {
   // 회원가입
   const regist = async (userData) => {
     try {
-      await http.post('/user/regist', userData);
+      const temp = userData;
+      if (getChoseong(temp.name) === temp.name) {
+        temp.name = temp.name + "," + disassemble(temp.name);
+      } else {
+        temp.name = temp.name + "," + getChoseong(temp.name);
+      }
+      await http.post('/user/regist', temp);
       return { success: true, message: '회원가입이 완료되었습니다.' };
     } catch (error) {
       return {

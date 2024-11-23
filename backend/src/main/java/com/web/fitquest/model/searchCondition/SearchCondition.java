@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Getter
 @Setter
@@ -21,5 +22,6 @@ public class SearchCondition {
 	private String word;
 	private String orderByDir;
 	private String orderBy;
+	@JsonProperty("isChoseong")
 	private boolean isChoseong;
 }

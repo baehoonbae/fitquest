@@ -42,7 +42,6 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
-import axios from "axios";
 import { useAuthStore } from "@/stores/auth";
 import http from "@/api/http";
 
@@ -94,7 +93,6 @@ const changeDescription = async () => {
     authStore.user.description = newDescription.value;
     emit("update:description", newDescription.value);
     emit("close");
-    window.location.reload();
   } catch (err) {
     error.value = "자기소개 변경에 실패했습니다.";
     loading.value = false;

@@ -2,10 +2,10 @@ package com.web.fitquest.service.user;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.web.fitquest.mapper.user.UserMapper;
+import com.web.fitquest.model.searchCondition.SearchCondition;
 import com.web.fitquest.model.user.User;
+import com.web.fitquest.model.user.UserChoseong;
 import com.web.fitquest.requests.LoginRequest;
 import com.web.fitquest.service.board.BoardService;
 
@@ -28,12 +30,10 @@ public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final BoardService boardService;
 
     @Value("${upload.path}")
     private String uploadPath;
-
-    @Autowired
-    private BoardService boardService;
 
     @Override
     public Optional<User> login(LoginRequest loginRequest) {
@@ -44,18 +44,59 @@ public class UserServiceImpl implements UserService {
                 String encodedPassword = passwordEncoder.encode(loginRequest.getPassword());
                 user.setPassword(encodedPassword);
                 userMapper.updateUser(user);
+
+                // 초성 데이터 확인 및 추가
+                checkAndInsertChoseong(user);
+
                 return Optional.of(user);
             } else if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+                // 초성 데이터 확인 및 추가
+                checkAndInsertChoseong(user);
+
                 return Optional.of(user);
             }
         }
         return Optional.empty();
     }
 
+    // 초성 확인 및 추가 메서드
+    private void checkAndInsertChoseong(User user) {
+        try {
+            UserChoseong existingChoseong = userMapper.selectUserChoseong(user.getId());
+
+            if (existingChoseong == null) {
+                // 이름을 초성으로 변환
+                String nameChoseong = getChoseong(user.getName());
+                UserChoseong newChoseong = new UserChoseong(user.getId(), nameChoseong);
+                userMapper.insertUserChoseong(newChoseong);
+                log.info("Added choseong data for user: {} -> {}", user.getName(), nameChoseong);
+            }
+        } catch (Exception e) {
+            log.error("Error checking/inserting choseong data for user: {}", user.getId(), e);
+        }
+    }
+
     @Override
     public boolean regist(User user) {
+        String[] parts = user.getName().split(",");
+        String name = parts[0];
+        String choseong = "";
+        if (parts.length > 1) {
+            choseong = parts[1];
+        }
+        user.setName(name);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userMapper.insertUser(user) > 0;
+
+        // 1. 먼저 user를 저장
+        boolean userInserted = userMapper.insertUser(user) > 0;
+
+        if (userInserted) {
+            // 2. user가 저장된 후 초성 저장
+            UserChoseong userChoseong = new UserChoseong(user.getId(), choseong);
+            userMapper.insertUserChoseong(userChoseong);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -67,6 +108,9 @@ public class UserServiceImpl implements UserService {
                 String name = parts[0];
                 String choseong = parts[1];
                 user.setName(name);
+
+                UserChoseong userChoseong = new UserChoseong(user.getId(), choseong);
+                userMapper.updateUserChoseong(userChoseong);
                 boardService.updateWriterChoseongByUserId(user.getId(), choseong);
             }
             return userMapper.updateUser(user) > 0;
@@ -79,6 +123,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> selectUserByName(String name) {
         return Optional.ofNullable(userMapper.selectUserByName(name));
+    }
+
+    @Override
+    public Optional<List<User>> selectUsersByNameQuery(SearchCondition searchCondition) {
+        return Optional.ofNullable(userMapper.selectUsersByNameQuery(searchCondition));
     }
 
     @Override
@@ -143,5 +192,24 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> selectRandomUser() {
         return Optional.ofNullable(userMapper.selectRandomUser());
+    }
+
+    private String getChoseong(String text) {
+        String[] chosung = { "ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ",
+                "ㅎ" };
+        StringBuilder result = new StringBuilder();
+
+        for (char ch : text.toCharArray()) {
+            if (ch >= '가' && ch <= '힣') {
+                int unicode = ch - '가';
+                int chosungIndex = unicode / (21 * 28);
+                result.append(chosung[chosungIndex]);
+            } else {
+                // 한글이 아닌 경우 그대로 추가
+                result.append(ch);
+            }
+        }
+
+        return result.toString();
     }
 }

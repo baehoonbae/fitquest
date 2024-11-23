@@ -14,8 +14,12 @@
     select id, email, password, name, profile_image profileImage, is_admin isAdmin, description from user where name = #{name}
   </select>
 
-  <insert id="insertUser">
+  <insert id="insertUser" useGeneratedKeys="true" keyProperty="id">
     insert into user (email, password, name, is_admin, description) values (#{email}, #{password}, #{name}, #{isAdmin}, #{description})
+  </insert>
+
+  <insert id="insertUserChoseong">
+    insert into user_choseong (user_id, name_choseong) values (#{userId}, #{nameChoseong})
   </insert>
 
   <update id="updateUser">
@@ -43,7 +47,38 @@
     where id = #{id}
   </update>
 
+  <update id="updateUserChoseong">
+    update user_choseong
+    <set>
+      <if test="nameChoseong != null">
+        name_choseong = #{nameChoseong}
+      </if>
+    </set>
+    where user_id = #{userId}
+  </update>
+
   <select id="selectRandomUser" resultType="com.web.fitquest.model.user.User">
     select id, email, password, name, profile_image profileImage, is_admin isAdmin, description from user order by rand() limit 1
   </select>
+
+  <select id="selectUserChoseong" resultType="com.web.fitquest.model.user.UserChoseong">
+    SELECT user_id as userId, name_choseong as nameChoseong 
+    FROM user_choseong 
+    WHERE user_id = #{userId}
+  </select>
+
+  <select id="selectUsersByNameQuery" resultType="com.web.fitquest.model.user.User">
+    SELECT DISTINCT u.id, u.email, u.password, u.name, u.profile_image profileImage, u.is_admin isAdmin, u.description 
+    FROM user u
+    <choose>
+        <when test="isChoseong == true">
+            INNER JOIN user_choseong uc ON u.id = uc.user_id
+            WHERE uc.name_choseong LIKE CONCAT('%', #{word}, '%')
+        </when>
+        <otherwise>
+            WHERE u.name LIKE CONCAT('%', #{word}, '%')
+        </otherwise>
+    </choose>
+  </select>
+
 </mapper>

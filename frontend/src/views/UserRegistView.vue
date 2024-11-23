@@ -109,9 +109,9 @@ const checkPassword = () => {
 
 const regist = async () => {
     if (!isFormValid.value || isLoading.value) return;
-
+    
     isLoading.value = true;
-
+    
     try {
         const result = await authStore.regist(user.value);
         if (result.success) {

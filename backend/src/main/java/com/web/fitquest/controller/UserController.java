@@ -2,6 +2,7 @@ package com.web.fitquest.controller;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.web.fitquest.exception.InvalidTokenException;
+import com.web.fitquest.model.searchCondition.SearchCondition;
 import com.web.fitquest.model.user.User;
 import com.web.fitquest.requests.LoginRequest;
 import com.web.fitquest.requests.RefreshTokenRequest;
@@ -57,10 +59,17 @@ public class UserController {
     @Value("${upload.path}")
     private String uploadPath;
 
+    @Operation(summary = "랜덤 사용자 조회", description = "랜덤한 사용자를 조회합니다.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "조회 성공"),
+        @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음"),
+        @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     @GetMapping("/random")
     public ResponseEntity<?> getRandomUser() {
         try {
             Optional<User> opUser = userService.selectRandomUser();
+            log.info("randomUser: {}", opUser);
             return opUser
                     .map(user -> ResponseEntity.status(HttpStatus.OK).body(user))
                     .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
@@ -329,6 +338,27 @@ public class UserController {
         } catch (Exception e) {
             log.error("파일 서비스 에러: {}", e.getMessage());
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @Operation(summary = "사용자 검색", description = "사용자 이름으로 검색합니다.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "조회 성공"),
+        @ApiResponse(responseCode = "204", description = "검색 결과가 없음")
+    })
+    @PostMapping("/search")
+    public ResponseEntity<?> searchUsers(@RequestBody SearchCondition searchCondition) {
+        log.info("searchCondition: {}", searchCondition.toString());
+        try {
+            Optional<List<User>> result = userService.selectUsersByNameQuery(searchCondition);
+            if (result.isPresent() && !result.get().isEmpty()) {
+                return ResponseEntity.ok(result.get());
+            } else {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body(List.of());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생");
         }
     }
 }

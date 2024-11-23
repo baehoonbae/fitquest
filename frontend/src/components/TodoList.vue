@@ -56,17 +56,14 @@ const props = defineProps({
     required: true,
   },
   group: {
-    // group prop 추가
     type: String,
     default: "todos",
   },
   onDragstart: {
-    // dragstart 이벤트 prop 추가
     type: Function,
     default: () => { },
   },
   onDragend: {
-    // dragend 이벤트 prop 추가
     type: Function,
     default: () => { },
   },
@@ -77,6 +74,7 @@ const dateStore = useDateStore();
 const categoryStore = useCategoryStore();
 const todoStore = useTodoStore();
 const activityStore = useActivityStore();
+const dragStore = useDragStore();
 
 const selectedTodoId = ref(null);
 const contentUpdateMode = ref(false);
@@ -196,8 +194,6 @@ const handleMoveTomorrow = async (id) => {
   }
 };
 
-const dragStore = useDragStore();
-
 const handleDragStart = (event) => {
   isDragging.value = true;
   const draggedTodo = event.item.__draggable_context.element;
@@ -213,10 +209,8 @@ const handleDragEnd = async (event) => {
     );
     if (!draggedTodo) return;
 
-    const originalTodos = [...todoStore.dailyTodos];
-    let finalTodos = [...todoStore.dailyTodos];
+    const finalTodos = [...todoStore.dailyTodos];
 
-    // 같은 카테고리 내에서의 이동인 경우
     if (dragStore.dragState.startCategoryId === dragStore.dragState.endCategoryId) {
       const categoryTodos = finalTodos
         .filter(t => t.categoryId === dragStore.dragState.startCategoryId)
@@ -225,68 +219,44 @@ const handleDragEnd = async (event) => {
       const startIndex = categoryTodos.findIndex(t => t.id === draggedTodo.id);
       const endIndex = dragStore.dragState.endIndex;
 
-      // 위에서 아래로 이동하는 경우
       if (startIndex < endIndex) {
-        finalTodos = finalTodos.map(todo => {
+        finalTodos.forEach(todo => {
           if (todo.id === draggedTodo.id) {
-            return { ...todo, todoOrder: endIndex };
-          }
-          if (todo.categoryId === dragStore.dragState.startCategoryId) {
+            todo.todoOrder = endIndex;
+          } else if (todo.categoryId === dragStore.dragState.startCategoryId) {
             const todoIndex = categoryTodos.findIndex(t => t.id === todo.id);
             if (todoIndex > startIndex && todoIndex <= endIndex) {
-              return { ...todo, todoOrder: todoIndex - 1 };
+              todo.todoOrder = todoIndex - 1;
             }
           }
-          return todo;
         });
-      } 
-      // 아래에서 위로 이동하는 경우
-      else if (startIndex > endIndex) {
-        finalTodos = finalTodos.map(todo => {
+      } else if (startIndex > endIndex) {
+        finalTodos.forEach(todo => {
           if (todo.id === draggedTodo.id) {
-            return { ...todo, todoOrder: endIndex };
-          }
-          if (todo.categoryId === dragStore.dragState.startCategoryId) {
+            todo.todoOrder = endIndex;
+          } else if (todo.categoryId === dragStore.dragState.startCategoryId) {
             const todoIndex = categoryTodos.findIndex(t => t.id === todo.id);
             if (todoIndex >= endIndex && todoIndex < startIndex) {
-              return { ...todo, todoOrder: todoIndex + 1 };
+              todo.todoOrder = todoIndex + 1;
             }
           }
-          return todo;
         });
       }
     } else {
-      // 다른 카테고리로 이동하는 경우 (기존 코드 유지)
-      const updatedDraggedTodo = {
-        ...draggedTodo,
-        categoryId: dragStore.dragState.endCategoryId,
-        todoOrder: dragStore.dragState.endIndex
-      };
+      draggedTodo.categoryId = dragStore.dragState.endCategoryId;
+      draggedTodo.todoOrder = dragStore.dragState.endIndex;
 
-      finalTodos = todoStore.dailyTodos.map(todo => {
-        if (todo.id === draggedTodo.id) return updatedDraggedTodo;
-        if (todo.categoryId === dragStore.dragState.startCategoryId) {
-          const startCategoryTodos = finalTodos
-            .filter(t => t.categoryId === dragStore.dragState.startCategoryId)
-            .sort((a, b) => (a.todoOrder || 0) - (b.todoOrder || 0));
-          const index = startCategoryTodos.findIndex(t => t.id === todo.id);
-          return { ...todo, todoOrder: index };
+      finalTodos.forEach(todo => {
+        if (todo.categoryId === dragStore.dragState.endCategoryId && todo.id !== draggedTodo.id) {
+          const todoIndex = finalTodos.filter(t => t.categoryId === dragStore.dragState.endCategoryId)
+            .findIndex(t => t.id === todo.id);
+          todo.todoOrder = todoIndex >= dragStore.dragState.endIndex ? todoIndex + 1 : todoIndex;
         }
-        if (todo.categoryId === dragStore.dragState.endCategoryId) {
-          const endCategoryTodos = finalTodos
-            .filter(t => t.categoryId === dragStore.dragState.endCategoryId)
-            .sort((a, b) => (a.todoOrder || 0) - (b.todoOrder || 0));
-          const index = endCategoryTodos.findIndex(t => t.id === todo.id);
-          return { ...todo, todoOrder: index >= dragStore.dragState.endIndex ? index + 1 : index };
-        }
-        return todo;
       });
     }
 
-    // 즉시 로컬 상태 업데이트
     todoStore.updateLocalTodos(finalTodos);
 
-    // API 호출은 백그라운드에서 처리
     const updates = finalTodos
       .filter(t => 
         t.categoryId === dragStore.dragState.startCategoryId || 
@@ -310,7 +280,7 @@ const handleChange = (event) => {
   }
 };
 
-onMounted(async () => {
+onMounted(() => {
   window.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       if (!contentUpdateMode.value) closeMenu();
@@ -327,31 +297,18 @@ onBeforeUnmount(() => {
   window.removeEventListener("click", goUpdate);
 });
 
-watch(
-  () => props.categoryId,
-  async (newCategoryId) => {
-    if (newCategoryId) {
-      const today = new Date().toISOString().split("T")[0];
-      await todoStore.fetchTodos(today);
-    }
+watch(() => props.categoryId, async (newCategoryId) => {
+  if (newCategoryId) {
+    await todoStore.fetchTodos(new Date().toISOString().split("T")[0]);
   }
-);
+});
 </script>
 
 <style scoped>
-/* [draggable="true"] {
-  @apply cursor-grab transition-all duration-300 ease-out transform-gpu;
-} */
 [draggable="true"]:hover {
   background-color: rgba(0, 0, 0, 0.02);
 }
 
-/* GPU 가속을 위한 transform 힌트 */
-.will-change-transform {
-  will-change: transform;
-}
-
-/* TodoMenu 트랜지션 효과 추가 */
 .menu-enter-active,
 .menu-leave-active {
   transition: opacity 0.3s ease;
