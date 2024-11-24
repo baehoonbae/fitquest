@@ -1,12 +1,13 @@
 <template>
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[101]"
-         @click="handleClose">
-        <div class="bg-white rounded-lg w-full max-w-md mx-4"
-             @click.stop>
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[101]"
+        @click="handleClose">
+        <div class="bg-white/95 rounded-2xl w-full max-w-md mx-4 shadow-2xl transform transition-all duration-300 ease-out"
+            @click.stop>
             <!-- 모달 헤더 -->
-            <div class="flex items-center justify-between p-4 border-b">
-                <h2 class="text-lg font-semibold">팔로워 목록</h2>
-                <button @click="$emit('close')" class="text-gray-500 hover:text-gray-700">
+            <div class="flex items-center justify-between p-5 border-b border-gray-100">
+                <h2 class="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                    팔로워 목록</h2>
+                <button @click="$emit('close')" class="text-gray-400 hover:text-gray-600 transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M6 18L18 6M6 6l12 12" />
@@ -15,44 +16,56 @@
             </div>
 
             <!-- 모달 본문 -->
-            <div class="p-4 max-h-[60vh] overflow-y-auto">
-                <!-- 팔로워가 없는 경우 -->
-                <div v-if="!props.followers.length" class="text-center text-gray-500 py-8">
-                    팔로워가 없습니다.
+            <div class="p-5 h-[500px] overflow-y-auto relative">
+                <!-- 로딩 스피너 -->
+                <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center bg-white/80">
+                    <div class="w-10 h-10 border-4 border-gray-200 border-t-gray-600 rounded-full animate-spin"></div>
                 </div>
 
-                <!-- 팔로워 목록 -->
-                <div v-else class="space-y-4">
-                    <div v-for="user in props.followers" :key="user.id"
-                        class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg">
-                        <!-- 사용자 정보 -->
-                        <RouterLink :to="`/home/${user.id}`" class="flex items-center gap-3">
-                            <img :src="getUserProfileImage(user)" :alt="user.name"
-                                class="w-10 h-10 rounded-full object-cover" @error="handleImageError">
-                            <div>
-                                <div class="font-medium">{{ user.name }}</div>
-                                <div class="text-sm text-gray-500">{{ user.description || "자기소개가 없습니다." }}</div>
-                            </div>
-                        </RouterLink>
+                <!-- 실제 컨텐츠 -->
+                <div v-else>
+                    <!-- 팔로워가 없는 경우 -->
+                    <div v-if="!props.followers.length"
+                        class="flex flex-col items-center justify-center py-12 text-gray-500">
+                        <span class="material-icons text-4xl mb-3">sentiment_dissatisfied</span>
+                        <p>아직 팔로워가 없습니다</p>
+                    </div>
 
-                        <!-- 팔로우/언팔로우 버튼 -->
-                        <div v-if="authStore.user.id !== user.id">
-                            <button v-if="followStatus[user.id]" 
-                                @click="handleUnfollow(user.id)"
-                                class="ml-3 px-2 py-0.5 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg text-sm font-medium transition duration-200">
-                                언팔로우
+                    <!-- 팔로워 목록 -->
+                    <div v-else class="space-y-3">
+                        <div v-for="user in props.followers" :key="user.id"
+                            class="flex items-center justify-between p-3 hover:bg-gray-50/80 rounded-xl transition-all duration-200">
+                            <!-- 사용자 정보 -->
+                            <button @click="goToUserHome(user.id)" class="flex items-center gap-4 group text-left">
+                                <img :src="getUserProfileImage(user)" :alt="user.name"
+                                    class="w-12 h-12 rounded-full object-cover ring-2 ring-gray-100 group-hover:ring-gray-300 transition-all duration-200"
+                                    @error="handleImageError">
+                                <div>
+                                    <div class="font-semibold group-hover:text-gray-900 transition-colors">{{ user.name
+                                        }}</div>
+                                    <div class="text-sm text-gray-500 line-clamp-1">{{ user.description || "자기소개가 없습니다."
+                                        }}</div>
+                                </div>
                             </button>
-                            <button v-else 
-                                @click="handleFollow(user.id)"
-                                class="ml-3 px-2 py-0.5 bg-black hover:bg-gray-800 text-white rounded-lg text-sm font-medium transition duration-200">
-                                팔로우
-                            </button>
+
+                            <!-- 팔로우/언팔로우 버튼 -->
+                            <div v-if="authStore.user.id !== user.id">
+                                <button v-if="followStatus[user.id]" @click="handleUnfollow(user.id)"
+                                    class="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full text-sm font-medium transition-all duration-200">
+                                    언팔로우
+                                </button>
+                                <button v-else @click="handleFollow(user.id)"
+                                    class="px-4 py-1.5 bg-gradient-to-r from-gray-900 to-gray-700 hover:from-gray-800 hover:to-gray-600 text-white rounded-full text-sm font-medium transition-all duration-200">
+                                    팔로우
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <NeedLoginAlert v-if="needLoginAlert" @close="needLoginAlert = false" />
 </template>
 
 <script setup>
@@ -60,6 +73,8 @@ import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
 import http from '@/api/http';
 import { useFollowStore } from '@/stores/follow';
 import { useAuthStore } from '@/stores/auth';
+import NeedLoginAlert from './alert/NeedLoginAlert.vue';
+import { useRouter } from 'vue-router';
 
 const emit = defineEmits(['close', 'updateFollowList']);
 const props = defineProps({
@@ -75,58 +90,72 @@ const props = defineProps({
 
 const followStore = useFollowStore();
 const authStore = useAuthStore();
-const followStatus = ref({});  // 각 사용자별 팔로우 상태를 저장할 객체
+const isLoading = ref(true);
+const followStatus = ref({});
+const needLoginAlert = ref(false);
+const router = useRouter();
 
-// 초기 팔로우 상태 설정
 const initFollowStatus = async () => {
-    for (const user of props.followers) {
-        followStatus.value[user.id] = await followStore.fetchIsFollowing(user.id);
+    isLoading.value = true;
+    try {
+        for (const user of props.followers) {
+            followStatus.value[user.id] = await followStore.fetchIsFollowing(user.id);
+        }
+    } finally {
+        isLoading.value = false;
     }
 };
 
-// 팔로우 핸들러
+const goToUserHome = (userId) => {
+    emit('close');
+    router.push(`/home/${userId}`);
+};
+
 const handleFollow = async (userId) => {
+    const isAuth = await authStore.checkAuth();
+    if (!isAuth) {
+        needLoginAlert.value = true;
+        return;
+    }
     await followStore.fetchFollow(userId);
     followStatus.value[userId] = true;
     emit('updateFollowList');
 };
 
-// 언팔로우 핸들러
 const handleUnfollow = async (userId) => {
+    const isAuth = await authStore.checkAuth();
+    if (!isAuth) {
+        needLoginAlert.value = true;
+        return;
+    }
     await followStore.fetchUnfollow(userId);
     followStatus.value[userId] = false;
     emit('updateFollowList');
 };
 
-// ESC 키 이벤트 핸들러
 const handleKeydown = (e) => {
     if (e.key === 'Escape') {
         emit('close');
     }
 };
 
-// 외부 클릭 핸들러
 const handleClose = () => {
     emit('close');
 };
 
-// 컴포넌트 마운트 시 초기 상태 설정 및 이벤트 리스너 등록
 onMounted(() => {
     initFollowStatus();
     window.addEventListener('keydown', handleKeydown);
 });
 
-// 컴포넌트 언마운트 시 이벤트 리스너 제거
 onBeforeUnmount(() => {
     window.removeEventListener('keydown', handleKeydown);
 });
 
-// props.followers가 변경될 때마다 상태 업데이트
 watch(() => props.followers, () => {
     initFollowStatus();
 }, { deep: true });
 
-// 프로필 이미지 URL 생성
 const getUserProfileImage = (user) => {
     if (user.profileImage) {
         return `${http.defaults.baseURL}/user${user.profileImage}`;
@@ -134,29 +163,32 @@ const getUserProfileImage = (user) => {
     return "/default-profile.png";
 };
 
-// 이미지 로드 실패 시 기본 이미지로 대체
 const handleImageError = (e) => {
     e.target.src = '/default-profile.png';
 };
 </script>
 
 <style scoped>
-/* 스크롤바 스타일링 */
 .overflow-y-auto {
     scrollbar-width: thin;
-    scrollbar-color: #CBD5E0 #EDF2F7;
+    scrollbar-color: #E2E8F0 #F7FAFC;
 }
 
 .overflow-y-auto::-webkit-scrollbar {
-    width: 6px;
+    width: 4px;
 }
 
 .overflow-y-auto::-webkit-scrollbar-track {
-    background: #EDF2F7;
+    background: #F7FAFC;
+    border-radius: 2px;
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb {
+    background-color: #E2E8F0;
+    border-radius: 2px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
     background-color: #CBD5E0;
-    border-radius: 3px;
 }
 </style>

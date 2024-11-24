@@ -137,8 +137,7 @@ public class BoardController {
     public ResponseEntity<List<Board>> searchBoards(@RequestBody SearchCondition searchCondition) {
         log.debug("BoardController/searchBoards: searchCondition = {}", searchCondition);
         List<Board> boards = boardService.searchBoardsByCondition(searchCondition)
-                .filter(list -> !list.isEmpty())
-                .orElseThrow(() -> new ResourceNotFoundException("검색 결과가 없습니다."));
+                .orElse(List.of());
         return ResponseEntity.ok(boards);
     }
 

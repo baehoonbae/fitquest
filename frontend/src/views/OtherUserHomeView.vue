@@ -1,72 +1,80 @@
 <template>
-    <div class="max-w-[900px] mx-auto px-2 flex flex-col gap-2" @keyup.esc="showRandomUsers = false">
-        <!-- 메인 컨텐츠 영역 -->
-        <div class="flex flex-col md:flex-row gap-2">
-            <!-- 왼쪽 섹션: 프로필 + 캘린더 -->
-            <div class="md:w-1/2 flex flex-col gap-2">
-                <!-- 프로필 섹션 -->
-                <div class="flex items-center gap-6 py-2 pl-6">
-                    <!-- 프로필 이미지 -->
-                    <div class="relative">
-                        <img :src="profileImage" class="w-20 h-20 rounded-full object-cover" alt="프로필 이미지"
-                            @error="(e) => (e.target.src = '')" />
-                    </div>
-                    <!-- 팔로워/팔로잉 정보 -->
-                    <div class="flex gap-4 mt-2">
-                        <div class="flex flex-col items-center px-3 py-1 rounded-lg transition-colors">
-                            <span class="font-semibold">{{ doneTodoCount }}</span>
-                            <span class="material-icons text-gray-500 text-sm">check_circle</span>
-                        </div>
-                        <button class="flex flex-col items-center px-3 py-1 rounded-lg transition-colors">
-                            <span class="font-semibold">{{ followerList.length }}</span>
-                            <span class="text-sm text-gray-500">팔로워</span>
-                        </button>
-                        <button class="flex flex-col items-center px-3 py-1 rounded-lg transition-colors">
-                            <span class="font-semibold">{{ followingList.length }}</span>
-                            <span class="text-sm text-gray-500">팔로잉</span>
-                        </button>
-                    </div>
-                </div>
-                <!-- 사용자 정보 -->
-                <div class="space-y-2 flex-1 pl-6">
-                    <div class="flex items-center gap-2">
-                        <div class="font-bold text-lg">{{ userProfile.name }}</div>
-                        <div v-if="authStore.user.id !== userId">
-                            <button v-if="!isFollowing" @click="handleFollow"
-                                class="ml-3 px-2 py-0.5 bg-black hover:bg-gray-800 text-white rounded-lg text-sm font-medium transition duration-200">
-                                팔로우
-                            </button>
-                            <button v-else @click="handleUnfollow"
-                                class="ml-3 px-2 py-0.5 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg text-sm font-medium transition duration-200">
-                                언팔로우
-                            </button>
-                        </div>
-                    </div>
-                    <div class="text-gray-600 text-sm">
-                        {{ userProfile.description || "자기소개가 없습니다." }}
-                    </div>
-                </div>
-
-                <!-- 캘린더 섹션 -->
-                <div class="p-4 rounded-[15px]">
-                    <Calendar @dateSelected="handleDateSelected" :userId="Number(userId)" />
-                </div>
+  <div class="max-w-[900px] mx-auto px-2 flex flex-col gap-2">
+    <div class="flex flex-col md:flex-row gap-2">
+      <!-- 왼쪽 섹션: 프로필 + 캘린더 -->
+      <div class="md:w-1/2 flex flex-col gap-2">
+        <!-- 프로필 섹션 -->
+        <div class="flex items-center gap-6 py-4 pl-6 bg-white rounded-2xl shadow-md">
+          <!-- 프로필 이미지 -->
+          <div class="relative group">
+            <img :src="profileImage"
+              class="w-20 h-20 rounded-full object-cover border-3 border-white shadow-md group-hover:scale-105 transition duration-300"
+              alt="프로필 이미지" @error="(e) => (e.target.src = '/default-profile.png')" />
+          </div>
+          <!-- 팔로워/팔로잉 정보 -->
+          <div class="flex gap-4 items-center">
+            <div class="flex flex-col items-center px-4 py-2 hover:bg-gray-50 rounded-xl transition-all duration-200">
+              <span class="font-bold text-lg text-gray-800">{{ doneTodoCount }}</span>
+              <span class="material-icons text-gray-600 text-md">check_circle</span>
+              <span class="text-xs text-gray-500 font-medium">완료</span>
             </div>
-
-            <!-- 오른쪽 섹션: 카테고리 -->
-            <div class="md:w-1/2 p-4 rounded-[15px]">
-                <div class="mb-[44px]" />
-                <div class="min-h-[calc(100vh-30rem)] max-h-[calc(100vh-20rem)] overflow-y-auto">
-                    <CategoryList :selectedDate="selectedDate" :userId="Number(userId)"
-                        @doneTodoCountUpdate="fetchDoneTodoCount" />
-                </div>
+            <button @click="showFollowers = true"
+              class="flex flex-col items-center px-4 py-2 hover:bg-gray-50 rounded-xl transition-all duration-200">
+              <span class="font-bold text-lg text-gray-800">{{ followerList.length }}</span>
+              <span class="material-icons text-gray-600 text-md">group</span>
+              <span class="text-xs text-gray-500 font-medium">팔로워</span>
+            </button>
+            <button @click="showFollowings = true"
+              class="flex flex-col items-center px-4 py-2 hover:bg-gray-50 rounded-xl transition-all duration-200">
+              <span class="font-bold text-lg text-gray-800">{{ followingList.length }}</span>
+              <span class="material-icons text-gray-600 text-md">person_add</span>
+              <span class="text-xs text-gray-500 font-medium">팔로잉</span>
+            </button>
+          </div>
+        </div>
+        <!-- 사용자 정보 -->
+        <div class="pl-6 py-3 bg-white rounded-2xl shadow-md">
+          <div class="flex items-center justify-between">
+            <div class="font-bold text-gray-800">{{ userProfile.name }}</div>
+            <div v-if="authStore.user.id !== userId">
+              <button v-if="!isFollowing" @click="handleFollow"
+                class="mr-4 px-2 py-0.5 bg-black hover:bg-gray-800 text-white rounded-lg text-sm font-medium transition duration-200 whitespace-nowrap">
+                팔로우
+              </button>
+              <button v-else @click="handleUnfollow"
+                class="mr-4 px-2 py-0.5 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg text-sm font-medium transition duration-200 whitespace-nowrap">
+                언팔로우
+              </button>
             </div>
+          </div>
+          <div class="text-gray-600 text-sm">
+            {{ userProfile.description || "자기소개가 없습니다." }}
+          </div>
         </div>
-        <!-- 잔디 그래프 섹션 -->
-        <div class="w-full bg-[#f7f8f9] p-2 rounded-[15px]">
-            <GrassGraph :userId="Number(userId)" />
+        <!-- 캘린더 섹션 -->
+        <div class="rounded-[15px]">
+          <Calendar @dateSelected="handleDateSelected" :userId="Number(userId)" />
         </div>
+      </div>
+      <!-- 오른쪽 섹션: 카테고리 -->
+      <div class="md:w-1/2">
+        <div class="p-4 rounded-[15px] bg-white shadow-md">
+          <div class="h-[632px] overflow-y-auto">
+            <CategoryList :selectedDate="selectedDate" :userId="Number(userId)"
+              @doneTodoCountUpdate="fetchDoneTodoCount" />
+          </div>
+        </div>
+      </div>
     </div>
+    <!-- 잔디 그래프 섹션 (전체 너비) -->
+    <div class="w-full bg-[#f7f8f9] p-2 rounded-[15px]">
+      <GrassGraph :userId="Number(userId)" />
+    </div>
+  </div>
+
+  <Followers v-if="showFollowers" @close="closeFollowers" :followers="followerList" :userId="Number(userId)" />
+  <Followings v-if="showFollowings" @close="closeFollowings" :followings="followingList" :userId="Number(userId)" />
+  <NeedLoginAlert v-if="needLoginAlert" @close="needLoginAlert = false" />
 </template>
 
 <script setup>
@@ -78,6 +86,9 @@ import GrassGraph from "@/components/GrassGraph.vue";
 import http from "@/api/http";
 import { useAuthStore } from "@/stores/auth";
 import { useFollowStore } from "@/stores/follow";
+import Followers from "@/components/Followers.vue";
+import Followings from "@/components/Followings.vue";
+import NeedLoginAlert from "@/components/alert/NeedLoginAlert.vue";
 
 const route = useRoute();
 const authStore = useAuthStore();
@@ -88,6 +99,9 @@ const doneTodoCount = ref(0);
 const followerList = ref([]);
 const followingList = ref([]);
 const isFollowing = ref(false);
+const showFollowers = ref(false);
+const showFollowings = ref(false);
+const needLoginAlert = ref(false);
 
 // URL의 userId 파라미터 또는 현재 로그인한 사용자의 ID
 const userId = computed(() => route.params.userId);
@@ -144,12 +158,32 @@ const fetchFollowData = async () => {
 
 // 팔로우/언팔로우 핸들러
 const handleFollow = async () => {
+    const isAuth = await authStore.checkAuth();
+    if (!isAuth) {
+        needLoginAlert.value = true;
+        return;
+    }
     await followStore.fetchFollow(userId.value);
     await fetchFollowData();
 };
 
 const handleUnfollow = async () => {
+    const isAuth = await authStore.checkAuth();
+    if (!isAuth) {
+        needLoginAlert.value = true;
+        return;
+    }
     await followStore.fetchUnfollow(userId.value);
+    await fetchFollowData();
+};
+
+const closeFollowers = async () => {
+    showFollowers.value = false;
+    await fetchFollowData();
+};
+
+const closeFollowings = async () => {
+    showFollowings.value = false;
     await fetchFollowData();
 };
 

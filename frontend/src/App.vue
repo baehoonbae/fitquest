@@ -23,7 +23,7 @@
       </div>
     </main>
 
-    <footer v-if="!hideLayout" class="flex-none fixed bottom-0 left-0 right-0 transition-transform duration-300"
+    <footer class="flex-none fixed bottom-0 left-0 right-0 transition-transform duration-300"
       :class="[isFooterVisible ? 'translate-y-0' : 'translate-y-full']">
       <div class="relative" @mouseenter="showFooter" @mouseleave="hideFooter">
         <!-- 호버 영역 -->
@@ -34,10 +34,11 @@
         </div>
         <!-- Footer 컨텐츠 -->
         <div class="bg-white rounded-t-xl w-[570px] mx-auto px-5 md:px-4 shadow-[0_-2px_2px_rgba(0,0,0,0.1)]">
-          <Footer @openUserSearchModal="openUserSearchModal = true" />
+          <Footer @openUserSearchModal="openUserSearchModal = true" @needLoginAlert="needLoginAlert = true" />
         </div>
       </div>
     </footer>
+    <NeedLoginAlert @close="needLoginAlert = false" v-if="needLoginAlert" />
   </div>
 </template>
 
@@ -48,10 +49,12 @@ import { useAuthStore } from "@/stores/auth";
 import Header from "@/components/common/Header.vue";
 import Footer from "@/components/common/Footer.vue";
 import UserSearchModal from "./components/UserSearchModal.vue";
+import NeedLoginAlert from "@/components/alert/NeedLoginAlert.vue";
 
 const route = useRoute();
 const authStore = useAuthStore();
 const openUserSearchModal = ref(false);
+const needLoginAlert = ref(false);
 
 // 현재 라우트의 meta.hideLayout 값을 확인
 const hideLayout = computed(() => route.meta.hideLayout);
@@ -64,10 +67,6 @@ const showFooter = () => {
 
 const hideFooter = () => {
   isFooterVisible.value = false;
-};
-
-const openRandomUsers = () => {
-  openUserSearchModal.value = true;
 };
 
 onMounted(() => {

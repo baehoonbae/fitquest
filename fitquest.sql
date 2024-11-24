@@ -295,7 +295,7 @@ CREATE TABLE user_choseong (
 
 select * from user_choseong;
 
-# 11/24 추가 sql(팔로우 관리 테이블 follower_id = 팔로우 당하는 사람, following_id = 팔로우 하는 사람)
+# 11/24 추가 sql(팔로우 관리 테이블 follower_id = 팔로우를 하는 사람, following_id = 팔로우를 당하는 사람)
 CREATE TABLE follow (
     id INT AUTO_INCREMENT PRIMARY KEY,
     follower_id INT NOT NULL,

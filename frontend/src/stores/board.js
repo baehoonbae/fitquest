@@ -50,7 +50,7 @@ export const useBoardStore = defineStore("board", () => {
           const dateB = new Date(b.date).getTime();
           return dateB - dateA;
         });
-      } else if (response.status === 204) {
+      } else {
         boards.value = [];
       }
     } catch (error) {

@@ -212,4 +212,9 @@ public class UserServiceImpl implements UserService {
 
         return result.toString();
     }
+
+    @Override
+    public boolean isAdmin(Integer userId) {
+        return userMapper.isAdmin(userId);
+    }
 }

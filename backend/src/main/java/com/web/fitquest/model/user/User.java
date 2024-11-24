@@ -22,6 +22,6 @@ public class User {
     @NonNull private String password;
     @NonNull private String name;
     private String profileImage;
-    private int isAdmin;
+    private Integer isAdmin;
     private String description;
 }

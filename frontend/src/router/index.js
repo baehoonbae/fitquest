@@ -164,25 +164,13 @@ router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
   if (to.meta.requiresAuth) {
     try {
-      const hasRefreshToken = await authStore.checkRefreshTokenExists();
-      if (!hasRefreshToken) {
+      const isAuth = await authStore.checkAuth();
+      if (!isAuth) {
         authStore.logout();
         next({ name: "login" });
         return;
       }
-
-      // 액세스 토큰 체크 및 갱신
-      const accessToken = authStore.getToken();
-      if (!accessToken || !authStore.validateAccessToken()) {
-        const hasRefreshToken = await authStore.checkRefreshTokenExists();
-        if (!hasRefreshToken) {
-          authStore.logout();
-          next({ name: "login" });
-          return;
-        }
-      }
-
-      next(); // 인증 성공시 다음으로 진행
+      next();
     } catch (error) {
       console.error("Auth check failed:", error);
       authStore.logout();
