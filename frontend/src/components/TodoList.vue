@@ -105,7 +105,7 @@ const selectedTodoId = ref(null);
 const contentUpdateMode = ref(false);
 const newTodoContent = ref(null);
 const isDragging = ref(false);
-
+const emit = defineEmits(["doneTodoCountUpdate"]);
 const filteredTodos = computed({
   get: () => {
     return todoStore.dailyTodos
@@ -186,6 +186,7 @@ const handleDone = async (id) => {
     };
     await todoStore.fetchTodoUpdate(updatedTodo);
     await activityStore.fetchUpdateDailyActivity(todo.date, todo.userId);
+    emit("doneTodoCountUpdate", todo.userId);
   } catch (error) {
     console.error("할 일 수정 실패:", error);
   }
