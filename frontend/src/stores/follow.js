@@ -7,8 +7,11 @@ export const useFollowStore = defineStore("follow", () => {
     const isFollowing = ref(false);
     const authStore = useAuthStore();
 
-    // 투두 목록 조회(일자별로)
     const fetchIsFollowing = async (userId) => {
+        const isAuth = await authStore.checkAuth();
+        if(!isAuth) {
+            return;
+        }
         const accessToken = authStore.getToken();
         try {
             const response = await http.get(`/follow/status/${authStore.user.id}/${userId}`, {

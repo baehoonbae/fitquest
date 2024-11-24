@@ -15,6 +15,7 @@ export const useAuthStore = defineStore("auth", () => {
     profileImage: "",
     description: "",
     isAuthenticated: false,
+    isAdmin: false,
   });
 
   const getToken = () => sessionStorage.getItem('accessToken');
@@ -40,6 +41,7 @@ export const useAuthStore = defineStore("auth", () => {
         profileImage: data.profileImage,
         description: data.description,
         isAuthenticated: true,
+        isAdmin: data.isAdmin,
       };
 
       // 토큰 설정
@@ -71,6 +73,7 @@ export const useAuthStore = defineStore("auth", () => {
       profileImage: "",
       description: "",
       isAuthenticated: false,
+      isAdmin: false,
     };
     sessionStorage.clear();
     delete axios.defaults.headers.common["Authorization"];
@@ -86,6 +89,7 @@ export const useAuthStore = defineStore("auth", () => {
         user.value = {
           ...response.data,
           isAuthenticated: true,
+          isAdmin: Boolean(response.data.isAdmin),
         };
       }
     } catch (error) {
@@ -186,6 +190,18 @@ export const useAuthStore = defineStore("auth", () => {
     }
   );
 
+  const checkAuth = async () => {
+    const hasRefreshToken = await checkRefreshTokenExists();
+    if(!hasRefreshToken) {
+      return false;
+    }
+    const accessToken = getToken();
+    if(!accessToken || !validateAccessToken()) {
+      return false;
+    }
+    return true;
+  }
+
   const checkRefreshTokenExists = async () => {
     try {
       const response = await http.get('/user/check-refresh-token', { 
@@ -209,6 +225,7 @@ export const useAuthStore = defineStore("auth", () => {
     checkDuplicateEmail,
     validateAccessToken,
     checkRefreshTokenExists,
+    checkAuth,
   };
 }, {
   persist: {
