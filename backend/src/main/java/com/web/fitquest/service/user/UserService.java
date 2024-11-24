@@ -12,12 +12,22 @@ import com.web.fitquest.requests.LoginRequest;
 
 public interface UserService {
     Optional<User> login(LoginRequest loginRequest);
+
     boolean regist(User user);
+
     boolean updateUser(User user);
+
     Optional<User> selectUserByName(String name);
+
     Optional<List<User>> selectUsersByNameQuery(SearchCondition searchCondition);
+
     Optional<User> selectUserByEmail(String email);
+
     Optional<User> selectUserById(Integer id);
+
     String updateProfileImage(Integer userId, MultipartFile image) throws IOException;
+
     Optional<User> selectRandomUser();
+
+    boolean isAdmin(Integer userId);
 }

@@ -31,4 +31,6 @@ public interface UserMapper {
     List<User> selectUsersByNameQuery(SearchCondition searchCondition);
 
     UserChoseong selectUserChoseong(Integer userId);
+
+    boolean isAdmin(Integer userId);
 }

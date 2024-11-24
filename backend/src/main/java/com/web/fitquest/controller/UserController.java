@@ -61,9 +61,9 @@ public class UserController {
 
     @Operation(summary = "랜덤 사용자 조회", description = "랜덤한 사용자를 조회합니다.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "조회 성공"),
-        @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음"),
-        @ApiResponse(responseCode = "500", description = "서버 오류")
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @GetMapping("/random")
     public ResponseEntity<?> getRandomUser() {
@@ -78,12 +78,12 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생");
         }
     }
-    
+
     @Operation(summary = "회원가입", description = "새로운 사용자를 등록합니다.")
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "가입 성공"),
-        @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-        @ApiResponse(responseCode = "500", description = "서버 오류")
+            @ApiResponse(responseCode = "201", description = "가입 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @PostMapping("/regist")
     public ResponseEntity<?> regist(@RequestBody User user) {
@@ -103,9 +103,9 @@ public class UserController {
 
     @Operation(summary = "로그인", description = "사용자 인증 후 토큰을 발급합니다.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "로그인 성공"),
-        @ApiResponse(responseCode = "401", description = "인증 실패"),
-        @ApiResponse(responseCode = "500", description = "서버 오류")
+            @ApiResponse(responseCode = "200", description = "로그인 성공"),
+            @ApiResponse(responseCode = "401", description = "인증 실패"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
@@ -147,9 +147,9 @@ public class UserController {
 
     @Operation(summary = "토큰 갱신", description = "만료된 액세스 토큰을 리프레시 토큰으로 갱신합니다.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "토큰 갱신 성공"),
-        @ApiResponse(responseCode = "401", description = "유효하지 않은 리프레시 토큰"),
-        @ApiResponse(responseCode = "500", description = "서버 오류")
+            @ApiResponse(responseCode = "200", description = "토큰 갱신 성공"),
+            @ApiResponse(responseCode = "401", description = "유효하지 않은 리프레시 토큰"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequest request) {
@@ -175,8 +175,8 @@ public class UserController {
 
     @Operation(summary = "로그아웃", description = "사용자의 리프레시 토큰을 무효화합니다.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "로그아웃 성공"),
-        @ApiResponse(responseCode = "500", description = "서버 오류")
+            @ApiResponse(responseCode = "200", description = "로그아웃 성공"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestHeader("Authorization") String bearerToken) {
@@ -193,9 +193,9 @@ public class UserController {
 
     @Operation(summary = "닉네임 중복 확인", description = "닉네임 사용 가능 여부를 확인합니다.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "사용 가능한 닉네임"),
-        @ApiResponse(responseCode = "409", description = "중복된 닉네임"),
-        @ApiResponse(responseCode = "500", description = "서버 오류")
+            @ApiResponse(responseCode = "200", description = "사용 가능한 닉네임"),
+            @ApiResponse(responseCode = "409", description = "중복된 닉네임"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @GetMapping("/check-name/{name}")
     public ResponseEntity<?> checkNameDuplicated(@PathVariable String name) {
@@ -214,9 +214,9 @@ public class UserController {
 
     @Operation(summary = "이메일 중복 확인", description = "이메일 사용 가능 여부를 확인합니다.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "사용 가능한 이메일"),
-        @ApiResponse(responseCode = "409", description = "중복된 이메일"),
-        @ApiResponse(responseCode = "500", description = "서버 오류")
+            @ApiResponse(responseCode = "200", description = "사용 가능한 이메일"),
+            @ApiResponse(responseCode = "409", description = "중복된 이메일"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @GetMapping("/check-email/{email}")
     public ResponseEntity<?> checkEmailDuplicated(@PathVariable String email) {
@@ -235,9 +235,9 @@ public class UserController {
 
     @Operation(summary = "사용자 정보 조회", description = "특정 사용자의 상세 정보를 조회합니다.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "조회 성공"),
-        @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음"),
-        @ApiResponse(responseCode = "500", description = "서버 오류")
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @GetMapping("/{userId}")
     public ResponseEntity<?> getUserInfo(@PathVariable Integer userId) {
@@ -264,9 +264,9 @@ public class UserController {
 
     @Operation(summary = "사용자 정보 수정", description = "사용자의 프로필 정보를 수정합니다.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "수정 성공"),
-        @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-        @ApiResponse(responseCode = "500", description = "서버 오류")
+            @ApiResponse(responseCode = "200", description = "수정 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @PutMapping("/{userId}")
     public ResponseEntity<?> updateUserInfo(@PathVariable Integer userId, @RequestBody User user) {
@@ -285,7 +285,7 @@ public class UserController {
 
     @Operation(summary = "리프레시 토큰 확인", description = "리프레시 토큰의 존재 여부를 확인합니다.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "확인 성공")
+            @ApiResponse(responseCode = "200", description = "확인 성공")
     })
     @GetMapping("/check-refresh-token")
     public ResponseEntity<?> checkRefreshToken(
@@ -296,8 +296,8 @@ public class UserController {
 
     @Operation(summary = "프로필 이미지 업로드", description = "사용자의 프로필 이미지를 업로드합니다.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "업로드 성공"),
-        @ApiResponse(responseCode = "500", description = "서버 오류")
+            @ApiResponse(responseCode = "200", description = "업로드 성공"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @PostMapping("/{userId}/profile-image")
     public ResponseEntity<?> updateProfileImage(@PathVariable Integer userId,
@@ -314,8 +314,8 @@ public class UserController {
 
     @Operation(summary = "프로필 이미지 조회", description = "업로드된 프로필 이미지를 조회합니다.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "조회 성공"),
-        @ApiResponse(responseCode = "404", description = "이미지를 찾을 수 없음")
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "404", description = "이미지를 찾을 수 없음")
     })
     @GetMapping("/uploads/profiles/{filename:.+}")
     public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
@@ -343,8 +343,8 @@ public class UserController {
 
     @Operation(summary = "사용자 검색", description = "사용자 이름으로 검색합니다.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "조회 성공"),
-        @ApiResponse(responseCode = "204", description = "검색 결과가 없음")
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "204", description = "검색 결과가 없음")
     })
     @PostMapping("/search")
     public ResponseEntity<?> searchUsers(@RequestBody SearchCondition searchCondition) {
@@ -358,6 +358,23 @@ public class UserController {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생");
+        }
+    }
+
+    @Operation(summary = "관리자 권한 확인", description = "사용자의 관리자 권한 여부를 확인합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "확인 성공"),
+            @ApiResponse(responseCode = "401", description = "인증 실패"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    @GetMapping("/admin/{userId}")
+    public ResponseEntity<?> isAdmin(@PathVariable Integer userId) {
+        try {
+            boolean isAdmin = userService.isAdmin(userId);
+            return new ResponseEntity<>(Map.of("isAdmin", isAdmin), HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("관리자 권한 확인 중 오류 발생: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생");
         }
     }
