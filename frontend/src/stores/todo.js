@@ -46,14 +46,15 @@ export const useTodoStore = defineStore("todo", () => {
     if (!todoData.content?.trim()) {
       throw new Error("할일 내용을 입력해주세요");
     }
+
     const categoryTodos = dailyTodos.value.filter(
       (todo) => todo.categoryId === todoData.categoryId
     );
-    const maxOrder =
-      categoryTodos.length > 0
-        ? Math.max(...categoryTodos.map((t) => t.todoOrder || 0))
-        : -1;
+    const maxOrder = categoryTodos.length > 0
+      ? Math.max(...categoryTodos.map((t) => t.todoOrder || 0))
+      : -1;
     todoData.todoOrder = maxOrder + 1;
+
     try {
       const accessToken = authStore.getToken();
       const response = await http.post("/todo", todoData, {
@@ -61,9 +62,15 @@ export const useTodoStore = defineStore("todo", () => {
       });
 
       if (response.data) {
-        await fetchTodos(todoData.date, todoData.userId);
-        const date = new Date(todoData.date);
-        await fetchMonthlyTodos(date.getFullYear(), date.getMonth() + 1, todoData.userId);
+        // 한 번의 데이터 갱신으로 통합
+        await Promise.all([
+          fetchTodos(todoData.date, todoData.userId),
+          fetchMonthlyTodos(
+            new Date(todoData.date).getFullYear(),
+            new Date(todoData.date).getMonth() + 1,
+            todoData.userId
+          )
+        ]);
         return { success: true };
       }
     } catch (error) {

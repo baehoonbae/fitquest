@@ -30,12 +30,13 @@
 
 <script setup>
 import { useCategoryStore } from "@/stores/category";
+import { useAuthStore } from "@/stores/auth";
 import { GlobeAltIcon, LockClosedIcon, PlusIcon } from "@heroicons/vue/24/outline";
-import { onMounted } from "vue";
+import { onMounted, onBeforeUnmount } from "vue";
 import { useRouter } from "vue-router";
 
 const categoryStore = useCategoryStore();
-
+const authStore = useAuthStore();
 const router = useRouter();
 
 const goUpdate = (id) => {
@@ -45,11 +46,26 @@ const goUpdate = (id) => {
   });
 };
 
+// 카테고리 목록 갱신 함수
+const refreshCategories = async () => {
+  if (authStore.user.id) {
+    await categoryStore.fetchCategories(authStore.user.id);
+  }
+};
+
 onMounted(async () => {
-  await categoryStore.fetchCategories();
+  await refreshCategories();
 });
 
-router.afterEach(async () => {
-  await categoryStore.fetchCategories();
+// 라우터 가드 대신 watch 사용
+const unwatch = router.afterEach(async (to, from) => {
+  if (to.name === 'CategoryManage') {
+    await refreshCategories();
+  }
+});
+
+// 컴포넌트 언마운트 시 이벤트 리스너 제거
+onBeforeUnmount(() => {
+  unwatch();
 });
 </script>

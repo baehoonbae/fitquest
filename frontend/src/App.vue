@@ -111,4 +111,9 @@ textarea {
   -ms-user-select: text;
   user-select: text;
 }
+
+/* 모든 버튼의 포커스 아웃라인 제거 */
+button {
+  outline: none !important;
+}
 </style>

@@ -93,26 +93,31 @@ onMounted(() => {
 
 /* 메뉴 바운스 효과 */
 .todo-menu-enter-active {
-  animation: bounce-in 0.5s;
+  animation: bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 .todo-menu-leave-active {
-  animation: bounce-in 0.5s reverse;
+  animation: bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) reverse;
 }
 
 @keyframes bounce-in {
   0% {
-    transform: scale(0.3);
+    transform: scale(0) translateY(50px);
     opacity: 0;
   }
 
-  50% {
-    transform: scale(1.05);
-    opacity: 0.5;
+  40% {
+    transform: scale(1.1) translateY(-20px);
+    opacity: 0.7;
+  }
+
+  70% {
+    transform: scale(0.95) translateY(10px);
+    opacity: 0.9;
   }
 
   100% {
-    transform: scale(1);
+    transform: scale(1) translateY(0);
     opacity: 1;
   }
 }

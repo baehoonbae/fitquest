@@ -1,10 +1,10 @@
 package com.web.fitquest.controller;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -25,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.web.fitquest.exception.InvalidRequestException;
+import com.web.fitquest.exception.ResourceNotFoundException;
 import com.web.fitquest.model.SearchHistory;
 import com.web.fitquest.model.board.Board;
 import com.web.fitquest.model.searchCondition.SearchCondition;
@@ -56,18 +58,12 @@ public class BoardController {
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @GetMapping
-    public ResponseEntity<?> getAllBoards(@ModelAttribute SearchCondition searchCondition) {
+    public ResponseEntity<List<Board>> getAllBoards(@ModelAttribute SearchCondition searchCondition) {
         log.debug("BoardController/getAllBoards");
-        try {
-            Optional<List<Board>> result = boardService.allBoards(searchCondition);
-            if (result.isPresent() && !result.get().isEmpty()) {
-                return new ResponseEntity<List<Board>>(result.get(), HttpStatus.OK);
-            } else {
-                return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
-            }
-        } catch (Exception e) {
-            return exceptionHandling(e);
-        }
+        List<Board> boards = boardService.allBoards(searchCondition)
+                .filter(list -> !list.isEmpty())
+                .orElseThrow(() -> new ResourceNotFoundException("게시글이 존재하지 않습니다."));
+        return ResponseEntity.ok(boards);
     }
 
     @Operation(summary = "특정 게시글 조회", description = "게시글 ID로 특정 게시글을 조회합니다.")
@@ -78,18 +74,11 @@ public class BoardController {
     })
     // 특정 게시글 조회
     @GetMapping("/{id}")
-    public ResponseEntity<?> getBoard(@PathVariable int id) {
+    public ResponseEntity<Board> getBoard(@PathVariable int id) {
         log.debug("BoardController/getBoard");
-        try {
-            Optional<Board> result = boardService.getBoard(id);
-            if (result.isPresent()) {
-                return new ResponseEntity<Board>(result.get(), HttpStatus.OK);
-            } else {
-                return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
-            }
-        } catch (Exception e) {
-            return exceptionHandling(e);
-        }
+        Board board = boardService.getBoard(id)
+                .orElseThrow(() -> new ResourceNotFoundException("ID가 " + id + "인 게시글을 찾을 수 없습니다."));
+        return ResponseEntity.ok(board);
     }
 
     @Operation(summary = "게시글 작성", description = "새로운 게시글을 작성합니다.")
@@ -100,18 +89,11 @@ public class BoardController {
     })
     // 게시글 작성
     @PostMapping
-    public ResponseEntity<?> addBoard(@RequestBody Board board) {
+    public ResponseEntity<Board> addBoard(@RequestBody Board board) {
         log.debug("BoardController/addBoard");
-        try {
-            Optional<Integer> result = boardService.addBoard(board);
-            if (result.isPresent() && result.get() > 0) {
-                return new ResponseEntity<Board>(board, HttpStatus.CREATED);
-            } else {
-                return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
-            }
-        } catch (Exception e) {
-            return exceptionHandling(e);
-        }
+        boardService.addBoard(board)
+                .orElseThrow(() -> new InvalidRequestException("게시글 작성에 실패했습니다."));
+        return ResponseEntity.status(HttpStatus.CREATED).body(board);
     }
 
     @Operation(summary = "게시글 수정", description = "기존 게시글을 수정합니다.")
@@ -122,19 +104,12 @@ public class BoardController {
     })
     // 게시글 수정
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateBoard(@PathVariable int id, @RequestBody Board board) {
+    public ResponseEntity<Board> updateBoard(@PathVariable int id, @RequestBody Board board) {
         log.debug("BoardController/updateBoard");
-        try {
-            board.setId(id);
-            Optional<Integer> result = boardService.updateBoard(board);
-            if (result.isPresent() && result.get() > 0) {
-                return new ResponseEntity<Board>(board, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
-            }
-        } catch (Exception e) {
-            return exceptionHandling(e);
-        }
+        board.setId(id);
+        boardService.updateBoard(board)
+                .orElseThrow(() -> new ResourceNotFoundException("수정할 게시글을 찾을 수 없습니다."));
+        return ResponseEntity.ok(board);
     }
 
     @Operation(summary = "게시글 삭제", description = "게시글을 삭제합니다.")
@@ -145,18 +120,11 @@ public class BoardController {
     }) 
     // 게시글 삭제
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteBoard(@PathVariable int id) {
+    public ResponseEntity<Void> deleteBoard(@PathVariable int id) {
         log.debug("BoardController/deleteBoard");
-        try {
-            Optional<Integer> result = boardService.deleteBoard(id);
-            if (result.isPresent() && result.get() > 0) {
-                return new ResponseEntity<Integer>(result.get(), HttpStatus.OK);
-            } else {
-                return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
-            }
-        } catch (Exception e) {
-            return exceptionHandling(e);
-        }
+        boardService.deleteBoard(id)
+                .orElseThrow(() -> new ResourceNotFoundException("삭제할 게시글을 찾을 수 없습니다."));
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "게시글 검색", description = "검색 조건에 맞는 게시글을 검색합니다.")
@@ -166,18 +134,12 @@ public class BoardController {
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @PostMapping("/search")
-    public ResponseEntity<?> searchBoards(@RequestBody SearchCondition searchCondition) {
+    public ResponseEntity<List<Board>> searchBoards(@RequestBody SearchCondition searchCondition) {
         log.debug("BoardController/searchBoards: searchCondition = {}", searchCondition);
-        try {
-            Optional<List<Board>> result = boardService.searchBoardsByCondition(searchCondition);
-            if (result.isPresent() && !result.get().isEmpty()) {
-                return new ResponseEntity<List<Board>>(result.get(), HttpStatus.OK);
-            } else {
-                return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
-            }
-        } catch (Exception e) {
-            return exceptionHandling(e);
-        }
+        List<Board> boards = boardService.searchBoardsByCondition(searchCondition)
+                .filter(list -> !list.isEmpty())
+                .orElseThrow(() -> new ResourceNotFoundException("검색 결과가 없습니다."));
+        return ResponseEntity.ok(boards);
     }
 
     @Operation(summary = "게시글 이미지 업로드", description = "게시글에 이미지를 업로드합니다.")
@@ -186,16 +148,11 @@ public class BoardController {
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @PostMapping("/{boardId}/post-image")
-    public ResponseEntity<?> updatePostImage(@PathVariable Integer boardId,
-            @RequestParam("image") MultipartFile image) {
-        try {
-            String imageUrl = boardService.updatePostImage(boardId, image);
-            log.info("imageUrl: {}", imageUrl);
-            return ResponseEntity.ok(Map.of("imageUrl", imageUrl));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생");
-        }
+    public ResponseEntity<Map<String, String>> updatePostImage(
+            @PathVariable Integer boardId,
+            @RequestParam("image") MultipartFile image) throws IOException {
+        String imageUrl = boardService.updatePostImage(boardId, image);
+        return ResponseEntity.ok(Map.of("imageUrl", imageUrl));
     }
 
     @Operation(summary = "게시글 이미지 조회", description = "업로드된 게시글 이미지를 조회합니다.")
@@ -208,22 +165,23 @@ public class BoardController {
         try {
             File file = new File(uploadPath + "/posts/" + filename);
             Resource resource = new UrlResource(file.toURI());
-            if (resource.exists() || resource.isReadable()) {
-                // 파일의 MIME 타입 결정
-                String contentType = Files.probeContentType(file.toPath());
-                if (contentType == null) {
-                    contentType = "application/octet-stream";
-                }
-                return ResponseEntity.ok()
-                        .contentType(MediaType.parseMediaType(contentType))
-                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
-                        .body(resource);
-            } else {
-                return ResponseEntity.notFound().build();
+            
+            if (!resource.exists() && !resource.isReadable()) {
+                throw new ResourceNotFoundException("파일을 찾을 수 없습니다: " + filename);
             }
-        } catch (Exception e) {
-            log.error("파일을 찾을 수 없습니다: {}", filename, e);
-            return ResponseEntity.notFound().build();
+
+            String contentType = Files.probeContentType(file.toPath());
+            if (contentType == null) {
+                contentType = "application/octet-stream";
+            }
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, 
+                            "inline; filename=\"" + resource.getFilename() + "\"")
+                    .body(resource);
+        } catch (IOException e) {
+            throw new RuntimeException("파일 처리 중 오류가 발생했습니다.", e);
         }
     }
 
@@ -233,19 +191,11 @@ public class BoardController {
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @PostMapping("/history")
-    public ResponseEntity<?> saveSearchHistory(@RequestBody SearchHistory searchHistory) {
+    public ResponseEntity<Map<String, String>> saveSearchHistory(@RequestBody SearchHistory searchHistory) {
         log.debug("BoardController/saveSearchHistory: searchHistory = {}", searchHistory);
-        try {
-            Optional<Integer> result = boardService.saveSearchHistory(searchHistory);
-            if (result.isPresent() && result.get() > 0) {
-                return ResponseEntity.ok(Map.of("message", "검색어 저장 성공"));
-            } else {
-                return ResponseEntity.ok(Map.of("message", "검색어 저장 실패"));
-            }
-        } catch (Exception e) {
-            log.error("검색어 저장 실패: {}", e);
-            return exceptionHandling(e);
-        }
+        boardService.saveSearchHistory(searchHistory)
+                .orElseThrow(() -> new InvalidRequestException("검색어 저장에 실패했습니다."));
+        return ResponseEntity.ok(Map.of("message", "검색어 저장 성공"));
     }
 
     @Operation(summary = "검색 기록 조회", description = "특정 사용자의 검색 기록을 조회합니다.")
@@ -254,27 +204,17 @@ public class BoardController {
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @GetMapping("/history/{userId}/{content}")
-    public ResponseEntity<?> getSearchHistory(@PathVariable int userId, @PathVariable String content) {
+    public ResponseEntity<List<String>> getSearchHistory(
+            @PathVariable int userId, 
+            @PathVariable String content) {
         log.debug("BoardController/getSearchHistory: userId = {}, content = {}", userId, content);
-        try {
-            SearchHistory searchHistory = SearchHistory.builder()
-                    .userId(userId)
-                    .content(content)
-                    .build();
-            Optional<List<String>> result = boardService.getSearchHistory(searchHistory);
-            if (result.isPresent() && !result.get().isEmpty()) {
-                return ResponseEntity.ok(result.get());
-            } else {
-                return ResponseEntity.ok(List.of());
-            }
-        } catch (Exception e) {
-            log.error("연관 검색어 조회 실패: {}", e);
-            return exceptionHandling(e);
-        }
-    }
-
-    private ResponseEntity<String> exceptionHandling(Exception e) {
-        e.printStackTrace();
-        return new ResponseEntity<String>("Error : " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        SearchHistory searchHistory = SearchHistory.builder()
+                .userId(userId)
+                .content(content)
+                .build();
+                
+        List<String> history = boardService.getSearchHistory(searchHistory)
+                .orElse(List.of());
+        return ResponseEntity.ok(history);
     }
 }
