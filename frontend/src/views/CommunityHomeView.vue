@@ -1,32 +1,23 @@
 <template>
   <div class="max-w-4xl mx-auto px-4 pb-16">
     <CommunitySearch v-model="searchText" @search="handleSearch" />
-    <CommunityTag
-      :tags="tags"
-      :selectedTag="selectedTag"
-      @select-tag="handleTagSelect"
-    />
+    <CommunityTag :tags="tags" :selectedTag="selectedTag" @select-tag="handleTagSelect" />
     <div class="flex justify-end gap-3 my-2">
       <button
         class="px-3 py-1.5 rounded-md font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200"
-        @click="viewAllPosts"
-      >
+        @click="viewAllPosts">
         전체 보기
       </button>
       <button
-        class="px-3 py-1.5 rounded-md font-medium text-sm bg-blue-600 text-white hover:bg-blue-700 transition-all duration-200"
-        @click="goToWrite"
-      >
+        class="px-3 py-1.5 rounded-md font-medium text-sm bg-black text-white hover:bg-gray-700 transition-all duration-200"
+        @click="goToWrite">
         글 쓰기
       </button>
     </div>
     <CommunityBoard :boards="paginatedBoards" />
-    <CommunityPagenation
-      :currentPage="currentPage"
-      :totalPages="totalPages"
-      @page-change="handlePageChange"
-    />
+    <CommunityPagenation :currentPage="currentPage" :totalPages="totalPages" @page-change="handlePageChange" />
   </div>
+  <NeedLoginAlert @close="needLoginAlert = false" v-if="needLoginAlert" />
 </template>
 
 <script setup>
@@ -38,16 +29,20 @@ import CommunitySearch from "@/components/CommunitySearch.vue";
 import CommunityTag from "@/components/CommunityTag.vue";
 import CommunityBoard from "@/components/CommunityBoard.vue";
 import CommunityPagenation from "@/components/CommunityPagenation.vue";
+import NeedLoginAlert from "@/components/alert/NeedLoginAlert.vue";
+import { useAuthStore } from "@/stores/auth";
 
 // 반응형 상태 정의
 const router = useRouter();
 const route = useRoute();
 const boardStore = useBoardStore();
+const authStore = useAuthStore();
 const tags = ref([]);
 const selectedTag = ref(null);
 const searchText = ref("");
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
+const needLoginAlert = ref(false);
 
 // URL 쿼리 감시 로직 수정
 watch(
@@ -118,7 +113,7 @@ const handleTagSelect = (tag) => {
   if (tag) {
     query.tag = tag;
   }
-  router.push({ query }).catch(() => {});
+  router.push({ query }).catch(() => { });
 };
 
 const handlePageChange = (page) => {
@@ -136,7 +131,7 @@ const updateUrlQuery = (page) => {
     .push({
       query,
     })
-    .catch(() => {});
+    .catch(() => { });
 };
 
 // URL 쿼리 감시 로직 강화
@@ -184,12 +179,16 @@ const fetchBoards = async (preservePage = true) => {
 const viewAllPosts = () => {
   selectedTag.value = null;
   searchText.value = "";
-  router.push({ query: { page: 1 } }).catch(() => {});
+  router.push({ query: { page: 1 } }).catch(() => { });
   fetchBoards(false);
 };
 
 // 글쓰기 페이지로 이동하는 메서드
-const goToWrite = () => {
+const goToWrite = async () => {
+  if (!(await authStore.checkAuth())) {
+    needLoginAlert.value = true;
+    return;
+  }
   const currentPage = route.query.page || 1;
   router.push({
     path: "/community/write",

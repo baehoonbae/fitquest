@@ -1,6 +1,6 @@
 <template>
   <!-- Left Calendar Section -->
-  <div class="w-full md:w-[24rem]">
+  <div class="w-full md:w-[438px] bg-white rounded-2xl shadow-md p-6">
     <!-- Date and Stats -->
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center gap-3">
@@ -9,8 +9,8 @@
         </span>
       </div>
       <div class="flex gap-3">
-        <button @click="previousMonth" class="text-[#dddfe0] text-xl">&lt;</button>
-        <button @click="nextMonth" class="text-[#dddfe0] text-xl">&gt;</button>
+        <button @click="previousMonth" class="text-gray-400 hover:text-gray-600 transition-colors text-xl">&lt;</button>
+        <button @click="nextMonth" class="text-gray-400 hover:text-gray-600 transition-colors text-xl">&gt;</button>
       </div>
     </div>
 
@@ -35,14 +35,15 @@
         <!-- 1일부터 말일까지 -->
         <template v-for="day in daysInMonth" :key="day">
           <div
-            class="aspect-square font-semibold w-full sm:w-12 h-auto sm:h-[3.3rem] flex flex-col items-center justify-center rounded-lg text-[0.85rem] cursor-pointer relative"
+            class="aspect-square font-semibold w-full sm:w-12 h-auto sm:h-[3.3rem] flex flex-col items-center justify-center rounded-lg text-[0.85rem] cursor-pointer relative hover:bg-gray-50 transition-all duration-200"
             @click="selectDate(day)">
-            <div class="w-6 h-6 text-center text-gray-600 border border-[#dddfe0] bg-[#dddfe0] rounded-[0.3rem] mb-0.5">
+            <div class="w-6 h-6 text-center text-gray-600 border border-[#e5e7e9] bg-[#f8f9fa] hover:bg-[#e9ecef] transition-colors rounded-[0.3rem] mb-0.5 shadow-sm">
               <div v-if="todoStore.getUndoneTodoCount(formatDate(day)) > 0">
                 {{ todoStore.getUndoneTodoCount(formatDate(day)) }}
               </div>
             </div>
-            <div class="text-center rounded-full px-2 py-1" :class="[{ 'bg-black text-white': isSelectedDate(day) }]">
+            <div class="text-center rounded-full px-2 py-1 transition-all duration-200" 
+                 :class="[{ 'bg-black text-white shadow-md transform scale-105': isSelectedDate(day) }]">
               {{ day }}
             </div>
           </div>

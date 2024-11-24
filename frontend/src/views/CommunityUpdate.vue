@@ -25,54 +25,33 @@
       </div>
       <div class="mb-6">
         <label for="title" class="block font-semibold text-gray-700 mb-2">제목</label>
-        <input
-          type="text"
-          id="title"
-          v-model="post.title"
-          required
-          placeholder="제목을 입력하세요"
-          class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600"
-        />
+        <input type="text" id="title" v-model="post.title" required placeholder="제목을 입력하세요"
+          class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600" />
       </div>
 
       <div class="mb-6">
         <label for="content" class="block font-semibold text-gray-700 mb-2">내용</label>
-        <textarea
-          id="content"
-          v-model="post.content"
-          required
-          placeholder="내용을 입력하세요"
-          rows="10"
-          class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600 min-h-[200px] resize-y"
-        ></textarea>
+        <textarea id="content" v-model="post.content" required placeholder="내용을 입력하세요" rows="10"
+          class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600 min-h-[200px] resize-y"></textarea>
       </div>
       <div class="mb-6">
         <label for="image" class="block font-semibold text-gray-700 mb-2">이미지</label>
-        <input
-          type="file"
-          id="image"
-          ref="fileInput"
-          @change="handleImageChange"
-          accept="image/*"
-          class="px-3 py-2.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600"
-        />
+        <input type="file" id="image" ref="fileInput" @change="handleImageChange" accept="image/*"
+          class="px-3 py-2.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600" />
       </div>
       <div class="flex justify-end gap-3 mt-8">
-        <button
-          type="button"
+        <button type="button"
           class="px-5 py-2.5 rounded-md font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200"
-          @click="router.go(-1)"
-        >
+          @click="router.go(-1)">
           취소
         </button>
-        <button
-          type="submit"
-          class="px-5 py-2.5 rounded-md font-medium bg-blue-600 text-white hover:bg-blue-700 transition-all duration-200"
-        >
+        <button type="submit"
+          class="px-5 py-2.5 rounded-md font-medium bg-blue-600 text-white hover:bg-blue-700 transition-all duration-200">
           수정 완료
         </button>
       </div>
     </form>
+    <NeedLoginAlert v-if="needLoginAlert" @close="needLoginAlert = false" />
   </div>
 </template>
 
@@ -85,11 +64,14 @@ import http from "@/api/http";
 import { COMMUNITY_TAGS } from "@/stores/tags";
 import { getChoseong } from "es-hangul";
 import { ChevronDownIcon } from '@heroicons/vue/24/outline'
+import NeedLoginAlert from "@/components/alert/NeedLoginAlert.vue";
 
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 const boardStore = useBoardStore();
+
+const needLoginAlert = ref(false);
 
 const fileInput = ref(null);
 const post = ref({
@@ -140,10 +122,9 @@ const handleImageChange = (event) => {
 
 const submitPost = async () => {
   try {
-    const token = authStore.getToken();
-    if (!token) {
-      alert("로그인이 필요합니다.");
-      router.push("/login");
+    const isAuth = await authStore.checkAuth();
+    if (!isAuth) {
+      needLoginAlert.value = true;
       return;
     }
 
@@ -195,8 +176,7 @@ const submitPost = async () => {
   } catch (error) {
     console.error("Error posting:", error);
     if (error.response?.status === 401) {
-      alert("로그인이 만료되었습니다. 다시 로그인해주세요.");
-      authStore.logout();
+      needLoginAlert.value = true;
     } else {
       alert(error.response?.data?.message || "게시글 등록에 실패했습니다.");
     }
@@ -205,8 +185,7 @@ const submitPost = async () => {
 
 onMounted(async () => {
   if (!authStore.user.isAuthenticated) {
-    alert("로그인이 필요합니다.");
-    router.push("/login");
+    needLoginAlert.value = true;
     return;
   }
   await fetchPost();

@@ -5,48 +5,56 @@
       <!-- 왼쪽 섹션: 프로필 + 캘린더 -->
       <div class="md:w-1/2 flex flex-col gap-2">
         <!-- 프로필 섹션 -->
-        <div class="flex items-center gap-6 py-2 pl-6">
+        <div class="flex items-center gap-6 py-4 pl-6 bg-white rounded-2xl shadow-md">
           <!-- 프로필 이미지 -->
-          <div class="relative">
-            <img :src="profileImage || ''" class="w-20 h-20 rounded-full object-cover" alt="프로필 이미지"
-              @error="(e) => (e.target.src = '')" />
+          <div class="relative group">
+            <img :src="profileImage || ''"
+              class="w-20 h-20 rounded-full object-cover border-3 border-white shadow-md group-hover:scale-105 transition duration-300"
+              alt="프로필 이미지" @error="(e) => (e.target.src = '/default-profile.png')" />
           </div>
           <!-- 팔로워/팔로잉 정보 -->
-          <div class="flex gap-4 mt-2">
-            <div class="flex flex-col items-center px-3 py-1 rounded-lg transition-colors">
-              <span class="font-semibold">{{ doneTodoCount }}</span>
-              <span class="material-icons text-gray-500 text-sm">check_circle</span>
+          <div class="flex gap-4 items-center">
+            <div class="flex flex-col items-center px-4 py-2 hover:bg-gray-50 rounded-xl transition-all duration-200">
+              <span class="font-bold text-lg text-gray-800">{{ doneTodoCount }}</span>
+              <span class="material-icons text-gray-600 text-md">check_circle</span>
+              <span class="text-xs text-gray-500 font-medium">완료</span>
             </div>
-            <button @click="showFollowers = true" class="flex flex-col items-center px-3 py-1 rounded-lg transition-colors">
-              <span class="font-semibold">{{ followerList.length }}</span>
-              <span class="text-sm text-gray-500">팔로워</span>
+            <button @click="showFollowers = true"
+              class="flex flex-col items-center px-4 py-2 hover:bg-gray-50 rounded-xl transition-all duration-200">
+              <span class="font-bold text-lg text-gray-800">{{ followerList.length }}</span>
+              <span class="material-icons text-gray-600 text-md">group</span>
+              <span class="text-xs text-gray-500 font-medium">팔로워</span>
             </button>
-            <button @click="showFollowings = true" class="flex flex-col items-center px-3 py-1 rounded-lg transition-colors">
-              <span class="font-semibold">{{ followingList.length }}</span>
-              <span class="text-sm text-gray-500">팔로잉</span>
+            <button @click="showFollowings = true"
+              class="flex flex-col items-center px-4 py-2 hover:bg-gray-50 rounded-xl transition-all duration-200">
+              <span class="font-bold text-lg text-gray-800">{{ followingList.length }}</span>
+              <span class="material-icons text-gray-600 text-md">person_add</span>
+              <span class="text-xs text-gray-500 font-medium">팔로잉</span>
             </button>
           </div>
         </div>
         <!-- 사용자 정보 -->
-        <div class="space-y-2 flex-1 pl-6">
-          <div class="font-bold text-lg">{{ authStore.user.name }}</div>
+        <div class="pl-6 py-3 bg-white rounded-2xl shadow-md">
+          <div class="flex items-center justify-between">
+            <div class="font-bold text-gray-800">{{ authStore.user.name }}</div>
+          </div>
           <div class="text-gray-600 text-sm">
-            {{ authStore.user.description || "자기소개가 없습니다." }}
+            {{ authStore.user.description || "자기소개를 입력해주세요." }}
           </div>
         </div>
-
         <!-- 캘린더 섹션 -->
-        <div class="p-4 rounded-[15px]">
+        <div class="rounded-[15px]">
           <Calendar @dateSelected="handleDateSelected" :userId="Number(authStore.user.id)" />
         </div>
       </div>
-
       <!-- 오른쪽 섹션: 카테고리 -->
-      <div class="md:w-1/2 p-4 rounded-[15px]">
-        <CategoryHeader />
-        <div class="min-h-[calc(100vh-30rem)] max-h-[calc(100vh-20rem)] overflow-y-auto">
-          <CategoryList :selectedDate="selectedDate" :userId="Number(authStore.user.id)"
-            @doneTodoCountUpdate="fetchDoneTodoCount" />
+      <div class="md:w-1/2">
+        <div class="p-4 rounded-[15px] bg-white shadow-md">
+          <CategoryHeader />
+          <div class="h-[586px] overflow-y-auto">
+            <CategoryList :selectedDate="selectedDate" :userId="Number(authStore.user.id)"
+              @doneTodoCountUpdate="fetchDoneTodoCount" />
+          </div>
         </div>
       </div>
     </div>
@@ -56,8 +64,10 @@
     </div>
   </div>
 
-  <Followers v-if="showFollowers" @close="closeFollowers" :followers="followerList" :userId="Number(authStore.user.id)" />
-  <Followings v-if="showFollowings" @close="closeFollowings" :followings="followingList" :userId="Number(authStore.user.id)" />
+  <Followers v-if="showFollowers" @close="closeFollowers" :followers="followerList"
+    :userId="Number(authStore.user.id)" />
+  <Followings v-if="showFollowings" @close="closeFollowings" :followings="followingList"
+    :userId="Number(authStore.user.id)" />
 </template>
 
 <script setup>
@@ -89,34 +99,34 @@ const followStore = useFollowStore();
 
 // 팔로워/팔로잉 조회
 const fetchFollowData = async () => {
-    try {
-        const [followers, followings] = await Promise.all([
-            followStore.fetchFollowers(authStore.user.id),
-            followStore.fetchFollowings(authStore.user.id)
-        ]);
-        followerList.value = followers;
-        followingList.value = followings;
-    } catch (error) {
-        console.error('팔로우 데이터 조회 실패:', error);
-    }
+  try {
+    const [followers, followings] = await Promise.all([
+      followStore.fetchFollowers(authStore.user.id),
+      followStore.fetchFollowings(authStore.user.id)
+    ]);
+    followerList.value = followers;
+    followingList.value = followings;
+  } catch (error) {
+    console.error('팔로우 데이터 조회 실패:', error);
+  }
 };
 
 onMounted(async () => {
-    await Promise.all([
-        fetchFollowData(),
-        fetchDoneTodoCount()
-    ]);
+  await Promise.all([
+    fetchFollowData(),
+    fetchDoneTodoCount()
+  ]);
 });
 
 // 모달 닫을 때 데이터 새로고침
 const closeFollowers = async () => {
-    showFollowers.value = false;
-    await fetchFollowData();
+  showFollowers.value = false;
+  await fetchFollowData();
 };
 
 const closeFollowings = async () => {
-    showFollowings.value = false;
-    await fetchFollowData();
+  showFollowings.value = false;
+  await fetchFollowData();
 };
 
 const handleDateSelected = (date) => {

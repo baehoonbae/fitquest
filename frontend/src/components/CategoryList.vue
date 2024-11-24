@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <div v-if="filteredCategories.length > 0">
     <div class="space-y-4">
       <div v-for="category in filteredCategories" :key="category.id">
-        <div class="flex items-center bg-gray-100 rounded-[16px] py-1.5 px-2.5 cursor-pointer hover:bg-gray-200 w-fit"
+        <div class="flex items-center bg-gray-100 rounded-[16px] py-2 px-3 cursor-pointer hover:bg-gray-200 w-fit"
           @click.stop="props.userId === authStore.user.id && openTodoForm(category)">
           <div class="flex items-center">
             <GlobeAltIcon v-if="category.isPublic" class="w-3.5 h-3.5 text-gray-400" />
@@ -46,6 +46,14 @@
       </div>
     </div>
   </div>
+  <div v-else class="h-full flex flex-col items-center justify-center text-gray-400 pb-10">
+    <div class="material-icons text-5xl mb-3">sentiment_neutral</div>
+    <div>카테고리가 없어요</div>
+    <RouterLink v-if="props.userId === authStore.user.id" to="/category-regist"
+      class="text-sm font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1">
+      추가하러 가기
+    </RouterLink>
+  </div>
 </template>
 
 <script setup>
@@ -54,6 +62,7 @@ import { useCategoryStore } from "@/stores/category";
 import {
   GlobeAltIcon,
   LockClosedIcon,
+  PlusCircleIcon,
 } from "@heroicons/vue/24/outline";
 import { onMounted, watch, ref, onUnmounted, computed } from "vue";
 import TodoList from "@/components/TodoList.vue";

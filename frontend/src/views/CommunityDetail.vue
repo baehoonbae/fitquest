@@ -107,6 +107,7 @@
       </button>
     </div>
   </div>
+  <NeedLoginAlert @close="needLoginAlert = false" v-if="needLoginAlert" />
 </template>
 
 <script setup>
@@ -117,12 +118,14 @@ import http from "@/api/http";
 import CommentForm from "@/components/comment/CommentForm.vue";
 import CommentList from "@/components/comment/CommentList.vue";
 import { getChoseong } from "es-hangul";
+import NeedLoginAlert from "@/components/alert/NeedLoginAlert.vue";
 
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 const board = ref({});
 const commentList = ref(null);
+const needLoginAlert = ref(false);
 
 // 이전 상태를 저장할 ref 추가
 const previousState = ref({
@@ -220,18 +223,14 @@ const navigateToList = () => {
 // handleDelete 함수도 수정
 const handleDelete = async () => {
   if (!authStore.user.isAuthenticated) {
-    alert("로그인이 필요합니다.");
-    router.push("/login");
+    needLoginAlert.value = true;
     return;
   }
-
   if (!isAuthor.value) {
     alert("삭제 권한이 없습니다.");
     return;
   }
-
   if (!confirm("정말 삭제하시겠습니까?")) return;
-
   try {
     const token = authStore.getToken();
     const response = await http.delete(`/board/${route.params.id}`, {
@@ -247,8 +246,8 @@ const handleDelete = async () => {
   } catch (error) {
     console.error("Error deleting board:", error);
     if (error.response?.status === 401) {
-      alert("로그인이 만료되었습니다. 다시 로그인해주세요.");
       authStore.logout();
+      needLoginAlert.value = true;
     } else {
       alert("게시글 삭제에 실패했습니다.");
     }
@@ -257,8 +256,7 @@ const handleDelete = async () => {
 
 const handleEdit = () => {
   if (!authStore.user.isAuthenticated) {
-    alert("로그인이 필요합니다.");
-    router.push("/login");
+    needLoginAlert.value = true;
     return;
   }
 
@@ -323,8 +321,7 @@ const fetchHitCount = async () => {
 
 const toggleHit = async () => {
   if (!authStore.user.isAuthenticated) {
-    alert("로그인이 필요합니다.");
-    router.push("/login");
+    needLoginAlert.value = true;
     return;
   }
 
