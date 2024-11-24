@@ -49,14 +49,18 @@ const searchText = ref("");
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
 
-// 라우터 파라미터 감시
+// URL 쿼리 감시 로직 수정
 watch(
   () => route.query,
   (query) => {
     if (query.page) {
       currentPage.value = Number(query.page);
     }
-  }
+    if (query.tag) {
+      selectedTag.value = query.tag;
+    }
+  },
+  { immediate: true, deep: true }
 );
 
 const filteredBoards = computed(() => {
@@ -98,15 +102,23 @@ const totalPages = computed(() => {
 const handleSearch = async (searchCondition) => {
   try {
     await boardStore.searchBoards(searchCondition);
+    // 검색 후에는 첫 페이지로 이동
+    currentPage.value = 1;
+    updateUrlQuery(1);
   } catch (error) {
     console.error("검색 중 오류 발생:", error);
   }
 };
 
+// 태그 선택 핸들러 수정
 const handleTagSelect = (tag) => {
   selectedTag.value = tag;
   currentPage.value = 1;
-  updateUrlQuery(1);
+  const query = { page: 1 };
+  if (tag) {
+    query.tag = tag;
+  }
+  router.push({ query }).catch(() => {});
 };
 
 const handlePageChange = (page) => {
@@ -114,54 +126,100 @@ const handlePageChange = (page) => {
   updateUrlQuery(page);
 };
 
-// URL 쿼리 업데이트 함수
+// URL 쿼리 업데이트 함수 수정
 const updateUrlQuery = (page) => {
-  router.push({
-    query: {
-      ...route.query,
-      page: page,
-    },
-  });
+  const query = { page };
+  if (selectedTag.value) {
+    query.tag = selectedTag.value;
+  }
+  router
+    .push({
+      query,
+    })
+    .catch(() => {});
 };
 
-// API 호출 함수
-const fetchBoards = async () => {
-  await boardStore.fetchBoards();
-  // 정적 태그와 게시글의 태그를 합치고 중복 제거
-  const dynamicTags = [...new Set(boardStore.boards.map((board) => board.tag))];
-  tags.value = [...new Set([...COMMUNITY_TAGS, ...dynamicTags])];
-  // 새로운 데이터를 불러올 때 첫 페이지로 이동
-  currentPage.value = 1;
-  updateUrlQuery(1);
+// URL 쿼리 감시 로직 강화
+watch(
+  () => route.query,
+  (query) => {
+    if (query.page) {
+      currentPage.value = Number(query.page);
+    }
+  },
+  { immediate: true, deep: true }
+);
+
+// API 호출 함수 수정
+const fetchBoards = async (preservePage = true) => {
+  try {
+    await boardStore.fetchBoards();
+    // 정적 태그와 게시글의 태그를 합치고 중복 제거
+    const dynamicTags = [
+      ...new Set(boardStore.boards.map((board) => board.tag)),
+    ];
+    tags.value = [...new Set([...COMMUNITY_TAGS, ...dynamicTags])];
+
+    // preservePage가 false일 때만 첫 페이지로 이동
+    if (!preservePage) {
+      currentPage.value = 1;
+      updateUrlQuery(1);
+    } else {
+      const pageFromQuery = Number(route.query.page) || 1;
+      currentPage.value = pageFromQuery;
+
+      // 현재 페이지 번호가 전체 페이지 수보다 크다면 마지막 페이지로 이동
+      const maxPage = Math.ceil(boardStore.boards.length / itemsPerPage.value);
+      if (currentPage.value > maxPage) {
+        currentPage.value = maxPage || 1;
+        updateUrlQuery(currentPage.value);
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching boards:", error);
+  }
 };
 
-// 전체 보기 메서드
+// 전체 보기 메서드 수정
 const viewAllPosts = () => {
   selectedTag.value = null;
   searchText.value = "";
-  currentPage.value = 1;
-  fetchBoards();
+  router.push({ query: { page: 1 } }).catch(() => {});
+  fetchBoards(false);
 };
 
 // 글쓰기 페이지로 이동하는 메서드
 const goToWrite = () => {
-  router.push("/community/write");
+  const currentPage = route.query.page || 1;
+  router.push({
+    path: "/community/write",
+    query: { returnPage: currentPage }, // 현재 페이지 정보 저장
+  });
 };
 
 // 컴포넌트 마운트 시 실행
 onMounted(async () => {
-  await fetchBoards();
-  if (route.query.page) {
-    currentPage.value = Number(route.query.page);
+  const pageFromQuery = Number(route.query.page) || 1;
+  const tagFromQuery = route.query.tag;
+  currentPage.value = pageFromQuery;
+  if (tagFromQuery) {
+    selectedTag.value = tagFromQuery;
   }
+  await fetchBoards(true);
 });
 
-// 라우트 변경 감시
+// 라우트 변경 감시 로직 수정
 watch(
   () => route.path,
   async (newPath, oldPath) => {
     if (newPath === "/community" && oldPath !== "/community") {
-      await fetchBoards();
+      const pageFromQuery = Number(route.query.page) || currentPage.value;
+      const tagFromQuery = route.query.tag;
+      if (tagFromQuery) {
+        selectedTag.value = tagFromQuery;
+      }
+      await fetchBoards(true);
+      currentPage.value = pageFromQuery;
     }
   }
 );

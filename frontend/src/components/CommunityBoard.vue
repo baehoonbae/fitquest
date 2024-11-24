@@ -89,9 +89,10 @@
 </template>
 
 <script setup>
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 
 const router = useRouter();
+const route = useRoute();
 
 const props = defineProps({
   boards: {
@@ -109,8 +110,23 @@ const formatDate = (date) => {
   return `${year}-${month}-${day}`;
 };
 
+// openBoard 함수 수정
 const openBoard = (id) => {
-  router.push(`/community/detail/${id}`);
+  // 현재 route에서 page와 tag 정보를 가져옴
+  const currentPage = route.query.page || "1";
+  const currentTag = route.query.tag;
+
+  // query 객체 생성
+  const query = { page: currentPage };
+  if (currentTag) {
+    query.tag = currentTag;
+  }
+
+  // 상세 페이지로 이동하면서 현재 페이지와 태그 정보 전달
+  router.push({
+    path: `/community/detail/${id}`,
+    query,
+  });
 };
 
 const truncateContent = (content) => {

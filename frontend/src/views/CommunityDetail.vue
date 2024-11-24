@@ -59,7 +59,9 @@
     </div>
 
     <!-- 게시글 내용 -->
-    <div class="min-h-[300px] text-lg md:text-base text-gray-700 leading-relaxed mb-10">
+    <div
+      class="min-h-[300px] text-lg md:text-base text-gray-700 leading-relaxed mb-10"
+    >
       <div v-if="board.postImage !== null">
         <img :src="board.postImage" alt="게시글 이미지" class="w-full mb-4" />
       </div>
@@ -122,6 +124,12 @@ const authStore = useAuthStore();
 const board = ref({});
 const commentList = ref(null);
 
+// 이전 상태를 저장할 ref 추가
+const previousState = ref({
+  page: route.query.page || "1",
+  tag: route.query.tag,
+});
+
 const isAuthor = computed(() => {
   console.log("Current user ID:", authStore.user.id);
   console.log("Board user ID:", board.value?.userId);
@@ -152,10 +160,10 @@ const incrementViewCount = async (boardData) => {
       content: boardData.content,
       viewCount: (boardData.viewCount || 0) + 1,
       choseong: {
-        titleChoseong: getChoseong(boardData.title.replace(/\s+/g, '')),
-        contentChoseong: getChoseong(boardData.content.replace(/\s+/g, '')),
-        writerChoseong: getChoseong(boardData.writer.replace(/\s+/g, ''))
-      }
+        titleChoseong: getChoseong(boardData.title.replace(/\s+/g, "")),
+        contentChoseong: getChoseong(boardData.content.replace(/\s+/g, "")),
+        writerChoseong: getChoseong(boardData.writer.replace(/\s+/g, "")),
+      },
     };
 
     console.log("업데이트할 데이터:", updatedBoard);
@@ -170,7 +178,6 @@ const incrementViewCount = async (boardData) => {
   }
 };
 
-// 기존 fetchBoardDetail 함수 수정
 const fetchBoardDetail = async () => {
   try {
     const response = await http.get(`/board/${route.params.id}`);
@@ -178,11 +185,9 @@ const fetchBoardDetail = async () => {
       board.value = response.data;
       console.log("가져온 게시글 데이터:", board.value);
 
-      // 게시글 데이터를 가져온 후 최근 본 게시물에 저장
       saveRecentPost(board.value);
-
-      // 조회수 증가 로직
       await incrementViewCount(board.value);
+
       const updatedResponse = await http.get(`/board/${route.params.id}`);
       if (updatedResponse.status === 200) {
         board.value = updatedResponse.data;
@@ -194,10 +199,25 @@ const fetchBoardDetail = async () => {
     }
   } catch (error) {
     console.error("Error fetching board detail:", error);
-    router.push("/community");
+    navigateToList();
   }
 };
+// 목록으로 이동하는 함수 통합
+const navigateToList = () => {
+  console.log("Navigating back with state:", previousState.value);
 
+  const query = { page: previousState.value.page };
+  if (previousState.value.tag) {
+    query.tag = previousState.value.tag;
+  }
+
+  router.push({
+    path: "/community",
+    query,
+  });
+};
+
+// handleDelete 함수도 수정
 const handleDelete = async () => {
   if (!authStore.user.isAuthenticated) {
     alert("로그인이 필요합니다.");
@@ -222,7 +242,7 @@ const handleDelete = async () => {
 
     if (response.status === 200) {
       alert("게시글이 삭제되었습니다.");
-      router.push("/community");
+      navigateToList();
     }
   } catch (error) {
     console.error("Error deleting board:", error);
@@ -247,12 +267,17 @@ const handleEdit = () => {
     return;
   }
 
-  router.push(`/community/edit/${route.params.id}`);
+  // 수정 페이지로 이동할 때도 이전 상태 전달
+  router.push({
+    path: `/community/edit/${route.params.id}`,
+    query: {
+      returnPage: previousState.value.page,
+      returnTag: previousState.value.tag,
+    },
+  });
 };
 
-const goBack = () => {
-  router.push("/community");
-};
+const goBack = navigateToList;
 
 const formatDate = (date) => {
   if (!date) return "";
@@ -345,8 +370,16 @@ const saveRecentPost = (post) => {
   localStorage.setItem("recentPosts", JSON.stringify(recentPosts));
 };
 
-// 페이지 로드 시 초기 상태 확인
+// 마운트 시 이전 상태 저장 및 초기화
 onMounted(async () => {
+  // 이전 상태 저장
+  previousState.value = {
+    page: route.query.page || "1",
+    tag: route.query.tag,
+  };
+
+  console.log("Initial state saved:", previousState.value);
+
   await fetchBoardDetail();
   await Promise.all([
     fetchHitCount(),
