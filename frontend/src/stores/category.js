@@ -17,8 +17,12 @@ export const useCategoryStore = defineStore("category", () => {
 
   // 카테고리 목록 조회
   const fetchCategories = async (userId) => {
+    if (!userId) {
+      console.warn("fetchCategories: userId is required");
+      return;
+    }
+    
     const accessToken = authStore.getToken();
-
     try {
       const response = await http.get(`/category/${userId}`, {
         headers: {
@@ -35,6 +39,9 @@ export const useCategoryStore = defineStore("category", () => {
         "카테고리 조회 실패:",
         error.response?.data || error.message
       );
+      if (error.response?.status === 401) {
+        console.error("인증 토큰이 만료되었거나 유효하지 않습니다");
+      }
     }
   };
 
@@ -132,16 +139,18 @@ export const useCategoryStore = defineStore("category", () => {
       });
       if (response.data) {
         await Promise.all([
-          fetchCategories(),
+          fetchCategories(userId),
           todosDates.map((date) =>
             activityStore.fetchUpdateDailyActivity(date, userId)
           ),
           todoStore.fetchMonthlyTodos(
             new Date().getFullYear(),
-            new Date().getMonth() + 1
+            new Date().getMonth() + 1,
+            userId
           ),
           activityStore.fetchActivities(userId, new Date().getFullYear()),
         ]);
+        categories.value = categories.value.filter(cat => cat.id !== categoryId);
         router.go(-1);
       }
     } catch (error) {

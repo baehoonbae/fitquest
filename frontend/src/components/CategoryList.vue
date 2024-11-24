@@ -36,7 +36,9 @@
                       '2px solid transparent' :
                       `2px solid ${selectedCategory.color}`,
                     borderImageSlice: selectedCategory.color.includes('gradient') ? 1 : 'none'
-                  }" v-model="todo.content" @click.stop @keyup.enter="handleAddTodo(todo)" />
+                  }" v-model="todo.content" @click.stop @keyup.enter="handleAddTodo(todo)"
+                  @compositionstart="isComposing = true"
+                  @compositionend="isComposing = false; handleCompositionEnd($event, todo)" />
               </div>
             </div>
           </Transition>
@@ -88,6 +90,7 @@ const todo = ref({
   date: props.selectedDate || dateStore.selectedDate,
 });
 const todoInput = ref(null);
+const isComposing = ref(false);
 
 const closeAddTodo = () => {
   selectedCategory.value = null;
@@ -106,7 +109,15 @@ const openTodoForm = (category) => {
   }, 0);
 };
 
+const handleCompositionEnd = (event, todo) => {
+  if (event.key === 'Enter') {
+    handleAddTodo(todo);
+  }
+};
+
 const handleAddTodo = async (todo) => {
+  if (isComposing.value) return;
+  
   if (todo.content.trim()) {
     try {
       const result = await todoStore.fetchAddTodo(todo);

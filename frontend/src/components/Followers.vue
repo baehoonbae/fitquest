@@ -1,6 +1,8 @@
 <template>
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[101]">
-        <div class="bg-white rounded-lg w-full max-w-md mx-4">
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[101]"
+         @click="handleClose">
+        <div class="bg-white rounded-lg w-full max-w-md mx-4"
+             @click.stop>
             <!-- 모달 헤더 -->
             <div class="flex items-center justify-between p-4 border-b">
                 <h2 class="text-lg font-semibold">팔로워 목록</h2>
@@ -54,7 +56,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
 import http from '@/api/http';
 import { useFollowStore } from '@/stores/follow';
 import { useAuthStore } from '@/stores/auth';
@@ -96,9 +98,27 @@ const handleUnfollow = async (userId) => {
     emit('updateFollowList');
 };
 
-// 컴포넌트 마운트 시 초기 상태 설정
+// ESC 키 이벤트 핸들러
+const handleKeydown = (e) => {
+    if (e.key === 'Escape') {
+        emit('close');
+    }
+};
+
+// 외부 클릭 핸들러
+const handleClose = () => {
+    emit('close');
+};
+
+// 컴포넌트 마운트 시 초기 상태 설정 및 이벤트 리스너 등록
 onMounted(() => {
     initFollowStatus();
+    window.addEventListener('keydown', handleKeydown);
+});
+
+// 컴포넌트 언마운트 시 이벤트 리스너 제거
+onBeforeUnmount(() => {
+    window.removeEventListener('keydown', handleKeydown);
 });
 
 // props.followers가 변경될 때마다 상태 업데이트

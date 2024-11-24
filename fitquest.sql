@@ -181,16 +181,6 @@ JOIN (
 SET t1.todo_order = t2.rn;
 SET SQL_SAFE_UPDATES = 1;
 
-select * from activity;
-select * from article;
-select * from board;
-select * from category;
-select * from `comment`;
-select * from hit;
-select * from todo;
-select * from token;
-select * from `user`;
-use fitquest;
 INSERT INTO board (user_id, tag, writer, title, content, view_count) VALUES
 (1, '헬스', '임채준', '벤치프레스 자세 질문', '벤치프레스 할 때 어깨가 아픈데 혹시 자세가 잘못된 걸까요? 팁 부탁드립니다.', 245),
 (1, '러닝', '임채준', '초보 러너 5km 완주 후기', '처음으로 5km를 완주했습니다! 여러분의 응원 덕분입니다. 다음 목표는 10km!', 178),
@@ -253,10 +243,6 @@ DROP FOREIGN KEY fk_comment_writer;
 ALTER TABLE comment 
 MODIFY COLUMN writer VARCHAR(50);
 
-select * from user;
-select * from board;
-select * from board_choseong;
-
 ALTER TABLE user
 ADD COLUMN profile_image VARCHAR(255) AFTER name;
 
@@ -318,4 +304,17 @@ CREATE TABLE follow (
     FOREIGN KEY (following_id) REFERENCES user(id) ON DELETE CASCADE,
     UNIQUE INDEX idx_follower_following (follower_id, following_id)
 );
+
+select * from board_choseong;
+select * from user_choseong;
 select * from follow;
+select * from activity;
+select * from article;
+select * from board;
+select * from category;
+select * from `comment`;
+select * from hit;
+select * from todo;
+select * from token;
+select * from `user`;
+use fitquest;

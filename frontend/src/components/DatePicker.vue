@@ -75,7 +75,11 @@ const activityStore = useActivityStore();
 
 onMounted(async () => {
   await authStore.fetchUserInfo();
-  await categoryStore.fetchCategories();
+  if (authStore.user.id) {
+    await categoryStore.fetchCategories(authStore.user.id);
+  }
+  await todoStore.fetchMonthlyTodos(currentYear.value, currentMonth.value);
+  localSelectedDate.value = dateStore.selectedDate;
 });
 
 // 현재 날짜 상태 관리
@@ -134,11 +138,6 @@ const confirmDate = async () => {
     console.error("날짜 수정 실패:", error);
   }
 };
-
-onMounted(async () => {
-  await todoStore.fetchMonthlyTodos(currentYear.value, currentMonth.value);
-  localSelectedDate.value = dateStore.selectedDate;
-});
 
 // 해당 월의 첫 번째 날의 요일 구하기 (0: 일요일, 1: 월요일, ...)
 const firstDayOfMonth = computed(() => {

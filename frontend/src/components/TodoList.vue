@@ -26,6 +26,8 @@
             <input type="text" placeholder="할 일 입력" 
               class="pb-1.5 w-full text-sm outline-none caret-blue-500"
               v-model="newTodoContent" 
+              @compositionstart="isComposing = true"
+              @compositionend="isComposing = false; handleCompositionEnd($event)"
               :style="{
                 borderImage: categoryStore.category.color.includes('gradient') ? 
                   `${categoryStore.category.color} 1` : 'none',
@@ -134,25 +136,31 @@ const toggleMenu = (id) => {
   selectedTodoId.value = selectedTodoId.value === id ? null : id;
 };
 
+const isComposing = ref(false);
+
+const handleCompositionEnd = (event) => {
+  if (event.key === 'Enter' && !isComposing.value) {
+    goUpdate();
+  }
+};
+
 const goUpdate = async () => {
-  try {
-    if (contentUpdateMode.value) {
-      const todo = todoStore.dailyTodos.find((t) => t.id === selectedTodoId.value);
-      const updatedTodo = {
-        id: todo.id,
-        userId: todo.userId,
-        categoryId: todo.categoryId,
-        isDone: todo.isDone,
-        content: newTodoContent.value,
-        date: todo.date,
-        todoOrder: todo.todoOrder,
-      };
-      await todoStore.fetchTodoUpdate(updatedTodo);
-      contentUpdateMode.value = false;
-      closeMenu();
+  if (isComposing.value) return; // IME 입력 중에는 업데이트하지 않음
+
+  if (contentUpdateMode.value && selectedTodoId.value) {
+    const todoToUpdate = todoStore.dailyTodos.find(
+      (todo) => todo.id === selectedTodoId.value
+    );
+    if (todoToUpdate && newTodoContent.value.trim()) {
+      try {
+        const updatedTodo = { ...todoToUpdate, content: newTodoContent.value };
+        await todoStore.fetchTodoUpdate(updatedTodo);
+        contentUpdateMode.value = false;
+        selectedTodoId.value = null;
+      } catch (error) {
+        console.error("할 일 수정 실패:", error);
+      }
     }
-  } catch (error) {
-    console.error("할 일 수정 실패:", error);
   }
 };
 
@@ -320,20 +328,29 @@ const handleChange = (event) => {
 };
 
 onMounted(() => {
-  window.addEventListener("keydown", (event) => {
+  const handleKeydown = (event) => {
     if (event.key === "Escape") {
       if (!contentUpdateMode.value) closeMenu();
       else goUpdate();
     }
-    if (event.key === "Enter") {
+    if (event.key === "Enter" && !isComposing.value) {
       goUpdate();
     }
-  });
-  window.addEventListener("click", goUpdate);
-});
+  };
 
-onBeforeUnmount(() => {
-  window.removeEventListener("click", goUpdate);
+  const handleClick = (event) => {
+    if (contentUpdateMode.value) {
+      goUpdate();
+    }
+  };
+
+  window.addEventListener("keydown", handleKeydown);
+  window.addEventListener("click", handleClick);
+
+  onBeforeUnmount(() => {
+    window.removeEventListener("keydown", handleKeydown);
+    window.removeEventListener("click", handleClick);
+  });
 });
 
 watch(() => props.categoryId, async (newCategoryId) => {
