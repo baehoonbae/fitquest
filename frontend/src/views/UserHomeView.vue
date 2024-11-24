@@ -11,12 +11,27 @@
             <img :src="profileImage || ''" class="w-20 h-20 rounded-full object-cover" alt="프로필 이미지"
               @error="(e) => (e.target.src = '')" />
           </div>
-          <!-- 사용자 정보 -->
-          <div class="space-y-2">
-            <div class="font-bold text-lg">{{ authStore.user.name }}</div>
-            <div class="text-gray-600 text-sm">
-              {{ authStore.user.description || "자기소개가 없습니다." }}
+          <!-- 팔로워/팔로잉 정보 -->
+          <div class="flex gap-4 mt-2">
+            <div class="flex flex-col items-center px-3 py-1 rounded-lg transition-colors">
+              <span class="font-semibold">{{ doneTodoCount }}</span>
+              <span class="material-icons text-gray-500 text-sm">check_circle</span>
             </div>
+            <button @click="showFollowers = true" class="flex flex-col items-center px-3 py-1 rounded-lg transition-colors">
+              <span class="font-semibold">{{ followerList.length }}</span>
+              <span class="text-sm text-gray-500">팔로워</span>
+            </button>
+            <button @click="showFollowings = true" class="flex flex-col items-center px-3 py-1 rounded-lg transition-colors">
+              <span class="font-semibold">{{ followingList.length }}</span>
+              <span class="text-sm text-gray-500">팔로잉</span>
+            </button>
+          </div>
+        </div>
+        <!-- 사용자 정보 -->
+        <div class="space-y-2 flex-1 pl-6">
+          <div class="font-bold text-lg">{{ authStore.user.name }}</div>
+          <div class="text-gray-600 text-sm">
+            {{ authStore.user.description || "자기소개가 없습니다." }}
           </div>
         </div>
 
@@ -30,7 +45,8 @@
       <div class="md:w-1/2 p-4 rounded-[15px]">
         <CategoryHeader />
         <div class="min-h-[calc(100vh-30rem)] max-h-[calc(100vh-20rem)] overflow-y-auto">
-          <CategoryList :selectedDate="selectedDate" :userId="Number(authStore.user.id)" />
+          <CategoryList :selectedDate="selectedDate" :userId="Number(authStore.user.id)"
+            @doneTodoCountUpdate="fetchDoneTodoCount" />
         </div>
       </div>
     </div>
@@ -39,6 +55,9 @@
       <GrassGraph :userId="Number(authStore.user.id)" />
     </div>
   </div>
+
+  <Followers v-if="showFollowers" @close="closeFollowers" :followers="followerList" :userId="Number(authStore.user.id)" />
+  <Followings v-if="showFollowings" @close="closeFollowings" :followings="followingList" :userId="Number(authStore.user.id)" />
 </template>
 
 <script setup>
@@ -46,9 +65,12 @@ import Calendar from "@/components/Calendar.vue";
 import CategoryList from "@/components/CategoryList.vue";
 import CategoryHeader from "@/components/CategoryHeader.vue";
 import GrassGraph from "@/components/GrassGraph.vue";
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import http from "@/api/http";
+import Followers from "@/components/Followers.vue";
+import Followings from "@/components/Followings.vue";
+import { useFollowStore } from "@/stores/follow";
 
 const authStore = useAuthStore();
 const selectedDate = ref(null);
@@ -58,9 +80,57 @@ const profileImage = computed(() => {
   }
   return "/default-profile.png";
 });
+const followerList = ref([]);
+const followingList = ref([]);
+const doneTodoCount = ref(0);
+const showFollowers = ref(false);
+const showFollowings = ref(false);
+const followStore = useFollowStore();
+
+// 팔로워/팔로잉 조회
+const fetchFollowData = async () => {
+    try {
+        const [followers, followings] = await Promise.all([
+            followStore.fetchFollowers(authStore.user.id),
+            followStore.fetchFollowings(authStore.user.id)
+        ]);
+        followerList.value = followers;
+        followingList.value = followings;
+    } catch (error) {
+        console.error('팔로우 데이터 조회 실패:', error);
+    }
+};
+
+onMounted(async () => {
+    await Promise.all([
+        fetchFollowData(),
+        fetchDoneTodoCount()
+    ]);
+});
+
+// 모달 닫을 때 데이터 새로고침
+const closeFollowers = async () => {
+    showFollowers.value = false;
+    await fetchFollowData();
+};
+
+const closeFollowings = async () => {
+    showFollowings.value = false;
+    await fetchFollowData();
+};
 
 const handleDateSelected = (date) => {
   selectedDate.value = date;
+};
+
+// 투두 수 가져오기
+const fetchDoneTodoCount = async () => {
+  try {
+    const response = await http.get(`/todo/count/${authStore.user.id}`);
+    doneTodoCount.value = response.data;
+  } catch (error) {
+    console.error('투두 수 조회 실패:', error);
+  }
 };
 </script>
 

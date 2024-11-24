@@ -21,4 +21,6 @@ public interface TodoService {
     Optional<List<Todo>> getTodoListByYearAndMonth(Todo todo);
 
     Optional<List<Todo>> getTodoListByCategoryId(int categoryId, int userId);
+
+    Optional<Integer> getDoneTodoCount(int userId);
 }

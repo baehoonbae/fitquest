@@ -30,12 +30,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 @RequestMapping("/api/category")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "운동 카테고리 API", description = "운동 카테고리 CRUD API")
+@Tag(name = "카테고리 API", description = "카테고리 CRUD API")
 public class CategoryController {
 
     private final CategoryService categoryService;
 
-    @Operation(summary = "카테고리 목록 조회", description = "특정 사용자의 모든 운동 카테고리를 조회합니다.")
+    @Operation(summary = "카테고리 목록 조회", description = "특정 사용자의 모든 카테고리를 조회합니다.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "조회 성공"),
         @ApiResponse(responseCode = "404", description = "카테고리 없음"),
@@ -72,7 +72,7 @@ public class CategoryController {
         }
     }
 
-    @Operation(summary = "카테고리 추가", description = "새로운 운동 카테고리를 추가합니다.")
+    @Operation(summary = "카테고리 추가", description = "새로운 카테고리를 추가합니다.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "추가 성공"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
@@ -92,7 +92,7 @@ public class CategoryController {
         }
     }
 
-    @Operation(summary = "카테고리 수정", description = "기존 운동 카테고리를 수정합니다.")
+    @Operation(summary = "카테고리 수정", description = "기존 카테고리를 수정합니다.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "수정 성공"),
         @ApiResponse(responseCode = "500", description = "서버 오류")
@@ -112,7 +112,7 @@ public class CategoryController {
         }
     }
 
-    @Operation(summary = "카테고리 삭제", description = "특정 운동 카테고리를 삭제합니다.")
+    @Operation(summary = "카테고리 삭제", description = "특정 카테고리를 삭제합니다.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "삭제 성공"),
         @ApiResponse(responseCode = "500", description = "서버 오류")

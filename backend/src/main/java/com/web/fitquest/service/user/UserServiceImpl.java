@@ -181,17 +181,17 @@ public class UserServiceImpl implements UserService {
         return dbPath;
     }
 
+    @Override
+    public Optional<User> selectRandomUser() {
+        return Optional.ofNullable(userMapper.selectRandomUser());
+    }
+
     private String getExtension(String filename) {
         int dotIndex = filename.lastIndexOf('.');
         if (dotIndex == -1) {
             return "";
         }
         return filename.substring(dotIndex);
-    }
-
-    @Override
-    public Optional<User> selectRandomUser() {
-        return Optional.ofNullable(userMapper.selectRandomUser());
     }
 
     private String getChoseong(String text) {

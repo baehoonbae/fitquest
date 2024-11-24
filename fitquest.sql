@@ -306,3 +306,16 @@ CREATE TABLE user_choseong (
     FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
     INDEX idx_name_cho (name_choseong)
 );
+
+select * from user_choseong;
+
+# 11/24 추가 sql(팔로우 관리 테이블 follower_id = 팔로우 당하는 사람, following_id = 팔로우 하는 사람)
+CREATE TABLE follow (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    follower_id INT NOT NULL,
+    following_id INT NOT NULL,
+    FOREIGN KEY (follower_id) REFERENCES user(id) ON DELETE CASCADE,
+    FOREIGN KEY (following_id) REFERENCES user(id) ON DELETE CASCADE,
+    UNIQUE INDEX idx_follower_following (follower_id, following_id)
+);
+select * from follow;
