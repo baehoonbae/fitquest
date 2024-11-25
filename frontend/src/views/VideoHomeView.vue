@@ -1,150 +1,142 @@
 <template>
   <div class="fixed top-0 left-0 right-0 z-[100]">
     <div class="max-w-[950px] mx-auto px-5 md:px-4">
-      <NewsHeader @search="(query) => handleSearch(query)" />
+      <VideoHeader :exercise-tags="exerciseTags" @search="(query) => handleSearch(query)"
+        @tagSelect="(playlistId) => handleTagSelect(playlistId)" />
     </div>
   </div>
   <div class="h-[calc(100vh-4rem)]">
-    <div
-      ref="scrollContainer"
-      class="h-full overflow-y-auto rounded-[15px]"
-      @scroll="handleScroll"
-    >
-      <masonry-wall :items="videos" :column-width="300" :gap="16" class="px-4">
-        <template #default="{ item }">
-          <div
-            class="bg-gray-50 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer overflow-hidden flex flex-col"
-            @click="openVideo(item.id)"
-          >
-            <div
-              v-if="item.thumbnail"
-              class="w-full overflow-hidden"
-              :style="{
-                aspectRatio: '16/9',
-              }"
-            >
-              <img
-                :src="item.thumbnail"
-                class="w-full h-full object-cover"
-                loading="lazy"
-                :alt="item.title"
-                decoding="async"
-              />
+    <div ref="scrollContainer" class="h-full overflow-y-auto rounded-[15px]" @scroll="handleScroll">
+      <div class="grid grid-cols-1 gap-6 p-4">
+        <div v-for="item in displayedVideos" :key="item.id"
+          class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden transform hover:-translate-y-1"
+          @click="openVideo(item.id)">
+          <div class="flex flex-col md:flex-row">
+            <div v-if="item.thumbnail" class="relative w-full md:w-[320px] overflow-hidden" style="aspect-ratio: 16/9;">
+              <img :src="item.thumbnail"
+                class="w-full h-full object-cover transition-transform duration-300 hover:scale-105" loading="lazy"
+                :alt="item.title" decoding="async" />
             </div>
-            <div class="p-2 h-2/5">
-              <h3
-                class="font-semibold text-gray-800 text-sm truncate"
-              >{{ item.title }}</h3>
-              <div class="flex items-center justify-between mt-1">
-                <span class="text-xs text-gray-600">{{ item.channelTitle }}</span>
-                <span class="text-xs text-gray-600">{{
-                  formatDate(item.publishedAt)
-                }}</span>
+            <div class="p-4 flex-1">
+              <h3 class="font-bold text-gray-900 text-lg mb-2 line-clamp-2">{{ item.title }}</h3>
+              <div class="space-y-2">
+                <div class="text-sm text-gray-600">{{ formatDate(item.publishedAt) }}</div>
+                <div class="text-sm text-gray-600">{{ item.channelTitle }}</div>
               </div>
             </div>
           </div>
-        </template>
-      </masonry-wall>
+        </div>
+      </div>
 
-      <div v-if="isLoading" class="text-center py-4">
-        <div
-          class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"
-        ></div>
+      <div v-if="isLoading" class="text-center py-8">
+        <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-gray-300 border-t-blue-600"></div>
       </div>
     </div>
-  </div>
-  <div v-if="!hasMore && !isLoading" class="text-center py-4 text-gray-500">
-    더 이상 표시할 내용이 없습니다
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { getPlaylistVideos } from '@/api/news';
-import NewsHeader from "@/components/common/NewsHeader.vue";
+import VideoHeader from "@/components/common/VideoHeader.vue";
 
-const videos = ref([]);
+// 운동 태그 정의를 다시 이쪽으로 이동
+const exerciseTags = [
+  { id: 1, name: '어깨', playlistId: 'PLCG5Keu9l5z8bIqRFc7GDphTd5p2TpLNb' },
+  { id: 2, name: '등', playlistId: 'PLCG5Keu9l5z8F7E5DQriYOPo8OudcCcXt' },
+  { id: 3, name: '가슴', playlistId: 'PLyrJujskXmubmI-wvGYziw143_dx8ZwFn' },
+  { id: 4, name: '하체', playlistId: 'PLCG5Keu9l5z8cmwK46wyl2vep47iqoFfd' },
+  { id: 5, name: '전신', playlistId: 'PLMbwxKzLr-eVylPkh4hk-99W0kORbby1X' },
+  { id: 6, name: '맨몸운동', playlistId: 'PLCG5Keu9l5z9Vp50xV5BbuC0zjd7jHxRp' },
+  { id: 7, name: '운동 플레이리스트', playlistId: 'PLCG5Keu9l5z_6H9rkouuUBGFPi8Yz0-ke' },
+  { id: 8, name: '운동 정보', playlistId: 'PLjfaq5HQzMgb4KUBU4OVNoHjn_LBDouUN' }
+];
+
+const videosByTag = ref({
+  all: [],
+  'PLCG5Keu9l5z8bIqRFc7GDphTd5p2TpLNb': [], // 어깨
+  'PLCG5Keu9l5z8F7E5DQriYOPo8OudcCcXt': [], // 등
+  'PLyrJujskXmubmI-wvGYziw143_dx8ZwFn': [], // 가슴
+  'PLCG5Keu9l5z8cmwK46wyl2vep47iqoFfd': [], // 하체
+  'PLMbwxKzLr-eVylPkh4hk-99W0kORbby1X': [], // 전신
+  'PLCG5Keu9l5z9Vp50xV5BbuC0zjd7jHxRp': [], // 맨몸운동
+  'PLCG5Keu9l5z_6H9rkouuUBGFPi8Yz0-ke': [], // 운동 플레이리스트
+  'PLjfaq5HQzMgb4KUBU4OVNoHjn_LBDouUN': [], // 운동 정보
+});
+
+const displayCount = ref(30);
 const isLoading = ref(false);
-const searchQuery = ref("PLjfaq5HQzMgbwR57apoXNB6hMxDV1sjbR");
+const searchQuery = ref('all');
 const hasMore = ref(true);
 const scrollContainer = ref(null);
-const nextPageToken = ref(null);
 
+// displayedVideos computed 속성 수정
+const displayedVideos = computed(() => {
+  return videosByTag.value[searchQuery.value].slice(0, displayCount.value);
+});
 
-// PLjfaq5HQzMgbwR57apoXNB6hMxDV1sjbR
-// 
-const handleSearch = async (playlistId) => {
+// 모든 플레이리스트 로드 함수 수정
+const loadAllPlaylists = async () => {
   try {
     isLoading.value = true;
-    hasMore.value = true;
-    nextPageToken.value = null;
-    videos.value = [];
-    
-    const response = await getPlaylistVideos(playlistId);
-    const data = response;
 
-    console.log(data);
-    
-    if (!data.items || data.items.length === 0) {
-      hasMore.value = false;
-      return;
-    }
-    
-    nextPageToken.value = data.nextPageToken;
-    hasMore.value = !!data.nextPageToken;
-    
-    videos.value = data.items.map(item => ({
-      id: item.snippet.resourceId.videoId,
-      title: item.snippet.title,
-      description: item.snippet.description,
-      thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.medium?.url,
-      channelTitle: item.snippet.channelTitle,
-      publishedAt: item.snippet.publishedAt
-    }));
+    // 모든 플레이리스트에 대해 병렬로 요청
+    const promises = exerciseTags.map(tag => getPlaylistVideos(tag.playlistId));
+    const responses = await Promise.all(promises);
+
+    // 각 플레이리스트의 비디오를 처리
+    responses.forEach((response, index) => {
+      if (response.items && response.items.length > 0) {
+        const mappedVideos = response.items.map(item => ({
+          id: item.snippet.resourceId.videoId,
+          title: item.snippet.title,
+          description: item.snippet.description,
+          thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.medium?.url,
+          channelTitle: item.snippet.videoOwnerChannelTitle,
+          publishedAt: item.contentDetails.videoPublishedAt,
+        }));
+
+        // 각 태그별 배열에 저장
+        const playlistId = exerciseTags[index].playlistId;
+        videosByTag.value[playlistId] = shuffleArray([...mappedVideos]);
+
+        // 전체 배열에도 추가
+        videosByTag.value.all.push(...mappedVideos);
+      }
+    });
+
+    // 전체 배열 셔플
+    videosByTag.value.all = shuffleArray(videosByTag.value.all);
+
   } catch (error) {
-    console.error('비디오 검색 실패:', error);
-    hasMore.value = false;
+    console.error('비디오 로드 실패:', error);
   } finally {
     isLoading.value = false;
   }
 };
 
-const loadMore = async () => {
-  if (isLoading.value || !hasMore.value || !nextPageToken.value) return;
-  
-  isLoading.value = true;
-  try {
-    const response = await getPlaylistVideos(searchQuery.value, nextPageToken.value);
-    const data = JSON.parse(response);
-    
-    nextPageToken.value = data.nextPageToken;
-    hasMore.value = !!data.nextPageToken;
+// handleSearch 함수 수정
+const handleSearch = (playlistId) => {
+  searchQuery.value = playlistId;
+  displayCount.value = 30;  // 표시 개수 초기화
+};
 
-    const newVideos = data.items.map(item => ({
-      id: item.snippet.resourceId.videoId,
-      title: item.snippet.title,
-      thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.medium?.url,
-      channelTitle: item.snippet.channelTitle,
-      publishedAt: item.snippet.publishedAt
-    }));
-
-    videos.value = [...videos.value, ...newVideos];
-  } catch (error) {
-    console.error('추가 데이터 로드 실패:', error);
-    hasMore.value = false;
-  } finally {
-    isLoading.value = false;
+// loadMore 함수 수정
+const loadMore = () => {
+  const currentVideos = videosByTag.value[searchQuery.value];
+  if (displayCount.value < currentVideos.length) {
+    displayCount.value += 18;
   }
 };
 
-const handleScroll = async (e) => {
+// 스크롤 핸들러
+const handleScroll = (e) => {
   const element = e.target;
   if (
     element.scrollHeight - element.scrollTop <= element.clientHeight + 100 &&
-    !isLoading.value &&
-    hasMore.value
+    !isLoading.value
   ) {
-    await loadMore();
+    loadMore();
   }
 };
 
@@ -165,13 +157,39 @@ const formatDate = (dateStr) => {
   }
 };
 
-onMounted(() => {
-  handleSearch(searchQuery.value);
+// Fisher-Yates 셔플 알고리즘 구현
+const shuffleArray = (array) => {
+  const newArray = [...array];  // 원본 배열을 변경하지 않기 위해 복사
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];  // 요소 위치 교환
+  }
+  return newArray;
+};
+
+// handleTagSelect 함수 추가
+const handleTagSelect = (playlistId) => {
+  searchQuery.value = playlistId;
+  displayCount.value = 30;
+};
+
+onMounted(async () => {
+  await loadAllPlaylists();
 });
 </script>
 
 <style scoped>
 .break-inside-avoid {
   break-inside: avoid;
+}
+
+/* 태그 스타일 추가 */
+.tag-container {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.tag-container::-webkit-scrollbar {
+  display: none;
 }
 </style>
