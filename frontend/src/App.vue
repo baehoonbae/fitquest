@@ -1,10 +1,12 @@
 <template>
+  <LoadingSpinner v-if="!isNewsView" />
   <div class="min-h-[calc(100vh-10rem)] flex flex-col">
     <header v-if="!hideLayout" class="flex-none fixed top-0 left-0 right-0 bg-white z-[99]">
       <div v-if="route.name !== 'news'" class="max-w-[950px] mx-auto px-5 md:px-4">
         <Header />
       </div>
     </header>
+
     <main :class="[
       'flex-1 overflow-hidden',
       { 'pt-[60px]': !hideLayout, 'pt-0': hideLayout }
@@ -38,7 +40,9 @@
         </div>
       </div>
     </footer>
+
     <NeedLoginAlert @close="needLoginAlert = false" v-if="needLoginAlert" />
+
   </div>
 </template>
 
@@ -50,6 +54,8 @@ import Header from "@/components/common/Header.vue";
 import Footer from "@/components/common/Footer.vue";
 import UserSearchModal from "./components/UserSearchModal.vue";
 import NeedLoginAlert from "@/components/alert/NeedLoginAlert.vue";
+import LoadingSpinner from "@/components/common/LoadingSpinner.vue";
+import { useLoadingStore } from '@/stores/loading';
 
 const route = useRoute();
 const authStore = useAuthStore();
@@ -58,6 +64,7 @@ const needLoginAlert = ref(false);
 
 // 현재 라우트의 meta.hideLayout 값을 확인
 const hideLayout = computed(() => route.meta.hideLayout);
+const isNewsView = computed(() => route.name === 'NewsHome');
 
 const isFooterVisible = ref(false);
 
@@ -69,11 +76,18 @@ const hideFooter = () => {
   isFooterVisible.value = false;
 };
 
-onMounted(() => {
-  authStore.fetchUserInfo();
+onMounted(async () => {
+  const loadingStore = useLoadingStore();
+  try {
+    loadingStore.show();
+    await authStore.fetchUserInfo();
+  } finally {
+    setTimeout(() => {
+      loadingStore.hide();
+    }, 300);
+  }
 });
 </script>
-
 <style>
 /* 웹킷 기반 브라우저 (Chrome, Safari, Edge 등) */
 ::-webkit-scrollbar {
@@ -116,3 +130,4 @@ button {
   outline: none !important;
 }
 </style>
+

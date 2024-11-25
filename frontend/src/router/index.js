@@ -15,6 +15,7 @@ import CategoryManageView from "@/views/CategoryManageView.vue";
 import CategoryUpdateView from "@/views/CategoryUpdateView.vue";
 import CommunitySearch from "@/components/CommunitySearch.vue";
 import OtherUserHomeView from "@/views/OtherUserHomeView.vue";
+import { useLoadingStore } from '@/stores/loading';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -161,7 +162,11 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
+  const loadingStore = useLoadingStore();
   const authStore = useAuthStore();
+
+  loadingStore.show(true); // 라우트 전환임을 표시
+
   if (to.meta.requiresAuth) {
     try {
       const isAuth = await authStore.checkAuth();
@@ -177,9 +182,15 @@ router.beforeEach(async (to, from, next) => {
       next({ name: "login" });
     }
   } else {
-    // 인증이 필요없는 페이지는 바로 진행
     next();
   }
+});
+
+router.afterEach(() => {
+  const loadingStore = useLoadingStore();
+  setTimeout(() => {
+    loadingStore.hide();
+  }, 300);
 });
 
 export default router;
