@@ -44,7 +44,35 @@ const currentPage = ref(1);
 const itemsPerPage = ref(10);
 const needLoginAlert = ref(false);
 
-// URL 쿼리 감시 로직 수정
+const fetchBoards = async (preservePage = true) => {
+  try {
+    await boardStore.fetchBoards();
+    // 정적 태그와 게시글의 태그를 합치고 중복 제거
+    const dynamicTags = [
+      ...new Set(boardStore.boards.map((board) => board.tag)),
+    ];
+    tags.value = [...new Set([...COMMUNITY_TAGS, ...dynamicTags])];
+
+    // preservePage가 false일 때만 첫 페이지로 이동
+    if (!preservePage) {
+      currentPage.value = 1;
+      updateUrlQuery(1);
+    } else {
+      const pageFromQuery = Number(route.query.page) || 1;
+      currentPage.value = pageFromQuery;
+
+      // 현재 페이지 번호가 전체 페이지 수보다 크다면 마지막 페이지로 이동
+      const maxPage = Math.ceil(boardStore.boards.length / itemsPerPage.value);
+      if (currentPage.value > maxPage) {
+        currentPage.value = maxPage || 1;
+        updateUrlQuery(currentPage.value);
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching boards:", error);
+  }
+};
+
 watch(
   () => route.query,
   (query) => {
@@ -137,43 +165,16 @@ const updateUrlQuery = (page) => {
 // URL 쿼리 감시 로직 강화
 watch(
   () => route.query,
-  (query) => {
+  async (query) => {
     if (query.page) {
       currentPage.value = Number(query.page);
+      await fetchBoards(true);
     }
   },
   { immediate: true, deep: true }
 );
 
-// API 호출 함수 수정
-const fetchBoards = async (preservePage = true) => {
-  try {
-    await boardStore.fetchBoards();
-    // 정적 태그와 게시글의 태그를 합치고 중복 제거
-    const dynamicTags = [
-      ...new Set(boardStore.boards.map((board) => board.tag)),
-    ];
-    tags.value = [...new Set([...COMMUNITY_TAGS, ...dynamicTags])];
 
-    // preservePage가 false일 때만 첫 페이지로 이동
-    if (!preservePage) {
-      currentPage.value = 1;
-      updateUrlQuery(1);
-    } else {
-      const pageFromQuery = Number(route.query.page) || 1;
-      currentPage.value = pageFromQuery;
-
-      // 현재 페이지 번호가 전체 페이지 수보다 크다면 마지막 페이지로 이동
-      const maxPage = Math.ceil(boardStore.boards.length / itemsPerPage.value);
-      if (currentPage.value > maxPage) {
-        currentPage.value = maxPage || 1;
-        updateUrlQuery(currentPage.value);
-      }
-    }
-  } catch (error) {
-    console.error("Error fetching boards:", error);
-  }
-};
 
 // 전체 보기 메서드 수정
 const viewAllPosts = () => {

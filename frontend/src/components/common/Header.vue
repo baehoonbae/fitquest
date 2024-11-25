@@ -24,9 +24,17 @@
               최근 본 카드뉴스
             </button>
             <div class="h-[1px] bg-gray-100"></div>
-            <button @click="authStore.logout()"
+            <button 
+              v-if="authStore.user.isAuthenticated" 
+              @click="authStore.logout()"
               class="rounded-xl block w-full text-left px-4 py-2 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900 active:bg-gray-100">
               로그아웃
+            </button>
+            <button 
+              v-else 
+              @click="router.push('/login')"
+              class="rounded-xl block w-full text-left px-4 py-2 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900 active:bg-gray-100">
+              로그인
             </button>
           </div>
         </Transition>
@@ -52,6 +60,7 @@ const authStore = useAuthStore();
 const isDropdownOpen = ref(false);
 const isRecentPostsModalOpen = ref(false);
 const isRecentNewsModalOpen = ref(false);
+const isLogin = computed(() => authStore.checkAuth());
 
 const headerTitle = computed(() => {
   if (route.name === "news") {
@@ -60,7 +69,7 @@ const headerTitle = computed(() => {
   return route.meta.title || "";
 });
 
-// 최근 본 게시물 모달 표시
+// 최근 본 ���시물 모달 표시
 const showRecentPosts = () => {
   isRecentPostsModalOpen.value = true;
   isDropdownOpen.value = false;

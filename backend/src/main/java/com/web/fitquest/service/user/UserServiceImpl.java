@@ -106,7 +106,10 @@ public class UserServiceImpl implements UserService {
             if (user.getName() != null) {
                 String[] parts = user.getName().split(",");
                 String name = parts[0];
-                String choseong = parts[1];
+                String choseong = "";
+                if (parts.length > 1) {
+                    choseong = parts[1];
+                }
                 user.setName(name);
 
                 UserChoseong userChoseong = new UserChoseong(user.getId(), choseong);

@@ -4,7 +4,7 @@
         <div class="flex flex-col items-center gap-8 w-full max-w-md">
             <div class="flex flex-col items-center gap-2">
                 <div class="w-[200px] h-[200px] sm:w-[250px] sm:h-[250px]">
-                    <img src="../assets/images/kettlebell.png" alt="kettlebell" class="w-full h-full">
+                    <img src="@/assets/images/kettlebell.png" alt="kettlebell" class="w-full h-full">
                 </div>
                 <h1 class="text-3xl sm:text-4xl font-extrabold text-black">FitQuest</h1>
                 <p class="text-gray-600 text-sm">나만의 운동 플래너</p>
