@@ -32,7 +32,10 @@
             v-model="user.name"
             @blur="checkName"
           />
-          <p v-if="isNameEmpty && isNameBlurred" class="text-sm text-red-400 pl-2 pt-1">
+          <p
+            v-if="isNameEmpty && isNameBlurred"
+            class="text-sm text-red-400 pl-2 pt-1"
+          >
             닉네임을 입력해주세요.
           </p>
           <p
@@ -52,7 +55,10 @@
             @blur="checkEmail"
             @input="validateEmail"
           />
-          <p v-if="isEmailEmpty && isEmailBlurred"  class="text-sm text-red-400 pl-2 pt-1">
+          <p
+            v-if="isEmailEmpty && isEmailBlurred"
+            class="text-sm text-red-400 pl-2 pt-1"
+          >
             이메일을 입력해주세요.
           </p>
           <p
@@ -105,6 +111,10 @@
       </div>
     </div>
   </div>
+  <SignupSuccessAlert
+    v-if="authStore.showSignupSuccessAlert"
+    @close="authStore.handleSignupSuccess"
+  />
 </template>
 
 <script setup>
@@ -112,6 +122,7 @@ import { useRouter } from "vue-router";
 import { ref, computed } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/vue/24/outline";
+import SignupSuccessAlert from "@/components/alert/SignupSuccessAlert.vue";
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -139,7 +150,8 @@ const isFormValid = computed(() => {
     !isEmailEmpty.value &&
     !isPasswordEmpty.value &&
     !isNameDuplicated.value &&
-    !isEmailDuplicated.value && isValidEmail.value
+    !isEmailDuplicated.value &&
+    isValidEmail.value
   ); // 이메일 유효성 검사 추가
 });
 
@@ -184,32 +196,28 @@ const regist = async () => {
   if (!isFormValid.value || isLoading.value) return;
   isLoading.value = true;
   try {
-    const result = await authStore.regist(user.value);
-    if (result.success) {
-      // 성공 시 입력 필드 초기화
-      user.value = {
-        name: "",
-        email: "",
-        password: "",
-        isAdmin: 0,
-      };
-      
-      // blur 상태 초기화
-      isNameBlurred.value = false;
-      isEmailBlurred.value = false;
-      isPasswordBlurred.value = false;
-      
-      // 중복 체크 상태 초기화
-      isNameDuplicated.value = false;
-      isEmailDuplicated.value = false;
-      console.log(user.value.name);
-      alert(result.message);
-      router.push("/");
-    } else {
-      alert(result.message);
-    }
+    // auth store의 signup 함수 사용
+    await authStore.signup(user.value);
+
+    // 입력 필드 초기화
+    user.value = {
+      name: "",
+      email: "",
+      password: "",
+      isAdmin: 0,
+    };
+
+    // blur 상태 초기화
+    isNameBlurred.value = false;
+    isEmailBlurred.value = false;
+    isPasswordBlurred.value = false;
+
+    // 중복 체크 상태 초기화
+    isNameDuplicated.value = false;
+    isEmailDuplicated.value = false;
   } catch (error) {
     console.error("회원가입 실패:", error);
+    alert(error.response?.data?.message || "회원가입에 실패했습니다.");
   } finally {
     isLoading.value = false;
   }
