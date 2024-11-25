@@ -5,20 +5,40 @@
     </div>
   </div>
   <div class="h-[calc(100vh-4rem)]">
-    <div ref="scrollContainer" class="h-full overflow-y-auto rounded-[15px]" @scroll="handleScroll">
+    <div
+      ref="scrollContainer"
+      class="h-full overflow-y-auto rounded-[15px]"
+      @scroll="handleScroll"
+    >
       <masonry-wall :items="newsItems" :column-width="300" :gap="16" class="px-4">
         <template #default="{ item }">
           <div
             class="bg-gray-50 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer overflow-hidden flex flex-col"
-            @click="openNews(item)">
-            <div v-if="item.thumbnail" class="w-full overflow-hidden" :style="{
-              aspectRatio: `${item.imageWidth}/${item.imageHeight}`,
-            }">
-              <img :src="item.thumbnail" @error="handleImageError($event, item)" class="w-full h-full object-cover"
-                loading="lazy" :alt="item.title" decoding="async" :width="item.imageWidth" :height="item.imageHeight" />
+            @click="openNews(item)"
+          >
+            <div
+              v-if="item.thumbnail"
+              class="w-full overflow-hidden"
+              :style="{
+                aspectRatio: `${item.imageWidth}/${item.imageHeight}`,
+              }"
+            >
+              <img
+                :src="item.thumbnail"
+                @error="handleImageError($event, item)"
+                class="w-full h-full object-cover"
+                loading="lazy"
+                :alt="item.title"
+                decoding="async"
+                :width="item.imageWidth"
+                :height="item.imageHeight"
+              />
             </div>
             <div class="p-2 h-2/5">
-              <h3 class="font-semibold text-gray-800 text-sm truncate" v-html="item.title"></h3>
+              <h3
+                class="font-semibold text-gray-800 text-sm truncate"
+                v-html="item.title"
+              ></h3>
               <div class="flex items-center justify-between mt-1">
                 <span class="text-xs text-gray-600">{{ formatDate(item.postdate) }}</span>
               </div>
@@ -28,7 +48,9 @@
       </masonry-wall>
 
       <div v-if="isLoading" class="text-center py-4">
-        <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
+        <div
+          class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"
+        ></div>
       </div>
 
       <div v-if="!hasMore && !isLoading" class="text-center py-4 text-gray-500">
@@ -144,7 +166,9 @@ const loadMore = async () => {
     const newItems = blogResponse.items.map((item, index) => {
       const uniqueImage = getUniqueRandomImage();
       const imageInfo = uniqueImage || {
-        thumbnail: `https://picsum.photos/400/300?random=${newsItems.value.length + index}`,
+        thumbnail: `https://picsum.photos/400/300?random=${
+          newsItems.value.length + index
+        }`,
         width: 400,
         height: 300,
       };
@@ -213,6 +237,37 @@ const handleImageError = (event, item) => {
 };
 
 const openNews = (news) => {
+  // 최근 본 카드뉴스 저장
+  const recentNews = JSON.parse(localStorage.getItem("recentNews") || "[]");
+
+  // HTML 태그 제거를 위한 임시 element 생성
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = news.title;
+  const cleanTitle = tempDiv.textContent || tempDiv.innerText;
+
+  // 날짜 형식 통일
+  const formattedDate = formatDate(news.postdate);
+
+  // 중복 제거를 위해 같은 링크의 뉴스가 있다면 제거
+  const filteredNews = recentNews.filter((item) => item.link !== news.link);
+
+  // 새로운 뉴스 추가 (최대 10개까지만 저장)
+  filteredNews.unshift({
+    id: news.id,
+    title: cleanTitle,  // HTML 태그가 제거된 제목
+    link: news.link,
+    postdate: formattedDate  // YYYY-MM-DD 형식으로 통일된 날짜
+  });
+
+  // 최대 10개만 유지
+  if (filteredNews.length > 10) {
+    filteredNews.pop();
+  }
+
+  // localStorage에 저장
+  localStorage.setItem("recentNews", JSON.stringify(filteredNews));
+
+  // 새 탭에서 뉴스 열기
   window.open(news.link, "_blank");
 };
 

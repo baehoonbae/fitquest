@@ -52,8 +52,10 @@
 
 <!-- RecentBoard.vue -->
 <script setup>
-import { ref, onMounted, watch } from "vue"; // watch import 필요
+import { ref, onMounted, watch } from "vue";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const props = defineProps({
   isOpen: Boolean,
 });
@@ -64,7 +66,16 @@ const recentPosts = ref([]);
 // 게시물 클릭 시 처리하는 함수
 const navigateToPost = (postId) => {
   close(); // 모달 닫기
-  router.push(`/community/detail/${postId}`); // 페이지 이동
+  
+  // 현재 페이지의 게시물인 경우 router.push 스킵
+  if (router.currentRoute.value.path === `/community/detail/${postId}`) {
+    return;
+  }
+  
+  router.push({
+    path: `/community/detail/${postId}`,
+    query: { page: 1 }
+  });
 };
 
 const loadRecentPosts = () => {
