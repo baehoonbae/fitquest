@@ -186,11 +186,30 @@ const regist = async () => {
   try {
     const result = await authStore.regist(user.value);
     if (result.success) {
+      // 성공 시 입력 필드 초기화
+      user.value = {
+        name: "",
+        email: "",
+        password: "",
+        isAdmin: 0,
+      };
+      
+      // blur 상태 초기화
+      isNameBlurred.value = false;
+      isEmailBlurred.value = false;
+      isPasswordBlurred.value = false;
+      
+      // 중복 체크 상태 초기화
+      isNameDuplicated.value = false;
+      isEmailDuplicated.value = false;
+      console.log(user.value.name);
       alert(result.message);
       router.push("/");
     } else {
       alert(result.message);
     }
+  } catch (error) {
+    console.error("회원가입 실패:", error);
   } finally {
     isLoading.value = false;
   }

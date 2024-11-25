@@ -44,3 +44,20 @@ export const searchVideo = async (query, maxResults = 10) => {
     throw error;
   }
 };
+
+export const getPlaylistVideos = async (playlistId, pageToken = '', maxResults = 50) => {
+  try {
+    const response = await http.get(`/article/playlist/videos`, {
+      params: {
+        playlistId,
+        pageToken,
+        maxResults
+      }
+    });
+    
+    return response.data;
+  } catch (error) {
+    console.error('플레이리스트 비디오 조회 실패:', error);
+    throw error;
+  }
+};

@@ -107,7 +107,7 @@ export const useAuthStore = defineStore("auth", () => {
   // 회원가입
   const regist = async (userData) => {
     try {
-      const temp = userData;
+      const temp = {...userData};
       if (getChoseong(temp.name) === temp.name) {
         temp.name = temp.name + "," + disassemble(temp.name);
       } else {
