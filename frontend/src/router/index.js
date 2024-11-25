@@ -120,11 +120,11 @@ const router = createRouter({
       name: "news",
       component: NewsHomeView,
     },
-    {
-      path: "/video",
-      name: "video",
-      component: VideoHomeView,
-    },
+    // {
+    //   path: "/video",
+    //   name: "video",
+    //   component: VideoHomeView,
+    // },
     {
       path: "/category-regist",
       name: "CategoryRegist",

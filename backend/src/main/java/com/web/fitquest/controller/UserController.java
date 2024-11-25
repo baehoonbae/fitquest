@@ -90,14 +90,13 @@ public class UserController {
         try {
             boolean success = userService.regist(user);
             if (success) {
-                return new ResponseEntity<User>(user, HttpStatus.CREATED);
+                return ResponseEntity.status(HttpStatus.CREATED).body("회원가입이 완료되었습니다.");
             } else {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("회원가입에 실패하였습니다.");
             }
         } catch (Exception e) {
-            // log.error("회원가입 서버오류");
             e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류가 발생했습니다.");
         }
     }
 
