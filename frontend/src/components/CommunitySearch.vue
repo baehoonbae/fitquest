@@ -148,7 +148,9 @@ const fetchSearchHistory = async () => {
     return;
   }
   try {
-    const response = await http.get(`/board/history/${authStore.user.id}/${query}`);
+    const response = await http.get(`/board/history/${authStore.user.id}/${query}`, {
+      skipLoading: true
+    });
     relatedSearches.value = response.data.filter((item) =>
       item.toLowerCase().includes(query.toLowerCase())
     );
@@ -188,11 +190,13 @@ const handleEnter = () => {
 
 const search = async () => {
   if (!searchText.value.trim()) return;
-  if (authStore.user.isAuthenticated) {
+  if (authStore.checkAuth()) {
     try {
       await http.post(`/board/history`, {
         userId: authStore.user.id,
         content: searchText.value.trim(),
+      }, {
+        skipLoading: true
       });
     } catch (error) {
       console.error("검색 기록 저장 실패:", error);

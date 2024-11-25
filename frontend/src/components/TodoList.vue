@@ -358,6 +358,12 @@ watch(() => props.categoryId, async (newCategoryId) => {
     await todoStore.fetchTodos(dateStore.selectedDate, props.userId);
   }
 });
+
+watch(() => dateStore.selectedDate, async (newDate) => {
+  if (newDate) {
+    await todoStore.fetchTodos(newDate, props.userId);
+  }
+});
 </script>
 
 <style scoped>

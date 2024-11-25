@@ -293,8 +293,6 @@ CREATE TABLE user_choseong (
     INDEX idx_name_cho (name_choseong)
 );
 
-select * from user_choseong;
-
 # 11/24 추가 sql(팔로우 관리 테이블 follower_id = 팔로우를 하는 사람, following_id = 팔로우를 당하는 사람)
 CREATE TABLE follow (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -318,3 +316,5 @@ select * from todo;
 select * from token;
 select * from `user`;
 use fitquest;
+
+desc user;

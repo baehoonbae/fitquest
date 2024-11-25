@@ -111,7 +111,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import http from "@/api/http";
@@ -119,6 +119,7 @@ import CommentForm from "@/components/comment/CommentForm.vue";
 import CommentList from "@/components/comment/CommentList.vue";
 import { getChoseong } from "es-hangul";
 import NeedLoginAlert from "@/components/alert/NeedLoginAlert.vue";
+import { useLoadingStore } from '@/stores/loading';
 
 const route = useRoute();
 const router = useRouter();
@@ -182,12 +183,12 @@ const incrementViewCount = async (boardData) => {
 };
 
 const fetchBoardDetail = async () => {
+  const loadingStore = useLoadingStore();
   try {
+    loadingStore.show();
     const response = await http.get(`/board/${route.params.id}`);
     if (response.status === 200) {
       board.value = response.data;
-      console.log("가져온 게시글 데이터:", board.value);
-
       saveRecentPost(board.value);
       await incrementViewCount(board.value);
 
@@ -203,6 +204,8 @@ const fetchBoardDetail = async () => {
   } catch (error) {
     console.error("Error fetching board detail:", error);
     navigateToList();
+  } finally {
+    loadingStore.hide();
   }
 };
 // 목록으로 이동하는 함수 통합
@@ -222,12 +225,8 @@ const navigateToList = () => {
 
 // handleDelete 함수도 수정
 const handleDelete = async () => {
-  if (!authStore.user.isAuthenticated) {
+  if (!authStore.checkAuth()) {
     needLoginAlert.value = true;
-    return;
-  }
-  if (!isAuthor.value) {
-    alert("삭제 권한이 없습니다.");
     return;
   }
   if (!confirm("정말 삭제하시겠습니까?")) return;
@@ -240,6 +239,11 @@ const handleDelete = async () => {
     });
 
     if (response.status === 200) {
+      // 최근 본 게시물에서 삭제된 게시물 제거
+      const recentPosts = JSON.parse(localStorage.getItem("recentPosts") || "[]");
+      const filteredPosts = recentPosts.filter(post => post.id !== Number(route.params.id));
+      localStorage.setItem("recentPosts", JSON.stringify(filteredPosts));
+
       alert("게시글이 삭제되었습니다.");
       navigateToList();
     }
@@ -320,28 +324,29 @@ const fetchHitCount = async () => {
 };
 
 const toggleHit = async () => {
-  if (!authStore.user.isAuthenticated) {
+  if (!authStore.checkAuth()) {
     needLoginAlert.value = true;
     return;
   }
 
   try {
+    const token = authStore.getToken();
     const response = await http.post(
-      `/hit/${route.params.id}/${authStore.user.id}`
+      `/hit/${route.params.id}/${authStore.user.id}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
 
-    // 응답 상태 확인 및 데이터 처리
-    if (response.status === 200 && response.data) {
-      isHit.value = !isHit.value; // 상태 토글
-      hitCount.value = response.data.hitCount; // 새로운 좋아요 수 업데이트
-      console.log("Hit toggled:", {
-        isHit: isHit.value,
-        hitCount: hitCount.value,
-      });
+    if (response.status === 200) {
+      isHit.value = !isHit.value;
+      hitCount.value = response.data.hitCount;
     }
   } catch (error) {
     console.error("Error toggling hit:", error);
-    alert("좋아요 처리 중 오류가 발생했습니다.");
   }
 };
 
@@ -366,6 +371,27 @@ const saveRecentPost = (post) => {
 
   localStorage.setItem("recentPosts", JSON.stringify(recentPosts));
 };
+
+// route.params.id가 변경될 때마다 게시글 데이터를 다시 불러오는 watch 추가
+watch(
+  () => route.params.id,
+  async (newId) => {
+    if (newId) {
+      // 이전 상태 업데이트
+      previousState.value = {
+        page: route.query.page || "1",
+        tag: route.query.tag,
+      };
+
+      // 게시글 데이터 새로 불러오기
+      await fetchBoardDetail();
+      await Promise.all([
+        fetchHitCount(),
+        authStore.user.isAuthenticated ? checkHitStatus() : Promise.resolve(),
+      ]);
+    }
+  }
+);
 
 // 마운트 시 이전 상태 저장 및 초기화
 onMounted(async () => {

@@ -32,10 +32,7 @@
             v-model="user.name"
             @blur="checkName"
           />
-          <p
-            v-if="isNameEmpty && isNameBlurred"
-            class="text-sm text-red-400 pl-2 pt-1"
-          >
+          <p v-if="isNameEmpty && isNameBlurred" class="text-sm text-red-400 pl-2 pt-1">
             닉네임을 입력해주세요.
           </p>
           <p
@@ -55,10 +52,7 @@
             @blur="checkEmail"
             @input="validateEmail"
           />
-          <p
-            v-if="isEmailEmpty && isEmailBlurred"
-            class="text-sm text-red-400 pl-2 pt-1"
-          >
+          <p v-if="isEmailEmpty && isEmailBlurred"  class="text-sm text-red-400 pl-2 pt-1">
             이메일을 입력해주세요.
           </p>
           <p
@@ -131,6 +125,7 @@ const user = ref({
   name: "",
   email: "",
   password: "",
+  isAdmin: 0,
 });
 
 const isNameEmpty = computed(() => user.value.name.trim() === "");
@@ -144,8 +139,7 @@ const isFormValid = computed(() => {
     !isEmailEmpty.value &&
     !isPasswordEmpty.value &&
     !isNameDuplicated.value &&
-    !isEmailDuplicated.value &&
-    isValidEmail.value
+    !isEmailDuplicated.value && isValidEmail.value
   ); // 이메일 유효성 검사 추가
 });
 
