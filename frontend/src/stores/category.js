@@ -31,8 +31,6 @@ export const useCategoryStore = defineStore("category", () => {
       });
       if (response.data) {
         categories.value = response.data;
-      } else {
-        console.log("카테고리 조회 실패:", response.data);
       }
     } catch (error) {
       console.error(
@@ -57,8 +55,6 @@ export const useCategoryStore = defineStore("category", () => {
       });
       if (response.data) {
         category.value = response.data;
-      } else {
-        console.log("카테고리 조회 실패:", response.data);
       }
     } catch (error) {
       console.error(
@@ -83,8 +79,6 @@ export const useCategoryStore = defineStore("category", () => {
       if (response.data) {
         categories.value.push(response.data);
         router.go(-1);
-      } else {
-        console.log("카테고리 등록 실패:", response.data);
       }
     } catch (error) {
       console.error(
@@ -108,8 +102,6 @@ export const useCategoryStore = defineStore("category", () => {
       if (response.data) {
         fetchCategories();
         router.go(-1);
-      } else {
-        console.log("카테고리 수정 실패:", response.data);
       }
     } catch (error) {
       console.error(

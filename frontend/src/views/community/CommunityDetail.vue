@@ -48,11 +48,8 @@
     <!-- 게시글 내용 -->
     <div class="min-h-[300px] text-lg md:text-base text-gray-700 leading-relaxed mb-10">
       <div v-if="board.postImage !== null" class="mb-6">
-        <img 
-          :src="board.postImage" 
-          alt="게시글 이미지" 
-          class="max-w-full max-h-[600px] object-contain rounded-lg shadow-md" 
-        />
+        <img :src="board.postImage" alt="게시글 이미지"
+          class="max-w-full max-h-[600px] object-contain rounded-lg shadow-md" />
       </div>
       <p>{{ board.content }}</p>
     </div>
@@ -93,11 +90,8 @@
   <BoardDeleteSuccessAlert v-if="showDeleteSuccessAlert" @close="handleDeleteSuccess" />
   <BoardDeleteFailAlert v-if="showDeleteFailAlert" @close="showDeleteFailAlert = false" />
   <NoEditPermissionAlert v-if="showNoPermissionAlert" @close="showNoPermissionAlert = false" />
-  <BoardDeleteConfirmAlert 
-    v-if="showDeleteConfirmAlert" 
-    @close="showDeleteConfirmAlert = false"
-    @confirm="confirmDelete" 
-  />
+  <BoardDeleteConfirmAlert v-if="showDeleteConfirmAlert" @close="showDeleteConfirmAlert = false"
+    @confirm="confirmDelete" />
 </template>
 
 <script setup>
@@ -135,8 +129,6 @@ const previousState = ref({
 });
 
 const isAuthor = computed(() => {
-  console.log("Current user ID:", authStore.user.id);
-  console.log("Board user ID:", board.value?.userId);
   return (
     authStore.user.isAuthenticated &&
     board.value?.userId &&
@@ -152,8 +144,6 @@ const refreshComments = () => {
 
 const incrementViewCount = async (boardData) => {
   try {
-    console.log("조회수 증가 전 데이터:", boardData);
-
     const updatedBoard = {
       id: boardData.id,
       userId: boardData.userId,
@@ -170,10 +160,7 @@ const incrementViewCount = async (boardData) => {
       },
     };
 
-    console.log("업데이트할 데이터:", updatedBoard);
-
     const response = await http.put(`/board/${boardData.id}`, updatedBoard);
-    console.log("서버 응답:", response);
   } catch (error) {
     console.error("Error incrementing view count:", error);
     if (error.response) {
@@ -195,7 +182,6 @@ const fetchBoardDetail = async () => {
       const updatedResponse = await http.get(`/board/${route.params.id}`);
       if (updatedResponse.status === 200) {
         board.value = updatedResponse.data;
-        console.log("업데이트된 게시글 데이터:", board.value);
       }
       if (board.value.postImage !== null) {
         board.value.postImage = `${http.defaults.baseURL}/board${board.value.postImage}`;
@@ -210,8 +196,6 @@ const fetchBoardDetail = async () => {
 };
 // navigateToList 함수 확인
 const navigateToList = () => {
-  console.log("Navigating back with state:", previousState.value);
-
   const query = { page: previousState.value.page };
   if (previousState.value.tag) {
     query.tag = previousState.value.tag;
@@ -326,7 +310,6 @@ const checkHitStatus = async () => {
 const fetchHitCount = async () => {
   try {
     const response = await http.get(`/hit/count/${route.params.id}`);
-    console.log("Hit count response:", response);
     hitCount.value = response.data;
   } catch (error) {
     console.error("Error fetching hit count:", error);
@@ -410,8 +393,6 @@ onMounted(async () => {
     page: route.query.page || "1",
     tag: route.query.tag,
   };
-
-  console.log("Initial state saved:", previousState.value);
 
   await fetchBoardDetail();
   await Promise.all([

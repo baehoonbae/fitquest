@@ -75,7 +75,6 @@ const submitComment = async () => {
     content.value = "";
     emit("comment-added");
   } catch (error) {
-    console.error("댓글 작성 실패:", error);
     showFailAlert.value = true;
   }
 };

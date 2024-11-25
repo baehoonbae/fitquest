@@ -11,7 +11,6 @@ export const searchBlog = async (query, start = 1, display = 20) => {
         });
         return response.data;
     } catch (error) {
-        console.error('블로그 검색 실패:', error);
         throw error;
     }
 }; 
@@ -25,7 +24,6 @@ export const searchImage = async (query) => {
         });
         return response.data;
     } catch (error) {
-        console.error('이미지 검색 실패:', error);
         throw error;
     }
 };
@@ -40,7 +38,6 @@ export const searchVideo = async (query, maxResults = 10) => {
     });
     return response.data;
   } catch (error) {
-    console.error('비디오 검색 실패:', error);
     throw error;
   }
 };
@@ -57,7 +54,6 @@ export const getPlaylistVideos = async (playlistId, pageToken = '', maxResults =
     
     return response.data;
   } catch (error) {
-    console.error('플레이리스트 비디오 조회 실패:', error);
     throw error;
   }
 };
