@@ -60,76 +60,75 @@
 
 <script setup>
 import { ref, onMounted, nextTick } from 'vue';
-import { searchVideo } from '@/api/news';
+import { getPlaylistVideos } from '@/api/news';
 import NewsHeader from "@/components/common/NewsHeader.vue";
 
 const videos = ref([]);
 const isLoading = ref(false);
-const searchQuery = ref("스트레칭");
-const currentPage = ref(1);
+const searchQuery = ref("PLjfaq5HQzMgbwR57apoXNB6hMxDV1sjbR");
 const hasMore = ref(true);
 const scrollContainer = ref(null);
+const nextPageToken = ref(null);
 
-const INITIAL_LOAD_COUNT = 30;
-const MORE_LOAD_COUNT = 20;
 
-const handleSearch = async (query) => {
+// PLjfaq5HQzMgbwR57apoXNB6hMxDV1sjbR
+// 
+const handleSearch = async (playlistId) => {
   try {
     isLoading.value = true;
-    currentPage.value = 1;
     hasMore.value = true;
-    searchQuery.value = query;
+    nextPageToken.value = null;
+    videos.value = [];
     
-    const response = await searchVideo(query, INITIAL_LOAD_COUNT);
+    const response = await getPlaylistVideos(playlistId);
+    const data = response;
+
+    console.log(data);
     
-    if (!response.items || response.items.length === 0) {
+    if (!data.items || data.items.length === 0) {
       hasMore.value = false;
       return;
     }
     
-    videos.value = response.items.map(item => ({
-      id: item.id.videoId,
+    nextPageToken.value = data.nextPageToken;
+    hasMore.value = !!data.nextPageToken;
+    
+    videos.value = data.items.map(item => ({
+      id: item.snippet.resourceId.videoId,
       title: item.snippet.title,
       description: item.snippet.description,
-      thumbnail: item.snippet.thumbnails.medium.url,
+      thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.medium?.url,
       channelTitle: item.snippet.channelTitle,
       publishedAt: item.snippet.publishedAt
     }));
   } catch (error) {
     console.error('비디오 검색 실패:', error);
+    hasMore.value = false;
   } finally {
     isLoading.value = false;
   }
 };
 
 const loadMore = async () => {
-  if (isLoading.value || !hasMore.value) return;
-
+  if (isLoading.value || !hasMore.value || !nextPageToken.value) return;
+  
+  isLoading.value = true;
   try {
-    isLoading.value = true;
-    const nextPage = currentPage.value + 1;
+    const response = await getPlaylistVideos(searchQuery.value, nextPageToken.value);
+    const data = JSON.parse(response);
     
-    const response = await searchVideo(searchQuery.value, MORE_LOAD_COUNT, nextPage);
-    
-    if (!response.items || response.items.length === 0) {
-      hasMore.value = false;
-      return;
-    }
+    nextPageToken.value = data.nextPageToken;
+    hasMore.value = !!data.nextPageToken;
 
-    const newVideos = response.items.map(item => ({
-      id: item.id.videoId,
+    const newVideos = data.items.map(item => ({
+      id: item.snippet.resourceId.videoId,
       title: item.snippet.title,
-      description: item.snippet.description,
-      thumbnail: item.snippet.thumbnails.medium.url,
+      thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.medium?.url,
       channelTitle: item.snippet.channelTitle,
       publishedAt: item.snippet.publishedAt
     }));
 
-    await nextTick(() => {
-      videos.value = [...videos.value, ...newVideos];
-    });
-
-    currentPage.value = nextPage;
+    videos.value = [...videos.value, ...newVideos];
   } catch (error) {
     console.error('추가 데이터 로드 실패:', error);
     hasMore.value = false;
@@ -155,7 +154,6 @@ const openVideo = (videoId) => {
 
 const formatDate = (dateStr) => {
   if (!dateStr) return "";
-
   try {
     const date = new Date(dateStr);
     const year = date.getFullYear();

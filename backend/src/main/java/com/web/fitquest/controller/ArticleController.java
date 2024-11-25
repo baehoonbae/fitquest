@@ -132,6 +132,34 @@ public class ArticleController {
         return ResponseEntity.ok(responseBody);
     }
 
+    @Operation(summary = "유튜브 플레이리스트 비디오 검색", description = "유튜브 플레이리스트 비디오 검색 API를 통해 플레이리스트 비디오 검색을 수행합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "플레이리스트 비디오 검색 성공"),
+        @ApiResponse(responseCode = "400", description = "검색어 인코딩 실패")
+    })
+    @GetMapping("/playlist/videos")
+    public ResponseEntity<String> getPlaylistVideos(
+        @RequestParam String playlistId,
+        @RequestParam(required = false) String pageToken,
+        @RequestParam(defaultValue = "50") int maxResults) {
+        
+        String apiURL = String.format(
+            "https://www.googleapis.com/youtube/v3/playlistItems" +
+            "?part=snippet,contentDetails" +
+            "&playlistId=%s" +
+            "&maxResults=%d" +
+            "&key=%s",
+            playlistId, maxResults, youtubeApiKey);
+        
+        if (pageToken != null && !pageToken.isEmpty()) {
+            apiURL += "&pageToken=" + pageToken;
+        }
+
+        Map<String, String> requestHeaders = new HashMap<>();
+        String responseBody = get(apiURL, requestHeaders);
+        return ResponseEntity.ok(responseBody);
+    }
+
     private String get(String apiUrl, Map<String, String> requestHeaders) {
         HttpURLConnection con = connect(apiUrl);
         try {
