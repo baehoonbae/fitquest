@@ -19,7 +19,7 @@
           'bg-white border border-gray-200',
         ]"
       >
-        <!-- 기존 댓글 내용 유지 -->
+        <!-- 기존 댓글 내용 부분은 그대로 유지 -->
         <div class="flex justify-between items-start mb-2">
           <div class="flex items-center gap-2">
             <span class="font-medium text-gray-900">{{ comment.writer }}</span>
@@ -73,21 +73,31 @@
     <div v-if="comments.length === 0" class="text-center py-8 text-gray-500">
       첫 댓글을 작성해보세요.
     </div>
-
-    <!-- 삭제 실패 Alert -->
-    <CommentDeleteFailAlert
-      v-if="showDeleteFailAlert"
-      @close="showDeleteFailAlert = false"
-    />
   </div>
+
+  <!-- 모달 컴포넌트들 -->
+  <CommentDeleteConfirmAlert
+    v-if="showDeleteConfirmAlert"
+    @close="showDeleteConfirmAlert = false"
+    @confirm="confirmDelete"
+  />
+  <CommentDeleteFailAlert
+    v-if="showDeleteFailAlert"
+    @close="showDeleteFailAlert = false"
+  />
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import CommentForm from "./CommentForm.vue";
+import CommentDeleteConfirmAlert from "@/components/alert/CommentDeleteConfirmAlert.vue";
 import CommentDeleteFailAlert from "@/components/alert/CommentDeleteFailAlert.vue";
 import http from "@/api/http";
+
+const showDeleteConfirmAlert = ref(false);
+const showDeleteFailAlert = ref(false);
+const commentToDelete = ref(null);
 
 const props = defineProps({
   boardId: {
@@ -178,19 +188,56 @@ const handleCommentAdded = () => {
   fetchComments();
 };
 
-const showDeleteFailAlert = ref(false);
-
 // handleDelete 함수 수정
-const handleDelete = async (id) => {
-  if (!confirm("댓글을 삭제하시겠습니까?")) return;
+const handleDelete = (id) => {
+  commentToDelete.value = id;
+  showDeleteConfirmAlert.value = true;
+};
 
+const confirmDelete = async () => {
   try {
-    await http.delete(`/comment/${id}`);
-    fetchComments();
+    const token = authStore.getToken();
+    await http.delete(`/comment/${commentToDelete.value}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    // 삭제 성공
+    showDeleteConfirmAlert.value = false;
+
+    // 현재 댓글 목록에서 삭제된 댓글과 그 하위 댓글들을 즉시 제거
+    comments.value = comments.value.filter((comment) => {
+      const isDeletedComment = comment.id === commentToDelete.value;
+      const isChildOfDeleted = findParentCommentIds(comment).includes(
+        commentToDelete.value
+      );
+      return !isDeletedComment && !isChildOfDeleted;
+    });
+
+    // 서버에서 최신 데이터를 가져와 화면을 갱신
+    await fetchComments();
   } catch (error) {
     console.error("댓글 삭제 실패:", error);
+    showDeleteConfirmAlert.value = false;
     showDeleteFailAlert.value = true;
+  } finally {
+    commentToDelete.value = null;
   }
+};
+
+// 댓글의 모든 상위 댓글 ID를 찾는 함수 추가
+const findParentCommentIds = (comment) => {
+  const parentIds = [];
+  let currentComment = comment;
+  while (currentComment.parentId) {
+    parentIds.push(currentComment.parentId);
+    currentComment = comments.value.find(
+      (c) => c.id === currentComment.parentId
+    );
+    if (!currentComment) break;
+  }
+  return parentIds;
 };
 
 const canDelete = (comment) => {
