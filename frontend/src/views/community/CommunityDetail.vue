@@ -93,6 +93,11 @@
   <BoardDeleteSuccessAlert v-if="showDeleteSuccessAlert" @close="handleDeleteSuccess" />
   <BoardDeleteFailAlert v-if="showDeleteFailAlert" @close="showDeleteFailAlert = false" />
   <NoEditPermissionAlert v-if="showNoPermissionAlert" @close="showNoPermissionAlert = false" />
+  <BoardDeleteConfirmAlert 
+    v-if="showDeleteConfirmAlert" 
+    @close="showDeleteConfirmAlert = false"
+    @confirm="confirmDelete" 
+  />
 </template>
 
 <script setup>
@@ -108,6 +113,7 @@ import BoardDeleteSuccessAlert from "@/components/alert/BoardDeleteSuccessAlert.
 import BoardDeleteFailAlert from "@/components/alert/BoardDeleteFailAlert.vue";
 import NoEditPermissionAlert from "@/components/alert/NoEditPermissionAlert.vue";
 import { useLoadingStore } from "@/stores/loading";
+import BoardDeleteConfirmAlert from "@/components/alert/BoardDeleteConfirmAlert.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -120,6 +126,7 @@ const needLoginAlert = ref(false);
 const showDeleteSuccessAlert = ref(false);
 const showDeleteFailAlert = ref(false);
 const showNoPermissionAlert = ref(false);
+const showDeleteConfirmAlert = ref(false);
 
 // 이전 상태를 저장할 ref 추가
 const previousState = ref({
@@ -217,12 +224,17 @@ const navigateToList = () => {
 };
 
 // handleDelete 함수 수정
-const handleDelete = async () => {
+const handleDelete = () => {
   if (!authStore.checkAuth()) {
     needLoginAlert.value = true;
     return;
   }
-  if (!confirm("정말 삭제하시겠습니까?")) return;
+  showDeleteConfirmAlert.value = true;
+};
+
+// 새로운 함수 추가
+const confirmDelete = async () => {
+  showDeleteConfirmAlert.value = false;
   try {
     const token = authStore.getToken();
     const response = await http.delete(`/board/${route.params.id}`, {
@@ -232,17 +244,12 @@ const handleDelete = async () => {
     });
 
     if (response.status === 200) {
-      // 최근 본 게시물에서 삭제된 게시물 제거
-      const recentPosts = JSON.parse(
-        localStorage.getItem("recentPosts") || "[]"
-      );
+      const recentPosts = JSON.parse(localStorage.getItem("recentPosts") || "[]");
       const filteredPosts = recentPosts.filter(
         (post) => post.id !== Number(route.params.id)
       );
       localStorage.setItem("recentPosts", JSON.stringify(filteredPosts));
-
       showDeleteSuccessAlert.value = true;
-      // navigateToList() 를 여기서 직접 호출하지 않음
     }
   } catch (error) {
     console.error("Error deleting board:", error);
@@ -297,7 +304,7 @@ const formatDate = (date) => {
   });
 };
 
-// 기존 ref 선언부 아래에 추���
+// 기존 ref 선언부 아래에 추
 const isHit = ref(false);
 const hitCount = ref(0);
 

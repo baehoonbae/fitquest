@@ -80,21 +80,27 @@ const loadAllPlaylists = async () => {
   try {
     isLoading.value = true;
 
-    // 모든 플레이리스트에 대해 병렬로 요청
     const promises = exerciseTags.map(tag => getPlaylistVideos(tag.playlistId));
     const responses = await Promise.all(promises);
 
-    // 각 플레이리스트의 비디오를 처리
     responses.forEach((response, index) => {
       if (response.items && response.items.length > 0) {
-        const mappedVideos = response.items.map(item => ({
-          id: item.snippet.resourceId.videoId,
-          title: item.snippet.title,
-          description: item.snippet.description,
-          thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.medium?.url,
-          channelTitle: item.snippet.videoOwnerChannelTitle,
-          publishedAt: item.contentDetails.videoPublishedAt,
-        }));
+        const mappedVideos = response.items
+          // private 비디오 필터링
+          .filter(item => 
+            item.snippet.title !== 'Private video' && 
+            item.snippet.title !== 'Deleted video' &&
+            item.snippet.thumbnails && // 썸네일이 없는 경우도 제외
+            Object.keys(item.snippet.thumbnails).length > 0
+          )
+          .map(item => ({
+            id: item.snippet.resourceId.videoId,
+            title: item.snippet.title,
+            description: item.snippet.description,
+            thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.medium?.url,
+            channelTitle: item.snippet.videoOwnerChannelTitle,
+            publishedAt: item.contentDetails.videoPublishedAt
+          }));
 
         // 각 태그별 배열에 저장
         const playlistId = exerciseTags[index].playlistId;
@@ -141,6 +147,18 @@ const handleScroll = (e) => {
 };
 
 const openVideo = (videoId) => {
+  // 현재 비디오 정보 찾기
+  const video = videosByTag.value[searchQuery.value].find(v => v.id === videoId);
+  
+  // 최근 본 비디오에 저장
+  if (video) {
+    let recentVideos = JSON.parse(localStorage.getItem("recentVideos") || "[]");
+    recentVideos = recentVideos.filter(v => v.id !== video.id);
+    recentVideos.unshift(video);
+    recentVideos = recentVideos.slice(0, 10); // 최대 10개만 저장
+    localStorage.setItem("recentVideos", JSON.stringify(recentVideos));
+  }
+  
   window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
 };
 
