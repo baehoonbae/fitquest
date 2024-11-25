@@ -303,6 +303,31 @@ CREATE TABLE follow (
     UNIQUE INDEX idx_follower_following (follower_id, following_id)
 );
 
+# 11/25 추가 sql
+CREATE TABLE guestbook (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    target_id INT NOT NULL,
+    user_id INT NOT NULL,
+    content TEXT NOT NULL,
+    date DATE DEFAULT (CURRENT_DATE),
+    FOREIGN KEY (target_id) REFERENCES user(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+    UNIQUE INDEX idx_target_user (target_id, user_id, date)
+);
+
+INSERT INTO guestbook (target_id, user_id, content, date) VALUES
+(4, 5, '운동 열심히 하시네요! 저도 자극받아 갑니다 💪', DATE_SUB(CURRENT_DATE, INTERVAL 5 DAY)),
+(4, 6, '오늘도 좋은 하루 보내세요~ 운동 기록 잘 보고 있어요!', DATE_SUB(CURRENT_DATE, INTERVAL 4 DAY)),
+(4, 7, '같이 운동하면 재밌을 것 같아요! 팔로우 했습니다 😊', DATE_SUB(CURRENT_DATE, INTERVAL 4 DAY)),
+(4, 8, '운동 루틴 정말 체계적이시네요. 많이 배워갑니다!', DATE_SUB(CURRENT_DATE, INTERVAL 3 DAY)),
+(4, 9, '꾸준히 운동하시는 모습이 정말 멋져요! 저도 열심히 해야겠어요', DATE_SUB(CURRENT_DATE, INTERVAL 2 DAY)),
+(4, 10, '운동하시는 모습을 보니 정말 프로페셔널 하세요! 팔로우 하고 갑니다~', DATE_SUB(CURRENT_DATE, INTERVAL 2 DAY)),
+(4, 11, '매일매일 발전하시는 모습 보기 좋습니다! 화이팅하세요 👍', DATE_SUB(CURRENT_DATE, INTERVAL 1 DAY)),
+(4, 12, '운동 기록 잘 보고 있어요! 앞으로도 좋은 컨텐츠 기대할게요 😄', CURRENT_DATE);
+
+
+
+
 select * from board_choseong;
 select * from user_choseong;
 select * from follow;
@@ -315,4 +340,5 @@ select * from hit;
 select * from todo;
 select * from token;
 select * from `user`;
+select * from guestbook;
 use fitquest;
