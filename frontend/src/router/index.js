@@ -47,6 +47,14 @@ const router = createRouter({
       path: "/home/:userId",
       name: "userHomeDetail",
       component: OtherUserHomeView,
+      beforeEnter: (to, from, next) => {
+        const authStore = useAuthStore();
+        if (Number(to.params.userId) === Number(authStore.user.id)) {
+          next({ path: "/home" });
+        } else {
+          next();
+        }
+      }
     },
     {
       path: "/signup",

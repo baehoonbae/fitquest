@@ -106,8 +106,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
-import { useRoute } from 'vue-router';
+import { ref, computed, onMounted, watch, onBeforeMount } from "vue";
+import { useRoute, useRouter } from 'vue-router';
 import Calendar from "@/components/Calendar.vue";
 import CategoryList from "@/components/CategoryList.vue";
 import GrassGraph from "@/components/grass/GrassGraph.vue";
@@ -119,6 +119,7 @@ import Followings from "@/components/Followings.vue";
 import NeedLoginAlert from "@/components/alert/NeedLoginAlert.vue";
 
 const route = useRoute();
+const router = useRouter();
 const authStore = useAuthStore();
 const followStore = useFollowStore();
 const selectedDate = ref(null);
@@ -223,6 +224,13 @@ onMounted(async () => {
     ]);
 });
 
+onBeforeMount(async () => {
+  if (Number(route.params.userId) === Number(authStore.user.id)) {
+    router.push({ name: "userHome" });
+    return;
+  }
+});
+
 watch(() => userId.value, async () => {
     await fetchUserProfile();
     await Promise.all([
@@ -236,6 +244,8 @@ const handleImageError = (e) => {
   e.target.src = "/default-profile.png";
   e.target.onerror = null;
 };
+
+
 </script>
 
 <style scoped>
