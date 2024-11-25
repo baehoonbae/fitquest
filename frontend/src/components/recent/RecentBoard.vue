@@ -1,11 +1,9 @@
 <template>
   <div v-if="isOpen">
-    <!-- 모달 오버레이 -->
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click="handleOverlayClick">
-      <!-- 모달 컨텐츠 -->
-      <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6" @click.stop>
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50" @click="handleOverlayClick">
+      <div class="bg-white rounded-2xl shadow-2xl w-11/12 max-w-2xl p-6" @click.stop>
         <!-- 헤더 -->
-        <div class="flex justify-between items-center mb-4">
+        <div class="flex justify-between items-center mb-6">
           <h2 class="text-xl font-bold text-gray-800">최근 본 게시물</h2>
           <button @click="close" class="text-gray-400 hover:text-gray-500 focus:outline-none">
             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -15,33 +13,40 @@
         </div>
 
         <!-- 게시물 목록 -->
-        <div class="mt-4">
-          <ul v-if="recentPosts.length > 0" class="divide-y divide-gray-200">
-            <li v-for="post in recentPosts" :key="post.id" class="py-3 hover:bg-gray-50 transition-colors duration-150"
+        <div class="mt-4 max-h-[60vh] overflow-y-auto">
+          <div v-if="recentPosts.length > 0" class="space-y-3">
+            <div v-for="post in recentPosts" :key="post.id" 
+              class="group p-4 hover:bg-gray-50 rounded-xl transition-all duration-200 cursor-pointer"
               @click="navigateToPost(post.id)">
-              <router-link :to="`/community/detail/${post.id}`" class="block">
-                <div class="flex flex-col">
-                  <span class="text-gray-800 font-medium">{{
-                    post.title
-                  }}</span>
-                  <span class="text-sm text-gray-500 mt-1">
-                    {{ formatDate(post.createdAt) }}
-                  </span>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0">
+                  <span class="material-icons text-gray-400 group-hover:text-blue-500 transition-colors">article</span>
                 </div>
-              </router-link>
-            </li>
-          </ul>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600 transition-colors">
+                    {{ post.title }}
+                  </p>
+                  <div class="mt-1 flex items-center space-x-2 text-xs text-gray-500">
+                    <span>{{ post.writer }}</span>
+                    <span>•</span>
+                    <span>{{ formatDate(post.createdAt) }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-          <!-- 게시물이 없을 때 -->
-          <div v-else class="text-center py-8 text-gray-500">
-            최근 본 게시물이 없습니다.
+          <!-- 뉴스가 없을 때 -->
+          <div v-else class="flex flex-col items-center justify-center py-12 text-gray-500 text-center">
+            <span class="material-icons text-4xl mb-2 w-[40px] block">description_off</span>
+            <p class="mt-2">최근 본 게시물이 없습니다.</p>
           </div>
         </div>
 
         <!-- 하단 버튼 -->
         <div class="mt-6 flex justify-end">
           <button @click="close"
-            class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-gray-300">
+            class="px-6 py-2 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-gray-500">
             닫기
           </button>
         </div>

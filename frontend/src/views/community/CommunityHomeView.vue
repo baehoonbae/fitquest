@@ -25,10 +25,10 @@ import { ref, computed, onMounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useBoardStore } from "@/stores/board";
 import { COMMUNITY_TAGS } from "@/stores/tags";
-import CommunitySearch from "@/components/CommunitySearch.vue";
-import CommunityTag from "@/components/CommunityTag.vue";
-import CommunityBoard from "@/components/CommunityBoard.vue";
-import CommunityPagenation from "@/components/CommunityPagenation.vue";
+import CommunitySearch from "@/components/community/CommunitySearch.vue";
+import CommunityTag from "@/components/community/CommunityTag.vue";
+import CommunityBoard from "@/components/community/CommunityBoard.vue";
+import CommunityPagenation from "@/components/community/CommunityPagenation.vue";
 import NeedLoginAlert from "@/components/alert/NeedLoginAlert.vue";
 import { useAuthStore } from "@/stores/auth";
 

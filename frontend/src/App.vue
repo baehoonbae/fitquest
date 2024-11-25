@@ -50,7 +50,7 @@ import { useRoute } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import Header from "@/components/common/Header.vue";
 import Footer from "@/components/common/Footer.vue";
-import UserSearchModal from "./components/UserSearchModal.vue";
+import UserSearchModal from "@/components/common/UserSearchModal.vue";
 import NeedLoginAlert from "@/components/alert/NeedLoginAlert.vue";
 import LoadingSpinner from "@/components/common/LoadingSpinner.vue";
 import { useLoadingStore } from '@/stores/loading';

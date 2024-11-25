@@ -175,7 +175,6 @@ const fetchComments = async () => {
 
     comments.value = flattenComments;
   } catch (error) {
-    console.error("댓글 로딩 실패:", error);
   }
 };
 
@@ -218,7 +217,6 @@ const confirmDelete = async () => {
     // 서버에서 최신 데이터를 가져와 화면을 갱신
     await fetchComments();
   } catch (error) {
-    console.error("댓글 삭제 실패:", error);
     showDeleteConfirmAlert.value = false;
     showDeleteFailAlert.value = true;
   } finally {

@@ -3,36 +3,28 @@
     <!-- 게시글 헤더 -->
     <div class="mb-10 pb-5 border-b-2 border-gray-200">
       <div class="flex justify-between items-center mb-4">
-        <span
-          class="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-sm font-medium"
-        >
+        <span class="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-sm font-medium">
           #{{ board.tag }}
         </span>
         <div class="flex gap-2" v-if="isAuthor">
           <button
             class="px-4 py-2 rounded font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all duration-200"
-            @click="handleEdit"
-          >
+            @click="handleEdit">
             수정
           </button>
           <button
             class="px-4 py-2 rounded font-medium bg-red-500 text-white hover:bg-red-600 transition-all duration-200"
-            @click="handleDelete"
-          >
+            @click="handleDelete">
             삭제
           </button>
         </div>
       </div>
-      <h1
-        class="text-4xl md:text-2xl font-bold text-gray-800 mb-4 leading-tight"
-      >
+      <h1 class="text-4xl md:text-2xl font-bold text-gray-800 mb-4 leading-tight">
         {{ board.title }}
       </h1>
-      <div
-        class="flex justify-between items-center text-gray-500 text-sm md:flex-col md:items-start md:gap-2"
-      >
+      <div class="flex justify-between items-center text-gray-500 text-sm md:flex-col md:items-start md:gap-2">
         <div class="flex gap-3">
-          <span class="font-medium text-gray-700">{{ board.writer }}</span>
+          <RouterLink :to="`/home/${board.userId}`" class="font-medium text-gray-700">{{ board.writer }}</RouterLink>
           <span>{{ formatDate(board.date) }}</span>
         </div>
         <!-- 조회수와 좋아요 부분 수정 -->
@@ -41,17 +33,12 @@
             <i class="fas fa-eye"></i>
             <span>{{ board.viewCount }}</span>
           </div>
-          <div
-            class="flex items-center gap-1.5 cursor-pointer"
-            @click="toggleHit"
-          >
-            <i
-              :class="{
-                'fas fa-heart text-xl transition-all duration-200': true,
-                'text-red-500': isHit,
-                'text-gray-300 hover:text-red-500': !isHit,
-              }"
-            ></i>
+          <div class="flex items-center gap-1.5 cursor-pointer" @click="toggleHit">
+            <i :class="{
+              'fas fa-heart text-xl transition-all duration-200': true,
+              'text-red-500': isHit,
+              'text-gray-300 hover:text-red-500': !isHit,
+            }"></i>
             <span>{{ hitCount }}</span>
           </div>
         </div>
@@ -59,11 +46,10 @@
     </div>
 
     <!-- 게시글 내용 -->
-    <div
-      class="min-h-[300px] text-lg md:text-base text-gray-700 leading-relaxed mb-10"
-    >
-      <div v-if="board.postImage !== null">
-        <img :src="board.postImage" alt="게시글 이미지" class="w-full mb-4" />
+    <div class="min-h-[300px] text-lg md:text-base text-gray-700 leading-relaxed mb-10">
+      <div v-if="board.postImage !== null" class="mb-6">
+        <img :src="board.postImage" alt="게시글 이미지"
+          class="max-w-full max-h-[600px] object-contain rounded-lg shadow-md" />
       </div>
       <p>{{ board.content }}</p>
     </div>
@@ -72,23 +58,15 @@
     <div class="mt-10 border-t-2 border-gray-200 pt-6">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-bold text-gray-800">댓글</h2>
-        <button
-          v-if="authStore.user.isAuthenticated"
-          @click="$refs.commentForm.submitComment()"
-          class="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-md hover:bg-gray-800 transition-colors duration-200"
-        >
+        <button v-if="authStore.user.isAuthenticated" @click="$refs.commentForm.submitComment()"
+          class="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-md hover:bg-gray-800 transition-colors duration-200">
           등록
         </button>
       </div>
 
       <!-- 댓글 작성 폼 -->
-      <CommentForm
-        v-if="authStore.user.isAuthenticated"
-        :boardId="Number(route.params.id)"
-        @comment-added="refreshComments"
-        class="mb-4"
-        ref="commentForm"
-      />
+      <CommentForm v-if="authStore.user.isAuthenticated" :boardId="Number(route.params.id)"
+        @comment-added="refreshComments" class="mb-4" ref="commentForm" />
       <div v-else class="mb-4 p-4 bg-gray-50 rounded text-center">
         <p class="text-gray-600">댓글을 작성하려면 로그인이 필요합니다.</p>
       </div>
@@ -101,8 +79,7 @@
     <div class="flex justify-center mt-10 pt-5 border-t border-gray-200">
       <button
         class="px-6 py-2.5 rounded font-medium bg-blue-600 text-white hover:bg-blue-700 transition-all duration-200"
-        @click="goBack"
-      >
+        @click="goBack">
         목록으로
       </button>
     </div>
@@ -110,18 +87,11 @@
   <NeedLoginAlert @close="needLoginAlert = false" v-if="needLoginAlert" />
   <!-- Alert 컴포넌트들 추가 -->
   <NeedLoginAlert @close="needLoginAlert = false" v-if="needLoginAlert" />
-  <BoardDeleteSuccessAlert
-    v-if="showDeleteSuccessAlert"
-    @close="handleDeleteSuccess"
-  />
-  <BoardDeleteFailAlert
-    v-if="showDeleteFailAlert"
-    @close="showDeleteFailAlert = false"
-  />
-  <NoEditPermissionAlert
-    v-if="showNoPermissionAlert"
-    @close="showNoPermissionAlert = false"
-  />
+  <BoardDeleteSuccessAlert v-if="showDeleteSuccessAlert" @close="handleDeleteSuccess" />
+  <BoardDeleteFailAlert v-if="showDeleteFailAlert" @close="showDeleteFailAlert = false" />
+  <NoEditPermissionAlert v-if="showNoPermissionAlert" @close="showNoPermissionAlert = false" />
+  <BoardDeleteConfirmAlert v-if="showDeleteConfirmAlert" @close="showDeleteConfirmAlert = false"
+    @confirm="confirmDelete" />
 </template>
 
 <script setup>
@@ -137,6 +107,7 @@ import BoardDeleteSuccessAlert from "@/components/alert/BoardDeleteSuccessAlert.
 import BoardDeleteFailAlert from "@/components/alert/BoardDeleteFailAlert.vue";
 import NoEditPermissionAlert from "@/components/alert/NoEditPermissionAlert.vue";
 import { useLoadingStore } from "@/stores/loading";
+import BoardDeleteConfirmAlert from "@/components/alert/BoardDeleteConfirmAlert.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -149,6 +120,7 @@ const needLoginAlert = ref(false);
 const showDeleteSuccessAlert = ref(false);
 const showDeleteFailAlert = ref(false);
 const showNoPermissionAlert = ref(false);
+const showDeleteConfirmAlert = ref(false);
 
 // 이전 상태를 저장할 ref 추가
 const previousState = ref({
@@ -157,8 +129,6 @@ const previousState = ref({
 });
 
 const isAuthor = computed(() => {
-  console.log("Current user ID:", authStore.user.id);
-  console.log("Board user ID:", board.value?.userId);
   return (
     authStore.user.isAuthenticated &&
     board.value?.userId &&
@@ -174,8 +144,6 @@ const refreshComments = () => {
 
 const incrementViewCount = async (boardData) => {
   try {
-    console.log("조회수 증가 전 데이터:", boardData);
-
     const updatedBoard = {
       id: boardData.id,
       userId: boardData.userId,
@@ -192,10 +160,7 @@ const incrementViewCount = async (boardData) => {
       },
     };
 
-    console.log("업데이트할 데이터:", updatedBoard);
-
     const response = await http.put(`/board/${boardData.id}`, updatedBoard);
-    console.log("서버 응답:", response);
   } catch (error) {
     console.error("Error incrementing view count:", error);
     if (error.response) {
@@ -217,7 +182,6 @@ const fetchBoardDetail = async () => {
       const updatedResponse = await http.get(`/board/${route.params.id}`);
       if (updatedResponse.status === 200) {
         board.value = updatedResponse.data;
-        console.log("업데이트된 게시글 데이터:", board.value);
       }
       if (board.value.postImage !== null) {
         board.value.postImage = `${http.defaults.baseURL}/board${board.value.postImage}`;
@@ -232,8 +196,6 @@ const fetchBoardDetail = async () => {
 };
 // navigateToList 함수 확인
 const navigateToList = () => {
-  console.log("Navigating back with state:", previousState.value);
-
   const query = { page: previousState.value.page };
   if (previousState.value.tag) {
     query.tag = previousState.value.tag;
@@ -246,12 +208,17 @@ const navigateToList = () => {
 };
 
 // handleDelete 함수 수정
-const handleDelete = async () => {
+const handleDelete = () => {
   if (!authStore.checkAuth()) {
     needLoginAlert.value = true;
     return;
   }
-  if (!confirm("정말 삭제하시겠습니까?")) return;
+  showDeleteConfirmAlert.value = true;
+};
+
+// 새로운 함수 추가
+const confirmDelete = async () => {
+  showDeleteConfirmAlert.value = false;
   try {
     const token = authStore.getToken();
     const response = await http.delete(`/board/${route.params.id}`, {
@@ -261,17 +228,12 @@ const handleDelete = async () => {
     });
 
     if (response.status === 200) {
-      // 최근 본 게시물에서 삭제된 게시물 제거
-      const recentPosts = JSON.parse(
-        localStorage.getItem("recentPosts") || "[]"
-      );
+      const recentPosts = JSON.parse(localStorage.getItem("recentPosts") || "[]");
       const filteredPosts = recentPosts.filter(
         (post) => post.id !== Number(route.params.id)
       );
       localStorage.setItem("recentPosts", JSON.stringify(filteredPosts));
-
       showDeleteSuccessAlert.value = true;
-      // navigateToList() 를 여기서 직접 호출하지 않음
     }
   } catch (error) {
     console.error("Error deleting board:", error);
@@ -326,7 +288,7 @@ const formatDate = (date) => {
   });
 };
 
-// 기존 ref 선언부 아래에 추가
+// 기존 ref 선언부 아래에 추
 const isHit = ref(false);
 const hitCount = ref(0);
 
@@ -348,7 +310,6 @@ const checkHitStatus = async () => {
 const fetchHitCount = async () => {
   try {
     const response = await http.get(`/hit/count/${route.params.id}`);
-    console.log("Hit count response:", response);
     hitCount.value = response.data;
   } catch (error) {
     console.error("Error fetching hit count:", error);
@@ -432,8 +393,6 @@ onMounted(async () => {
     page: route.query.page || "1",
     tag: route.query.tag,
   };
-
-  console.log("Initial state saved:", previousState.value);
 
   await fetchBoardDetail();
   await Promise.all([

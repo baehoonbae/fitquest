@@ -58,6 +58,7 @@
             </div>
         </div>
     </div>
+    <NeedLoginAlert v-if="needLoginAlert" @close="needLoginAlert = false" />
 </template>
 
 <script setup>
@@ -65,6 +66,7 @@ import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
 import http from '@/api/http';
 import { useFollowStore } from '@/stores/follow';
 import { useAuthStore } from '@/stores/auth';
+import NeedLoginAlert from '@/components/alert/NeedLoginAlert.vue';
 import { useRouter } from 'vue-router';
 
 const emit = defineEmits(['close', 'updateFollowList']);
@@ -84,6 +86,7 @@ const authStore = useAuthStore();
 const isLoading = ref(true);
 const followStatus = ref({});
 const router = useRouter();
+const needLoginAlert = ref(false);
 
 const initFollowStatus = async () => {
     isLoading.value = true;
@@ -98,16 +101,30 @@ const initFollowStatus = async () => {
 
 const goToUserHome = (userId) => {
     emit('close');
-    router.push(`/home/${userId}`);
+    if (Number(userId) === Number(authStore.user.id)) {
+        router.push({ path: "/home" });
+    } else {
+        router.push({ path: `/home/${userId}` });
+    }
 };
 
 const handleFollow = async (userId) => {
+    const isAuth = await authStore.checkAuth();
+    if (!isAuth) {
+        needLoginAlert.value = true;
+        return;
+    }
     await followStore.fetchFollow(userId);
     followStatus.value[userId] = true;
     emit('updateFollowList');
 };
 
 const handleUnfollow = async (userId) => {
+    const isAuth = await authStore.checkAuth();
+    if (!isAuth) {
+        needLoginAlert.value = true;
+        return;
+    }
     await followStore.fetchUnfollow(userId);
     followStatus.value[userId] = false;
     emit('updateFollowList');

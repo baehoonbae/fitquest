@@ -1,41 +1,32 @@
 <template>
   <div class="max-w-4xl mx-auto px-5 my-1 md:my-2">
     <h1 class="text-3xl font-bold text-gray-800 mb-8">게시글 작성</h1>
-
-    <form
-      @submit.prevent="submitPost"
-      class="bg-white p-8 md:p-5 rounded-lg shadow-sm"
-    >
+    <form @submit.prevent="submitPost" class="bg-white p-8 md:p-5 rounded-lg shadow-sm">
       <div class="mb-6">
-        <label for="tag" class="block font-semibold text-gray-700 mb-2"
-          >태그</label
-        >
+        <label for="tag" class="block font-semibold text-gray-700 mb-2">태그</label>
         <div class="relative">
-          <!-- 관리자일 경우 disabled 상태의 공지 태그 표시 -->
-          <button
-            type="button"
-            :disabled="isAdmin"
-            @click.stop="toggleDropdown"
-            class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600 flex justify-between items-center"
-            :class="{ 'bg-gray-50': isAdmin }"
-          >
+          <button type="button" :disabled="isAdmin" @click.stop="toggleDropdown"
+            class="w-full px-3 py-2.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600 flex justify-between items-center"
+            :class="[
+              { 'bg-gray-50': isAdmin },
+              { 'border-red-500': showTagError },
+              'border-gray-300'
+            ]">
             <span class="text-gray-700">{{
               post.tag || "태그를 선택하세요"
             }}</span>
             <ChevronDownIcon v-if="!isAdmin" class="h-5 w-5 text-gray-400" />
           </button>
 
+          <div v-if="showTagError" class="mt-1 text-sm text-red-500 transition-all duration-200">
+            태그를 선택해주세요.
+          </div>
+
           <Transition name="dropdown">
-            <div
-              v-if="showDropdown && !isAdmin"
-              class="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg origin-top-right max-h-[240px] overflow-y-scroll"
-            >
-              <div
-                v-for="tag in COMMUNITY_TAGS"
-                :key="tag"
-                @click="selectTag(tag)"
-                class="px-4 py-2.5 hover:bg-gray-100 cursor-pointer text-sm text-gray-700"
-              >
+            <div v-if="showDropdown && !isAdmin"
+              class="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg origin-top-right max-h-[240px] overflow-y-scroll">
+              <div v-for="tag in COMMUNITY_TAGS" :key="tag" @click="selectTag(tag)"
+                class="px-4 py-2.5 hover:bg-gray-100 cursor-pointer text-sm text-gray-700">
                 {{ tag }}
               </div>
             </div>
@@ -43,76 +34,56 @@
         </div>
       </div>
       <div class="mb-6">
-        <label for="title" class="block font-semibold text-gray-700 mb-2"
-          >제목</label
-        >
-        <input
-          type="text"
-          id="title"
-          v-model="post.title"
-          required
-          placeholder="제목을 입력하세요"
-          class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600"
-        />
+        <label for="title" class="block font-semibold text-gray-700 mb-2">제목</label>
+        <input type="text" id="title" v-model="post.title" placeholder="제목을 입력하세요" :class="[
+          { 'border-red-500': showTitleError },
+          'w-full px-3 py-2.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600'
+        ]" />
+        <div v-if="showTitleError" class="mt-1 text-sm text-red-500 transition-all duration-200">
+          제목을 입력해주세요.
+        </div>
       </div>
       <div class="mb-6">
-        <label for="content" class="block font-semibold text-gray-700 mb-2"
-          >내용</label
-        >
-        <textarea
-          id="content"
-          v-model="post.content"
-          required
-          placeholder="내용을 입력하세요"
-          rows="10"
-          class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600 min-h-[200px] resize-y"
-        />
+        <label for="content" class="block font-semibold text-gray-700 mb-2">내용</label>
+        <textarea id="content" v-model="post.content" placeholder="내용을 입력하세요" rows="10" :class="[
+          { 'border-red-500': showContentError },
+          'w-full px-3 py-2.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600 min-h-[200px] resize-y'
+        ]" />
+        <div v-if="showContentError" class="mt-1 text-sm text-red-500 transition-all duration-200">
+          내용을 입력해주세요.
+        </div>
       </div>
       <div class="mb-6">
-        <label for="image" class="block font-semibold text-gray-700 mb-2"
-          >이미지</label
-        >
-        <input
-          type="file"
-          id="image"
-          ref="fileInput"
-          @change="handleImageChange"
-          accept="image/*"
-          class="px-3 py-2.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600"
-        />
+        <label for="image" class="block font-semibold text-gray-700 mb-2">이미지</label>
+        <input type="file" id="image" ref="fileInput" @change="handleImageChange" accept="image/*"
+          class="px-3 py-2.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600" />
       </div>
       <div class="flex justify-end gap-3 mt-8">
-        <button
-          type="button"
+        <button type="button"
           class="px-5 py-2.5 rounded-md font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200"
-          @click="router.go(-1)"
-        >
+          @click="router.go(-1)">
           취소
         </button>
-        <button
-          type="submit"
-          class="px-5 py-2.5 rounded-md font-medium bg-blue-600 text-white hover:bg-blue-700 transition-all duration-200"
-        >
-          등록
+        <button type="submit" :disabled="isSubmitting" :class="[
+          'px-5 py-2.5 rounded-md font-medium transition-all duration-200',
+          isSubmitting
+            ? 'bg-gray-400 cursor-not-allowed'
+            : 'bg-blue-600 hover:bg-blue-700 text-white'
+        ]">
+          {{ isSubmitting ? '등록 중...' : '등록' }}
         </button>
       </div>
     </form>
   </div>
   <NeedLoginAlert @close="needLoginAlert = false" v-if="needLoginAlert" />
   <FileSizeAlert v-if="showFileSizeAlert" @close="showFileSizeAlert = false" />
-  <ImageUploadFailAlert
-    v-if="showImageUploadFailAlert"
-    @close="showImageUploadFailAlert = false"
-  />
+  <ImageUploadFailAlert v-if="showImageUploadFailAlert" @close="showImageUploadFailAlert = false" />
   <WriteSuccessAlert v-if="showWriteSuccessAlert" @close="handleWriteSuccess" />
-  <WriteFailAlert
-    v-if="showWriteFailAlert"
-    @close="showWriteFailAlert = false"
-  />
+  <WriteFailAlert v-if="showWriteFailAlert" @close="showWriteFailAlert = false" />
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from "vue";
+import { ref, onMounted, onUnmounted, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import { useBoardStore } from "@/stores/board";
@@ -133,6 +104,9 @@ const showFileSizeAlert = ref(false);
 const showImageUploadFailAlert = ref(false);
 const showWriteSuccessAlert = ref(false);
 const showWriteFailAlert = ref(false);
+const showTagError = ref(false);
+const showTitleError = ref(false);
+const showContentError = ref(false);
 
 const needLoginAlert = ref(false);
 
@@ -184,24 +158,49 @@ const handleImageChange = (event) => {
   }
 };
 
-// 등록 성공 시 처리하는 함수
-const handleWriteSuccess = async () => {
-  showWriteSuccessAlert.value = false;
-  await boardStore.fetchBoards();
-  router.push({
-    path: "/community",
-    query: { page: 1 },
-  });
-};
+// 제출 상태를 관리할 ref 추가
+const isSubmitting = ref(false);
 
 // submitPost 함수 수정
 const submitPost = async () => {
+  // 이미 제출 중이면 중단
+  if (isSubmitting.value) return;
+
   try {
+    isSubmitting.value = true; // 제출 시작
+
     const isAuth = await authStore.checkAuth();
     if (!isAuth) {
       needLoginAlert.value = true;
       return;
     }
+
+    // 모든 필수 필드 검사
+    let hasError = false;
+
+    if (!post.value.tag) {
+      showTagError.value = true;
+      hasError = true;
+    }
+
+    if (!post.value.title.trim()) {
+      showTitleError.value = true;
+      hasError = true;
+    }
+
+    if (!post.value.content.trim()) {
+      showContentError.value = true;
+      hasError = true;
+    }
+
+    if (hasError) {
+      return;
+    }
+
+    // 에러 상태 초기화
+    showTagError.value = false;
+    showTitleError.value = false;
+    showContentError.value = false;
 
     const postData = {
       userId: post.value.userId,
@@ -234,7 +233,6 @@ const submitPost = async () => {
             "Content-Type": "multipart/form-data",
           },
         });
-        console.log("이미지 업로드 성공");
       } catch (error) {
         console.error("이미지 업로드 실패:", error);
         showImageUploadFailAlert.value = true;
@@ -250,8 +248,35 @@ const submitPost = async () => {
     } else {
       showWriteFailAlert.value = true;
     }
+  } finally {
+    isSubmitting.value = false; // 제출 완료 또는 에러 발생 시
   }
 };
+
+// handleWriteSuccess 함수 수정
+const handleWriteSuccess = async () => {
+  if (isSubmitting.value) return; // 이미 처리 중이면 중단
+
+  showWriteSuccessAlert.value = false;
+  await boardStore.fetchBoards();
+  router.push({
+    path: "/community",
+    query: { page: 1 },
+  });
+};
+
+// 입력 필드 변경 시 에러 메시지 숨김
+watch(() => post.value.title, () => {
+  if (post.value.title.trim()) {
+    showTitleError.value = false;
+  }
+});
+
+watch(() => post.value.content, () => {
+  if (post.value.content.trim()) {
+    showContentError.value = false;
+  }
+});
 
 const showDropdown = ref(false);
 
@@ -264,6 +289,7 @@ const selectTag = (tag) => {
     post.value.tag = tag;
     post.value.isNotice = false;
     showDropdown.value = false;
+    showTagError.value = false;
   }
 };
 
@@ -340,5 +366,22 @@ onUnmounted(() => {
 
 .absolute::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
+}
+
+/* 툴팁 애니메이션 추가 */
+.text-red-500 {
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

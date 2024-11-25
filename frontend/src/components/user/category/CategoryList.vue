@@ -62,10 +62,9 @@ import { useCategoryStore } from "@/stores/category";
 import {
   GlobeAltIcon,
   LockClosedIcon,
-  PlusCircleIcon,
 } from "@heroicons/vue/24/outline";
 import { onMounted, watch, ref, onUnmounted, computed } from "vue";
-import TodoList from "@/components/TodoList.vue";
+import TodoList from "@/components/user/todo/TodoList.vue";
 import { useTodoStore } from "@/stores/todo";
 import { useDateStore } from "@/stores/date";
 import { useActivityStore } from "@/stores/activity";

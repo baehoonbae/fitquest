@@ -77,7 +77,7 @@ import { useAuthStore } from "@/stores/auth";
 import { useActivityStore } from "@/stores/activity";
 import { useDateStore } from "@/stores/date";
 import { useTodoStore } from "@/stores/todo";
-import MonthlyGrass from '@/components/grass/MonthlyGrass.vue';
+import MonthlyGrass from '@/components/user/grass/MonthlyGrass.vue';
 
 const authStore = useAuthStore();
 const activityStore = useActivityStore();

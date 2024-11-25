@@ -1,22 +1,22 @@
 import { createRouter, createWebHistory } from "vue-router";
-import GuestHomeView from "../views/GuestHomeView.vue";
-import UserRegistView from "@/views/UserRegistView.vue";
-import UserLoginView from "@/views/UserLoginView.vue";
+import GuestHomeView from "../views/user/GuestHomeView.vue";
+import UserRegistView from "@/views/user/UserRegistView.vue";
+import UserLoginView from "@/views/user/UserLoginView.vue";
 import { useAuthStore } from "@/stores/auth";
-import UserHomeView from "@/views/UserHomeView.vue";
-import UserConfigView from "@/views/UserConfigView.vue";
-import CommunityHomeView from "@/views/CommunityHomeView.vue";
-import NewsHomeView from "@/views/NewsHomeView.vue";
-import CommunityDetail from "@/views/CommunityDetail.vue";
-import CommunityWrite from "@/views/CommunityWrite.vue";
-import CommunityUpdate from "@/views/CommunityUpdate.vue";
-import CategoryRegistView from "@/views/CategoryRegistView.vue";
-import CategoryManageView from "@/views/CategoryManageView.vue";
-import CategoryUpdateView from "@/views/CategoryUpdateView.vue";
-import CommunitySearch from "@/components/CommunitySearch.vue";
-import OtherUserHomeView from "@/views/OtherUserHomeView.vue";
+import UserHomeView from "@/views/user/UserHomeView.vue";
+import UserConfigView from "@/views/user/UserConfigView.vue";
+import CommunityHomeView from "@/views/community/CommunityHomeView.vue";
+import NewsHomeView from "@/views/news/NewsHomeView.vue";
+import CommunityDetail from "@/views/community/CommunityDetail.vue";
+import CommunityWrite from "@/views/community/CommunityWrite.vue";
+import CommunityUpdate from "@/views/community/CommunityUpdate.vue";
+import CategoryRegistView from "@/views/category/CategoryRegistView.vue";
+import CategoryManageView from "@/views/category/CategoryManageView.vue";
+import CategoryUpdateView from "@/views/category/CategoryUpdateView.vue";
+import CommunitySearch from "@/components/community/CommunitySearch.vue";
+import OtherUserHomeView from "@/views/user/OtherUserHomeView.vue";
 import { useLoadingStore } from "@/stores/loading";
-import VideoHomeView from "@/views/VideoHomeView.vue";
+import VideoHomeView from "@/views/video/VideoHomeView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -47,6 +47,14 @@ const router = createRouter({
       path: "/home/:userId",
       name: "userHomeDetail",
       component: OtherUserHomeView,
+      beforeEnter: (to, from, next) => {
+        const authStore = useAuthStore();
+        if (Number(to.params.userId) === Number(authStore.user.id)) {
+          next({ path: "/home" });
+        } else {
+          next();
+        }
+      }
     },
     {
       path: "/signup",

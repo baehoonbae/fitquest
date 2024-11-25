@@ -73,7 +73,7 @@ import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
 import http from '@/api/http';
 import { useFollowStore } from '@/stores/follow';
 import { useAuthStore } from '@/stores/auth';
-import NeedLoginAlert from './alert/NeedLoginAlert.vue';
+import NeedLoginAlert from '@/components/alert/NeedLoginAlert.vue';
 import { useRouter } from 'vue-router';
 
 const emit = defineEmits(['close', 'updateFollowList']);
@@ -108,7 +108,11 @@ const initFollowStatus = async () => {
 
 const goToUserHome = (userId) => {
     emit('close');
-    router.push(`/home/${userId}`);
+    if (Number(userId) === Number(authStore.user.id)) {
+        router.push({ path: "/home" });
+    } else {
+        router.push({ path: `/home/${userId}` });
+    }
 };
 
 const handleFollow = async (userId) => {

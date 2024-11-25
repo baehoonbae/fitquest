@@ -120,7 +120,7 @@ const handleSearch = debounce(async () => {
       message.value = '<div class="material-icons text-5xl mb-3 text-gray-400">sentiment_dissatisfied</div><div>검색 결과가 없습니다.</div>';
     }
   } catch (error) {
-    console.error('Failed to search users:', error);
+    message.value = '<div class="material-icons text-5xl mb-3 text-gray-400">sentiment_dissatisfied</div><div>검색에 실패했습니다.</div>';
   } finally {
     loading.value = false;
   }
