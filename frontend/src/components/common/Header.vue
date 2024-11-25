@@ -24,15 +24,16 @@
               최근 본 카드뉴스
             </button>
             <div class="h-[1px] bg-gray-100"></div>
-            <button 
-              v-if="isLogin" 
-              @click="authStore.logout()"
+            <button @click="showRecentVideo"
+              class="rounded-xl block px-4 py-2 text-sm text-gray-700 w-full text-left transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900 active:bg-gray-100">
+              최근 본 영상
+            </button>
+            <div class="h-[1px] bg-gray-100"></div>
+            <button v-if="isLogin" @click="authStore.logout()"
               class="rounded-xl block w-full text-left px-4 py-2 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900 active:bg-gray-100">
               로그아웃
             </button>
-            <button 
-              v-else 
-              @click="router.push('/login')"
+            <button v-else @click="router.push('/login')"
               class="rounded-xl block w-full text-left px-4 py-2 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900 active:bg-gray-100">
               로그인
             </button>
@@ -44,6 +45,7 @@
     <!-- 최근 본 게시물 모달 -->
     <RecentPostsModal :is-open="isRecentPostsModalOpen" @close="closeRecentPostsModal" />
     <RecentNewsModal :is-open="isRecentNewsModalOpen" @close="closeRecentNewsModal" />
+    <RecentVideoModal :is-open="isRecentVideoModalOpen" @close="closeRecentVideoModal" />
   </div>
 </template>
 
@@ -53,6 +55,7 @@ import { onMounted, onUnmounted, ref, computed } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import RecentPostsModal from "@/components/recent/RecentBoard.vue";
 import RecentNewsModal from "@/components/recent/RecentNews.vue";
+import RecentVideoModal from "@/components/recent/RecentVideo.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -60,6 +63,7 @@ const authStore = useAuthStore();
 const isDropdownOpen = ref(false);
 const isRecentPostsModalOpen = ref(false);
 const isRecentNewsModalOpen = ref(false);
+const isRecentVideoModalOpen = ref(false);
 const isLogin = computed(() => authStore.user.isAuthenticated);
 
 const headerTitle = computed(() => {
@@ -85,8 +89,17 @@ const showRecentNews = () => {
   isDropdownOpen.value = false;
 };
 
+const showRecentVideo = () => {
+  isRecentVideoModalOpen.value = true;
+  isDropdownOpen.value = false;
+};
+
 const closeRecentNewsModal = () => {
   isRecentNewsModalOpen.value = false;
+};
+
+const closeRecentVideoModal = () => {
+  isRecentVideoModalOpen.value = false;
 };
 
 // ESC 키 이벤트 핸들러
@@ -121,6 +134,7 @@ onUnmounted(() => {
 .dropdown-enter-active {
   animation: bounce-in 0.5s;
 }
+
 .dropdown-leave-active {
   animation: bounce-in 0.5s reverse;
 }
@@ -130,10 +144,12 @@ onUnmounted(() => {
     transform: scale(0.3);
     opacity: 0;
   }
+
   50% {
     transform: scale(1.05);
     opacity: 0.5;
   }
+
   100% {
     transform: scale(1);
     opacity: 1;
