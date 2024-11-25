@@ -316,5 +316,3 @@ select * from todo;
 select * from token;
 select * from `user`;
 use fitquest;
-
-desc user;

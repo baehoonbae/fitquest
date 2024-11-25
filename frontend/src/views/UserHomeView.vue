@@ -30,7 +30,7 @@
             </div>
           </div>
           <!-- 팔로워/팔로잉/완료 정보 -->
-          <div class="flex justify-around pt-1 border-t border-gray-100">
+          <div class="flex justify-around pt-1">
             <div
               class="flex flex-col items-center px-4 py-2 hover:bg-gray-50 rounded-xl transition-all duration-200"
             >
@@ -92,7 +92,7 @@
     </div>
 
     <!-- 잔디 그래프 섹션 -->
-    <div class="w-full bg-[#f7f8f9] p-2 rounded-[15px]">
+    <div class="w-full bg-[#f7f8f9] p-2 rounded-[15px] mb-8">
       <GrassGraph :userId="Number(authStore.user.id)" />
     </div>
   </div>
@@ -115,7 +115,7 @@
 import Calendar from "@/components/Calendar.vue";
 import CategoryList from "@/components/CategoryList.vue";
 import CategoryHeader from "@/components/CategoryHeader.vue";
-import GrassGraph from "@/components/GrassGraph.vue";
+import GrassGraph from "@/components/grass/GrassGraph.vue";
 import { ref, computed, onMounted } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import http from "@/api/http";

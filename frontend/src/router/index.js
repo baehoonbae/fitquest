@@ -15,7 +15,7 @@ import CategoryManageView from "@/views/CategoryManageView.vue";
 import CategoryUpdateView from "@/views/CategoryUpdateView.vue";
 import CommunitySearch from "@/components/CommunitySearch.vue";
 import OtherUserHomeView from "@/views/OtherUserHomeView.vue";
-import { useLoadingStore } from '@/stores/loading';
+import { useLoadingStore } from "@/stores/loading";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -166,14 +166,19 @@ router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
 
   loadingStore.show(true); // 라우트 전환임을 표시
-
-  if (to.meta.requiresAuth) {
+  const isAuth = await authStore.checkAuth();
+  if ((to.name === "login" || to.name === "signup") && isAuth) {
+    next({ name: "userHome" });
+  } else if (to.meta.requiresAuth) {
     try {
-      const isAuth = await authStore.checkAuth();
       if (!isAuth) {
         authStore.logout();
         next({ name: "login" });
         return;
+      } else {
+        if (to.path === "/login" || to.path === "/signup") {
+          next({ name: "userHome" });
+        }
       }
       next();
     } catch (error) {

@@ -47,6 +47,10 @@ export const useAuthStore = defineStore("auth", () => {
       // 토큰 설정
       sessionStorage.setItem("accessToken", data.accessToken);
       axios.defaults.headers.common["Authorization"] = `Bearer ${data.accessToken}`;
+      
+      // 로그인 성공 후 라우터 히스토리 조작
+      router.replace('/'); // replace를 사용하여 히스토리에서 로그인 페이지를 제거
+      
       return { success: true };
     } catch (error) {
       let errorMessage = '아이디 또는 비밀번호가 올바르지 않습니다.';
