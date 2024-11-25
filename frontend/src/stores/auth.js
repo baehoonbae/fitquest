@@ -15,7 +15,7 @@ export const useAuthStore = defineStore("auth", () => {
     profileImage: "",
     description: "",
     isAuthenticated: false,
-    isAdmin: false,
+    isAdmin: 0,
   });
 
   const getToken = () => sessionStorage.getItem('accessToken');
@@ -73,7 +73,7 @@ export const useAuthStore = defineStore("auth", () => {
       profileImage: "",
       description: "",
       isAuthenticated: false,
-      isAdmin: false,
+      isAdmin: 0,
     };
     sessionStorage.clear();
     delete axios.defaults.headers.common["Authorization"];
@@ -89,7 +89,7 @@ export const useAuthStore = defineStore("auth", () => {
         user.value = {
           ...response.data,
           isAuthenticated: true,
-          isAdmin: Boolean(response.data.isAdmin),
+          isAdmin: response.data.isAdmin,
         };
       }
     } catch (error) {
@@ -206,6 +206,8 @@ export const useAuthStore = defineStore("auth", () => {
     try {
       const response = await http.get('/user/check-refresh-token', { 
         withCredentials: true 
+      }, {
+        skipLoading: true
       });
       return response.data.exists;
     } catch (error) {
