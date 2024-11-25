@@ -13,10 +13,10 @@
             <!-- 프로필 이미지 -->
             <div class="relative group">
               <img
-                :src="profileImage || ''"
+                :src="profileImage"
                 class="w-20 h-20 rounded-full object-cover border-3 border-white shadow-md group-hover:scale-105 transition duration-300"
                 alt="프로필 이미지"
-                @error="(e) => (e.target.src = '/default-profile.png')"
+                @error="handleImageError"
               />
             </div>
             <!-- 사용자 정보 -->
@@ -126,10 +126,10 @@ import { useFollowStore } from "@/stores/follow";
 const authStore = useAuthStore();
 const selectedDate = ref(null);
 const profileImage = computed(() => {
-  if (authStore.user?.profileImage) {
-    return `${http.defaults.baseURL}/user${authStore.user.profileImage}`;
+  if (!authStore.user?.profileImage) {
+    return "/default-profile.png";
   }
-  return "/default-profile.png";
+  return `${http.defaults.baseURL}/user${authStore.user.profileImage}`;
 });
 const followerList = ref([]);
 const followingList = ref([]);
@@ -141,19 +141,34 @@ const followStore = useFollowStore();
 // 팔로워/팔로잉 조회
 const fetchFollowData = async () => {
   try {
+    // 사용자가 로그인되어 있지 않으면 early return
+    if (!authStore.checkAuth()) {
+      followerList.value = [];
+      followingList.value = [];
+      return;
+    }
+
     const [followers, followings] = await Promise.all([
       followStore.fetchFollowers(authStore.user.id),
       followStore.fetchFollowings(authStore.user.id),
     ]);
-    followerList.value = followers;
-    followingList.value = followings;
+    followerList.value = followers || [];
+    followingList.value = followings || [];
   } catch (error) {
     console.error("팔로우 데이터 조회 실패:", error);
+    followerList.value = [];
+    followingList.value = [];
   }
 };
 
 onMounted(async () => {
-  await Promise.all([fetchFollowData(), fetchDoneTodoCount()]);
+  if (authStore.checkAuth()) {
+    try {
+      await Promise.all([fetchFollowData(), fetchDoneTodoCount()]);
+    } catch (error) {
+      console.error("초기 데이터 로딩 실패:", error);
+    }
+  }
 });
 
 // 모달 닫을 때 데이터 새로고침
@@ -174,11 +189,22 @@ const handleDateSelected = (date) => {
 // 투두 수 가져오기
 const fetchDoneTodoCount = async () => {
   try {
+    if (!authStore.checkAuth()) {
+      doneTodoCount.value = 0;
+      return;
+    }
     const response = await http.get(`/todo/count/${authStore.user.id}`);
     doneTodoCount.value = response.data;
   } catch (error) {
     console.error("투두 수 조회 실패:", error);
+    doneTodoCount.value = 0;
   }
+};
+
+// 이미지 에러 핸들러 추가
+const handleImageError = (e) => {
+  e.target.src = "/default-profile.png";
+  e.target.onerror = null; // 무한 루프 방지
 };
 </script>
 
