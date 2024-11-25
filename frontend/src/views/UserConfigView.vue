@@ -64,7 +64,10 @@
     </main>
   </div>
   <Transition name="fade">
-    <ChangeName v-if="showChangeNameModal" @close="showChangeNameModal = false" />
+    <ChangeName
+      v-if="showChangeNameModal"
+      @close="showChangeNameModal = false"
+    />
   </Transition>
   <Transition name="fade">
     <ChangeDescription
@@ -72,6 +75,12 @@
       @close="showChangeDescriptionModal = false"
     />
   </Transition>
+  <!-- Alert 컴포넌트 추가 -->
+  <FileSizeAlert v-if="showFileSizeAlert" @close="showFileSizeAlert = false" />
+  <ImageUploadFailAlert
+    v-if="showImageUploadFailAlert"
+    @close="showImageUploadFailAlert = false"
+  />
 </template>
 
 <script setup>
@@ -81,27 +90,31 @@ import ChangeDescription from "@/components/ChangeDescription.vue";
 import { useAuthStore } from "@/stores/auth";
 import http from "@/api/http";
 import { ChevronRightIcon } from "@heroicons/vue/24/outline";
+import FileSizeAlert from "@/components/alert/FileSizeAlert.vue";
+import ImageUploadFailAlert from "@/components/alert/ImageUploadFailAlert.vue";
 
 const authStore = useAuthStore();
 const fileInput = ref(null);
 
 const showChangeNameModal = ref(false);
 const showChangeDescriptionModal = ref(false);
+const showFileSizeAlert = ref(false);
+const showImageUploadFailAlert = ref(false);
 
 // computed 속성으로 프로필 이미지 URL 계산
 const computedProfileImage = computed(() => {
   if (authStore.user?.profileImage) {
     return `${http.defaults.baseURL}/user${authStore.user.profileImage}`;
   }
-  return '/default-profile.png';
+  return "/default-profile.png";
 });
 
-// 이미지 업로드 처리
+// 이미지 업로드 처리 함수 수정
 const handleImageUpload = async (event) => {
   const file = event.target.files[0];
   if (!file) return;
   if (file.size > 5 * 1024 * 1024) {
-    alert("파일 크기는 5MB 이하여야 합니다.");
+    showFileSizeAlert.value = true;
     return;
   }
   try {
@@ -117,11 +130,10 @@ const handleImageUpload = async (event) => {
         },
       }
     );
-    // authStore 업데이트만 하면 computed가 자동으로 새 URL 계산
     authStore.user.profileImage = response.data.imageUrl;
   } catch (error) {
     console.error("이미지 업로드 실패:", error);
-    alert("이미지 업로드에 실패했습니다.");
+    showImageUploadFailAlert.value = true;
   }
 };
 </script>

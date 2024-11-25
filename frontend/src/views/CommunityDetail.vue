@@ -108,6 +108,20 @@
     </div>
   </div>
   <NeedLoginAlert @close="needLoginAlert = false" v-if="needLoginAlert" />
+  <!-- Alert 컴포넌트들 추가 -->
+  <NeedLoginAlert @close="needLoginAlert = false" v-if="needLoginAlert" />
+  <BoardDeleteSuccessAlert
+    v-if="showDeleteSuccessAlert"
+    @close="handleDeleteSuccess"
+  />
+  <BoardDeleteFailAlert
+    v-if="showDeleteFailAlert"
+    @close="showDeleteFailAlert = false"
+  />
+  <NoEditPermissionAlert
+    v-if="showNoPermissionAlert"
+    @close="showNoPermissionAlert = false"
+  />
 </template>
 
 <script setup>
@@ -119,7 +133,10 @@ import CommentForm from "@/components/comment/CommentForm.vue";
 import CommentList from "@/components/comment/CommentList.vue";
 import { getChoseong } from "es-hangul";
 import NeedLoginAlert from "@/components/alert/NeedLoginAlert.vue";
-import { useLoadingStore } from '@/stores/loading';
+import BoardDeleteSuccessAlert from "@/components/alert/BoardDeleteSuccessAlert.vue";
+import BoardDeleteFailAlert from "@/components/alert/BoardDeleteFailAlert.vue";
+import NoEditPermissionAlert from "@/components/alert/NoEditPermissionAlert.vue";
+import { useLoadingStore } from "@/stores/loading";
 
 const route = useRoute();
 const router = useRouter();
@@ -127,6 +144,11 @@ const authStore = useAuthStore();
 const board = ref({});
 const commentList = ref(null);
 const needLoginAlert = ref(false);
+
+// 기존 ref 선언부에 새로운 alert 상태 추가
+const showDeleteSuccessAlert = ref(false);
+const showDeleteFailAlert = ref(false);
+const showNoPermissionAlert = ref(false);
 
 // 이전 상태를 저장할 ref 추가
 const previousState = ref({
@@ -208,7 +230,7 @@ const fetchBoardDetail = async () => {
     loadingStore.hide();
   }
 };
-// 목록으로 이동하는 함수 통합
+// navigateToList 함수 확인
 const navigateToList = () => {
   console.log("Navigating back with state:", previousState.value);
 
@@ -223,7 +245,7 @@ const navigateToList = () => {
   });
 };
 
-// handleDelete 함수도 수정
+// handleDelete 함수 수정
 const handleDelete = async () => {
   if (!authStore.checkAuth()) {
     needLoginAlert.value = true;
@@ -240,12 +262,16 @@ const handleDelete = async () => {
 
     if (response.status === 200) {
       // 최근 본 게시물에서 삭제된 게시물 제거
-      const recentPosts = JSON.parse(localStorage.getItem("recentPosts") || "[]");
-      const filteredPosts = recentPosts.filter(post => post.id !== Number(route.params.id));
+      const recentPosts = JSON.parse(
+        localStorage.getItem("recentPosts") || "[]"
+      );
+      const filteredPosts = recentPosts.filter(
+        (post) => post.id !== Number(route.params.id)
+      );
       localStorage.setItem("recentPosts", JSON.stringify(filteredPosts));
 
-      alert("게시글이 삭제되었습니다.");
-      navigateToList();
+      showDeleteSuccessAlert.value = true;
+      // navigateToList() 를 여기서 직접 호출하지 않음
     }
   } catch (error) {
     console.error("Error deleting board:", error);
@@ -253,11 +279,18 @@ const handleDelete = async () => {
       authStore.logout();
       needLoginAlert.value = true;
     } else {
-      alert("게시글 삭제에 실패했습니다.");
+      showDeleteFailAlert.value = true;
     }
   }
 };
 
+// handleDeleteSuccess 함수 수정
+const handleDeleteSuccess = () => {
+  showDeleteSuccessAlert.value = false;
+  navigateToList(); // alert가 닫힌 후 목록으로 이동
+};
+
+// handleEdit 함수 수정
 const handleEdit = () => {
   if (!authStore.user.isAuthenticated) {
     needLoginAlert.value = true;
@@ -265,11 +298,10 @@ const handleEdit = () => {
   }
 
   if (!isAuthor.value) {
-    alert("수정 권한이 없습니다.");
+    showNoPermissionAlert.value = true;
     return;
   }
 
-  // 수정 페이지로 이동할 때도 이전 상태 전달
   router.push({
     path: `/community/edit/${route.params.id}`,
     query: {

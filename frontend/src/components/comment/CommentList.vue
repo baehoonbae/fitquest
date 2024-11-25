@@ -5,7 +5,7 @@
       :key="comment.id"
       class="comment-container"
     >
-      <!-- 댓글 내용 -->
+      <!-- 기존 댓글 컨텐츠 부분 -->
       <div
         :class="[
           'p-4 rounded-lg',
@@ -19,6 +19,7 @@
           'bg-white border border-gray-200',
         ]"
       >
+        <!-- 기존 댓글 내용 유지 -->
         <div class="flex justify-between items-start mb-2">
           <div class="flex items-center gap-2">
             <span class="font-medium text-gray-900">{{ comment.writer }}</span>
@@ -72,6 +73,12 @@
     <div v-if="comments.length === 0" class="text-center py-8 text-gray-500">
       첫 댓글을 작성해보세요.
     </div>
+
+    <!-- 삭제 실패 Alert -->
+    <CommentDeleteFailAlert
+      v-if="showDeleteFailAlert"
+      @close="showDeleteFailAlert = false"
+    />
   </div>
 </template>
 
@@ -79,6 +86,7 @@
 import { ref, onMounted, computed } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import CommentForm from "./CommentForm.vue";
+import CommentDeleteFailAlert from "@/components/alert/CommentDeleteFailAlert.vue";
 import http from "@/api/http";
 
 const props = defineProps({
@@ -170,6 +178,9 @@ const handleCommentAdded = () => {
   fetchComments();
 };
 
+const showDeleteFailAlert = ref(false);
+
+// handleDelete 함수 수정
 const handleDelete = async (id) => {
   if (!confirm("댓글을 삭제하시겠습니까?")) return;
 
@@ -178,7 +189,7 @@ const handleDelete = async (id) => {
     fetchComments();
   } catch (error) {
     console.error("댓글 삭제 실패:", error);
-    alert("댓글 삭제에 실패했습니다.");
+    showDeleteFailAlert.value = true;
   }
 };
 
