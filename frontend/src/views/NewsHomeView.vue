@@ -65,7 +65,7 @@
 <script setup>
 import { ref, onMounted, nextTick } from "vue";
 import { searchBlog, searchImage } from "@/api/news";
-import NewsHeader from "@/components/NewsHeader.vue";
+import NewsHeader from "@/components/common/NewsHeader.vue";
 
 const searchQuery = ref("운동");
 const imageItems = ref([]);

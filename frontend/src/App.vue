@@ -2,7 +2,7 @@
   <LoadingSpinner v-if="!isNewsView" />
   <div class="min-h-[calc(100vh-10rem)] flex flex-col">
     <header v-if="!hideLayout" class="flex-none fixed top-0 left-0 right-0 bg-white z-[99]">
-      <div v-if="route.name !== 'news'" class="max-w-[950px] mx-auto px-5 md:px-4">
+      <div v-if="route.name !== 'news' && route.name !== 'video'" class="max-w-[950px] mx-auto px-5 md:px-4">
         <Header />
       </div>
     </header>
@@ -35,14 +35,12 @@
           </div>
         </div>
         <!-- Footer 컨텐츠 -->
-        <div class="bg-white rounded-t-xl w-[570px] mx-auto px-5 md:px-4 shadow-[0_-2px_2px_rgba(0,0,0,0.1)]">
+        <div class="bg-white rounded-t-xl w-[650px] mx-auto px-5 md:px-4 shadow-[0_-2px_2px_rgba(0,0,0,0.1)]">
           <Footer @openUserSearchModal="openUserSearchModal = true" @needLoginAlert="needLoginAlert = true" />
         </div>
       </div>
     </footer>
-
     <NeedLoginAlert @close="needLoginAlert = false" v-if="needLoginAlert" />
-
   </div>
 </template>
 

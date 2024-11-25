@@ -19,13 +19,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.extern.slf4j.Slf4j;
 import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 
 @Hidden
 @Slf4j
 @RestController
 @RequestMapping("/api/article")
+@Tag(name = "Article", description = "검색 API")
 public class ArticleController {
 
     @Value("${naver.client.id}")
@@ -34,6 +39,14 @@ public class ArticleController {
     @Value("${naver.client.secret}")
     private String clientSecret;
 
+    @Value("${youtube.api.key}")
+    private String youtubeApiKey;
+
+    @Operation(summary = "네이버 블로그 검색", description = "네이버 블로그 검색 API를 통해 블로그 검색을 수행합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "블로그 검색 성공"),
+        @ApiResponse(responseCode = "400", description = "검색어 인코딩 실패")
+    })
     @GetMapping("/search/blog")
     public ResponseEntity<String> searchBlog(
         @RequestParam String query,
@@ -60,6 +73,11 @@ public class ArticleController {
         return ResponseEntity.ok(responseBody);
     }
 
+    @Operation(summary = "네이버 이미지 검색", description = "네이버 이미지 검색 API를 통해 이미지 검색을 수행합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "이미지 검색 성공"),
+        @ApiResponse(responseCode = "400", description = "검색어 인코딩 실패")
+    })
     @GetMapping("/search/image")
     public ResponseEntity<String> searchImage(@RequestParam String query) {
         String text;
@@ -75,6 +93,41 @@ public class ArticleController {
         requestHeaders.put("X-Naver-Client-Id", clientId);
         requestHeaders.put("X-Naver-Client-Secret", clientSecret);
 
+        String responseBody = get(apiURL, requestHeaders);
+        return ResponseEntity.ok(responseBody);
+    }
+
+    @Operation(summary = "유튜브 동영상 검색", description = "유튜브 동영상 검색 API를 통해 동영상 검색을 수행합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "동영상 검색 성공"),
+        @ApiResponse(responseCode = "400", description = "검색어 인코딩 실패")
+    })
+    @GetMapping("/search/video")
+    public ResponseEntity<String> searchVideo(
+        @RequestParam String query,
+        @RequestParam(defaultValue = "10") int maxResults,
+        @RequestParam(required = false) String pageToken) {
+        String text;
+        try {
+            text = URLEncoder.encode(query, StandardCharsets.UTF_8.toString());
+        } catch (Exception e) {
+            throw new RuntimeException("검색어 인코딩 실패", e);
+        }
+
+        String apiURL = "https://www.googleapis.com/youtube/v3/search"
+            + "?part=snippet"
+            + "&q=" + text
+            + "&type=video"
+            + "&maxResults=" + maxResults
+            + "&key=" + youtubeApiKey
+            + "&regionCode=KR"
+            + "&relevanceLanguage=ko";
+        
+        if (pageToken != null && !pageToken.isEmpty()) {
+            apiURL += "&pageToken=" + pageToken;
+        }
+
+        Map<String, String> requestHeaders = new HashMap<>();
         String responseBody = get(apiURL, requestHeaders);
         return ResponseEntity.ok(responseBody);
     }
