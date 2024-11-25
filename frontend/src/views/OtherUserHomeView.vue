@@ -9,7 +9,7 @@
           <div class="relative group">
             <img :src="profileImage"
               class="w-20 h-20 rounded-full object-cover border-3 border-white shadow-md group-hover:scale-105 transition duration-300"
-              alt="프로필 이미지" @error="(e) => (e.target.src = '/default-profile.png')" />
+              alt="프로필 이미지" @error="handleImageError" />
           </div>
           <!-- 팔로워/팔로잉 정보 -->
           <div class="flex gap-4 items-center">
@@ -108,10 +108,10 @@ const userId = computed(() => route.params.userId);
 
 // 프로필 이미지 URL
 const profileImage = computed(() => {
-    if (userProfile.value?.profileImage) {
-        return `${http.defaults.baseURL}/user${userProfile.value.profileImage}`;
-    }
+  if (!userProfile.value?.profileImage) {
     return "/default-profile.png";
+  }
+  return `${http.defaults.baseURL}/user${userProfile.value.profileImage}`;
 });
 
 // 투두 수 가져오기
@@ -202,6 +202,12 @@ watch(() => userId.value, async () => {
         fetchDoneTodoCount()
     ]);
 });
+
+// 이미지 에러 핸들러 추가
+const handleImageError = (e) => {
+  e.target.src = "/default-profile.png";
+  e.target.onerror = null;
+};
 </script>
 
 <style scoped>

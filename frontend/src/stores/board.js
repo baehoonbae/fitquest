@@ -4,17 +4,24 @@ import http from "@/api/http";
 
 export const useBoardStore = defineStore("board", () => {
   const boards = ref([]);
+  const lastSearchCondition = ref(null);
 
-  const fetchBoards = async () => {
+  const fetchBoards = async (options = {}) => {
     try {
-      const response = await http.get("/board");
+      if (lastSearchCondition.value && options.preserveSearch) {
+        return await searchBoards(lastSearchCondition.value);
+      }
+
+      const response = await http.get("/board", {
+        skipLoading: options.skipLoading
+      });
       if (response.status === 200) {
-        // 날짜 기준 내림차순 정렬
         boards.value = response.data.sort((a, b) => {
           const dateA = new Date(a.date).getTime();
           const dateB = new Date(b.date).getTime();
           return dateB - dateA;
         });
+        lastSearchCondition.value = null;
       }
     } catch (error) {
       console.error("Error fetching boards:", error);
@@ -26,7 +33,6 @@ export const useBoardStore = defineStore("board", () => {
     try {
       const response = await http.post("/board", postData);
       if (response.status === 201 || response.status === 200) {
-        // 게시글 추가 후 즉시 목록 갱신
         await fetchBoards();
         return response.data;
       }
@@ -37,19 +43,24 @@ export const useBoardStore = defineStore("board", () => {
     }
   };
 
-  // 검색 기능 추가
   const searchBoards = async (searchCondition) => {
     try {
-      if (!searchCondition.word) {
-        return await fetchBoards();
+      if (!searchCondition.word && !searchCondition.tag) {
+        lastSearchCondition.value = null;
+        return await fetchBoards({ skipLoading: searchCondition.skipLoading });
       }
-      const response = await http.post(`/board/search`, searchCondition);
+
+      const response = await http.post(`/board/search`, searchCondition, {
+        skipLoading: searchCondition.skipLoading
+      });
+      
       if (response.status === 200) {
         boards.value = response.data.sort((a, b) => {
           const dateA = new Date(a.date).getTime();
           const dateB = new Date(b.date).getTime();
           return dateB - dateA;
         });
+        lastSearchCondition.value = searchCondition;
       } else {
         boards.value = [];
       }
@@ -87,6 +98,7 @@ export const useBoardStore = defineStore("board", () => {
 
   return {
     boards,
+    lastSearchCondition,
     fetchBoards,
     addBoard,
     searchBoards,

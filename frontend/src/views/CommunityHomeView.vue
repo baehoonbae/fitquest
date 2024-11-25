@@ -46,14 +46,15 @@ const needLoginAlert = ref(false);
 
 const fetchBoards = async (preservePage = true) => {
   try {
-    await boardStore.fetchBoards();
-    // 정적 태그와 게시글의 태그를 합치고 중복 제거
+    await boardStore.fetchBoards({ 
+      skipLoading: true,
+      preserveSearch: preservePage  // 검색 결과 유지 여부
+    });
     const dynamicTags = [
       ...new Set(boardStore.boards.map((board) => board.tag)),
     ];
     tags.value = [...new Set([...COMMUNITY_TAGS, ...dynamicTags])];
 
-    // preservePage가 false일 때만 첫 페이지로 이동
     if (!preservePage) {
       currentPage.value = 1;
       updateUrlQuery(1);
@@ -61,7 +62,6 @@ const fetchBoards = async (preservePage = true) => {
       const pageFromQuery = Number(route.query.page) || 1;
       currentPage.value = pageFromQuery;
 
-      // 현재 페이지 번호가 전체 페이지 수보다 크다면 마지막 페이지로 이동
       const maxPage = Math.ceil(boardStore.boards.length / itemsPerPage.value);
       if (currentPage.value > maxPage) {
         currentPage.value = maxPage || 1;
@@ -124,8 +124,11 @@ const totalPages = computed(() => {
 // 검색 처리 함수 수정
 const handleSearch = async (searchCondition) => {
   try {
-    await boardStore.searchBoards(searchCondition);
-    // 검색 후에는 첫 페이지로 이동
+    await boardStore.searchBoards({ 
+      ...searchCondition,
+      tag: selectedTag.value, // 현재 선택된 태그 정보 추가
+      skipLoading: true
+    });
     currentPage.value = 1;
     updateUrlQuery(1);
   } catch (error) {
@@ -134,9 +137,19 @@ const handleSearch = async (searchCondition) => {
 };
 
 // 태그 선택 핸들러 수정
-const handleTagSelect = (tag) => {
+const handleTagSelect = async (tag) => {
   selectedTag.value = tag;
   currentPage.value = 1;
+  
+  // 검색어가 있는 경우, 태그와 함께 검색 수행
+  if (searchText.value.trim()) {
+    await handleSearch({
+      key: 'all', // 또는 마지막으로 선택된 검색 타입
+      word: searchText.value.trim(),
+      skipLoading: true
+    });
+  }
+
   const query = { page: 1 };
   if (tag) {
     query.tag = tag;
