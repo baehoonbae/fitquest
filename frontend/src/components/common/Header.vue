@@ -25,7 +25,7 @@
             </button>
             <div class="h-[1px] bg-gray-100"></div>
             <button 
-              v-if="authStore.user.isAuthenticated" 
+              v-if="isLogin" 
               @click="authStore.logout()"
               class="rounded-xl block w-full text-left px-4 py-2 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900 active:bg-gray-100">
               로그아웃
@@ -60,7 +60,7 @@ const authStore = useAuthStore();
 const isDropdownOpen = ref(false);
 const isRecentPostsModalOpen = ref(false);
 const isRecentNewsModalOpen = ref(false);
-const isLogin = computed(() => authStore.checkAuth());
+const isLogin = ref(false);
 
 const headerTitle = computed(() => {
   if (route.name === "news") {
@@ -69,7 +69,7 @@ const headerTitle = computed(() => {
   return route.meta.title || "";
 });
 
-// 최근 본 ���시물 모달 표시
+// 최근 본 게시물 모달 표시
 const showRecentPosts = () => {
   isRecentPostsModalOpen.value = true;
   isDropdownOpen.value = false;
@@ -106,6 +106,7 @@ const handleClickOutside = (event) => {
 
 // 컴포넌트가 마운트될 때 이벤트 리스너 추가
 onMounted(() => {
+  isLogin.value = authStore.checkAuth();
   document.addEventListener("click", handleClickOutside);
   document.addEventListener("keydown", handleEscKey);
 });
