@@ -97,17 +97,23 @@ const handleSearch = debounce(async () => {
     return;
   }
   const isChoseong = getChoseong(searchQuery.value) === searchQuery.value;
+  let tempSearchQuery = searchQuery.value;
   if(isChoseong) {
-    searchQuery.value = disassemble(searchQuery.value);
+    tempSearchQuery = disassemble(searchQuery.value);
   }
   try {
     loading.value = true;
     const response = await http.post(`/user/search`, {
-      word: searchQuery.value,
+      word: tempSearchQuery,
       isChoseong: isChoseong,
     });
-    if(response.data.length > 0) {
-      users.value = response.data.filter(user => user.id !== authStore.user.id);
+    
+    // 자신을 제외한 사용자 필터링
+    const filteredUsers = response.data.filter(user => user.id !== authStore.user.id);
+    
+    // 필터링된 결과가 있는 경우에만 users 업데이트
+    if(filteredUsers.length > 0) {
+      users.value = filteredUsers;
       message.value = '';
     } else {
       users.value = [];

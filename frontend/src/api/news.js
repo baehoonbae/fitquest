@@ -29,3 +29,18 @@ export const searchImage = async (query) => {
         throw error;
     }
 };
+
+export const searchVideo = async (query, maxResults = 10) => {
+  try {
+    const response = await http.get(`/article/search/video`, {
+      params: {
+        query,
+        maxResults
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('비디오 검색 실패:', error);
+    throw error;
+  }
+};

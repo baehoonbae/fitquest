@@ -57,8 +57,10 @@ const monthDates = computed(() => {
   const lastDay = new Date(props.year, props.month + 1, 0);
   const dates = [];
   
-  // 첫 주의 시작일까지 이전 달의 날짜로 채우기
-  const prevMonthDays = firstDay.getDay();
+  // 첫 주의 시작일까지 이전 달의 날짜로 채우기 (월요일부터 시작)
+  let prevMonthDays = firstDay.getDay();
+  prevMonthDays = prevMonthDays === 0 ? 6 : prevMonthDays-1; // 월요일이 0이 되도록 조정
+  
   const prevMonth = new Date(props.year, props.month, 0);
   for (let i = prevMonthDays - 1; i >= 0; i--) {
     dates.unshift(new Date(props.year, props.month - 1, prevMonth.getDate() - i));
@@ -112,7 +114,7 @@ const formatDate = (dateString) => {
   const date = new Date(dateString);
   const month = date.getMonth() + 1;
   const day = date.getDate();
-  const dayOfWeek = ["일", "월", "화", "수", "목", "금", "토"][date.getDay()];
+  const dayOfWeek = ["월", "화", "수", "목", "금", "토", "일"][date.getDay() === 0 ? 6 : date.getDay() - 1];
   return `${month}월 ${day}일 (${dayOfWeek})`;
 };
 
