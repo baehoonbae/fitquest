@@ -85,8 +85,8 @@
 
 <script setup>
 import { ref, computed } from "vue";
-import ChangeName from "@/components/ChangeName.vue";
-import ChangeDescription from "@/components/ChangeDescription.vue";
+import ChangeName from "@/components/user/config/ChangeName.vue";
+import ChangeDescription from "@/components/user/config/ChangeDescription.vue";
 import { useAuthStore } from "@/stores/auth";
 import http from "@/api/http";
 import { ChevronRightIcon } from "@heroicons/vue/24/outline";

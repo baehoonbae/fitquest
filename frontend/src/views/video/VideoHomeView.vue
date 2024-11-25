@@ -12,7 +12,7 @@
           class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden transform hover:-translate-y-1"
           @click="openVideo(item.id)">
           <div class="flex flex-col md:flex-row">
-            <div v-if="item.thumbnail" class="relative w-full md:w-[320px] overflow-hidden" style="aspect-ratio: 16/9;">
+            <div v-if="item.thumbnail" class="relative w-[full] md:w-[320px] overflow-hidden" style="aspect-ratio: 16/9;">
               <img :src="item.thumbnail"
                 class="w-full h-full object-cover transition-transform duration-300 hover:scale-105" loading="lazy"
                 :alt="item.title" decoding="async" />

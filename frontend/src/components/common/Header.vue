@@ -60,7 +60,7 @@ const authStore = useAuthStore();
 const isDropdownOpen = ref(false);
 const isRecentPostsModalOpen = ref(false);
 const isRecentNewsModalOpen = ref(false);
-const isLogin = ref(false);
+const isLogin = computed(() => authStore.user.isAuthenticated);
 
 const headerTitle = computed(() => {
   if (route.name === "news") {
@@ -106,7 +106,6 @@ const handleClickOutside = (event) => {
 
 // 컴포넌트가 마운트될 때 이벤트 리스너 추가
 onMounted(() => {
-  isLogin.value = authStore.checkAuth();
   document.addEventListener("click", handleClickOutside);
   document.addEventListener("keydown", handleEscKey);
 });
