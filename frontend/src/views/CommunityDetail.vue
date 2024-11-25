@@ -3,36 +3,28 @@
     <!-- 게시글 헤더 -->
     <div class="mb-10 pb-5 border-b-2 border-gray-200">
       <div class="flex justify-between items-center mb-4">
-        <span
-          class="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-sm font-medium"
-        >
+        <span class="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-sm font-medium">
           #{{ board.tag }}
         </span>
         <div class="flex gap-2" v-if="isAuthor">
           <button
             class="px-4 py-2 rounded font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all duration-200"
-            @click="handleEdit"
-          >
+            @click="handleEdit">
             수정
           </button>
           <button
             class="px-4 py-2 rounded font-medium bg-red-500 text-white hover:bg-red-600 transition-all duration-200"
-            @click="handleDelete"
-          >
+            @click="handleDelete">
             삭제
           </button>
         </div>
       </div>
-      <h1
-        class="text-4xl md:text-2xl font-bold text-gray-800 mb-4 leading-tight"
-      >
+      <h1 class="text-4xl md:text-2xl font-bold text-gray-800 mb-4 leading-tight">
         {{ board.title }}
       </h1>
-      <div
-        class="flex justify-between items-center text-gray-500 text-sm md:flex-col md:items-start md:gap-2"
-      >
+      <div class="flex justify-between items-center text-gray-500 text-sm md:flex-col md:items-start md:gap-2">
         <div class="flex gap-3">
-          <span class="font-medium text-gray-700">{{ board.writer }}</span>
+          <RouterLink :to="`/home/${board.userId}`" class="font-medium text-gray-700">{{ board.writer }}</RouterLink>
           <span>{{ formatDate(board.date) }}</span>
         </div>
         <!-- 조회수와 좋아요 부분 수정 -->
@@ -41,17 +33,12 @@
             <i class="fas fa-eye"></i>
             <span>{{ board.viewCount }}</span>
           </div>
-          <div
-            class="flex items-center gap-1.5 cursor-pointer"
-            @click="toggleHit"
-          >
-            <i
-              :class="{
-                'fas fa-heart text-xl transition-all duration-200': true,
-                'text-red-500': isHit,
-                'text-gray-300 hover:text-red-500': !isHit,
-              }"
-            ></i>
+          <div class="flex items-center gap-1.5 cursor-pointer" @click="toggleHit">
+            <i :class="{
+              'fas fa-heart text-xl transition-all duration-200': true,
+              'text-red-500': isHit,
+              'text-gray-300 hover:text-red-500': !isHit,
+            }"></i>
             <span>{{ hitCount }}</span>
           </div>
         </div>
@@ -59,11 +46,13 @@
     </div>
 
     <!-- 게시글 내용 -->
-    <div
-      class="min-h-[300px] text-lg md:text-base text-gray-700 leading-relaxed mb-10"
-    >
-      <div v-if="board.postImage !== null">
-        <img :src="board.postImage" alt="게시글 이미지" class="w-full mb-4" />
+    <div class="min-h-[300px] text-lg md:text-base text-gray-700 leading-relaxed mb-10">
+      <div v-if="board.postImage !== null" class="mb-6">
+        <img 
+          :src="board.postImage" 
+          alt="게시글 이미지" 
+          class="max-w-full max-h-[600px] object-contain rounded-lg shadow-md" 
+        />
       </div>
       <p>{{ board.content }}</p>
     </div>
@@ -72,23 +61,15 @@
     <div class="mt-10 border-t-2 border-gray-200 pt-6">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-bold text-gray-800">댓글</h2>
-        <button
-          v-if="authStore.user.isAuthenticated"
-          @click="$refs.commentForm.submitComment()"
-          class="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-md hover:bg-gray-800 transition-colors duration-200"
-        >
+        <button v-if="authStore.user.isAuthenticated" @click="$refs.commentForm.submitComment()"
+          class="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-md hover:bg-gray-800 transition-colors duration-200">
           등록
         </button>
       </div>
 
       <!-- 댓글 작성 폼 -->
-      <CommentForm
-        v-if="authStore.user.isAuthenticated"
-        :boardId="Number(route.params.id)"
-        @comment-added="refreshComments"
-        class="mb-4"
-        ref="commentForm"
-      />
+      <CommentForm v-if="authStore.user.isAuthenticated" :boardId="Number(route.params.id)"
+        @comment-added="refreshComments" class="mb-4" ref="commentForm" />
       <div v-else class="mb-4 p-4 bg-gray-50 rounded text-center">
         <p class="text-gray-600">댓글을 작성하려면 로그인이 필요합니다.</p>
       </div>
@@ -101,8 +82,7 @@
     <div class="flex justify-center mt-10 pt-5 border-t border-gray-200">
       <button
         class="px-6 py-2.5 rounded font-medium bg-blue-600 text-white hover:bg-blue-700 transition-all duration-200"
-        @click="goBack"
-      >
+        @click="goBack">
         목록으로
       </button>
     </div>
@@ -110,18 +90,9 @@
   <NeedLoginAlert @close="needLoginAlert = false" v-if="needLoginAlert" />
   <!-- Alert 컴포넌트들 추가 -->
   <NeedLoginAlert @close="needLoginAlert = false" v-if="needLoginAlert" />
-  <BoardDeleteSuccessAlert
-    v-if="showDeleteSuccessAlert"
-    @close="handleDeleteSuccess"
-  />
-  <BoardDeleteFailAlert
-    v-if="showDeleteFailAlert"
-    @close="showDeleteFailAlert = false"
-  />
-  <NoEditPermissionAlert
-    v-if="showNoPermissionAlert"
-    @close="showNoPermissionAlert = false"
-  />
+  <BoardDeleteSuccessAlert v-if="showDeleteSuccessAlert" @close="handleDeleteSuccess" />
+  <BoardDeleteFailAlert v-if="showDeleteFailAlert" @close="showDeleteFailAlert = false" />
+  <NoEditPermissionAlert v-if="showNoPermissionAlert" @close="showNoPermissionAlert = false" />
 </template>
 
 <script setup>
@@ -326,7 +297,7 @@ const formatDate = (date) => {
   });
 };
 
-// 기존 ref 선언부 아래에 추가
+// 기존 ref 선언부 아래에 추���
 const isHit = ref(false);
 const hitCount = ref(0);
 
