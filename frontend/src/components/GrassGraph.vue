@@ -2,12 +2,17 @@
   <div>
     <div class="flex justify-between items-center px-8">
       <div class="flex items-center gap-8">
-        <h3 class="text-lg font-semibold">잔디</h3>
+        <h3 class="text-lg font-semibold">활동기록</h3>
         <select
           v-model="thisYear"
           class="appearance-none px-4 py-2 border border-gray-300 rounded-lg text-sm bg-white hover:border-gray-400 focus:outline-none focus:border-black focus:ring-2 focus:ring-gray-400 transition-colors duration-200 cursor-pointer bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20d%3D%22M5.293%207.293a1%201%200%20011.414%200L10%2010.586l3.293-3.293a1%201%200%20111.414%201.414l-4%204a1%201%200%2001-1.414%200l-4-4a1%201%200%20010-1.414z%22%20fill%3D%22%236b7280%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.5em_1.5em] bg-[right_0.5rem_center] bg-no-repeat pr-10"
         >
-          <option v-for="year in availableYears" :key="year" :value="year" class="py-1">
+          <option
+            v-for="year in availableYears"
+            :key="year"
+            :value="year"
+            class="py-1"
+          >
             {{ year }}년
           </option>
         </select>
@@ -37,7 +42,10 @@
               <div
                 v-if="isCurrentYear(getDate(row - 1, col - 1))"
                 class="w-3.5 h-3.5 rounded-sm relative group cursor-pointer hover:ring-2 hover:ring-gray-400"
-                :class="getActivityColor(getActivityLevel(row - 1, col - 1))"
+                :class="[
+                  getActivityColor(getActivityLevel(row - 1, col - 1)),
+                  getBorderClasses(row - 1, col - 1),
+                ]"
                 @click="handleDateClick(getDate(row - 1, col - 1))"
               >
                 <!-- 툴팁 -->
@@ -54,8 +62,12 @@
             </template>
           </div>
         </div>
-        <div class="grid grid-cols-12 justify-between mt-2 w-full text-sm text-gray-400">
-          <span class="w-10" v-for="month in 12" :key="month">{{ month }}월</span>
+        <div
+          class="grid grid-cols-12 justify-between mt-2 w-full text-sm text-gray-400"
+        >
+          <span class="w-10" v-for="month in 12" :key="month"
+            >{{ month }}월</span
+          >
         </div>
       </div>
     </div>
@@ -175,6 +187,96 @@ const handleDateClick = async (dateString) => {
     const targetUserId = props.userId || authStore.user.id;
     await todoStore.fetchTodos(dateString, targetUserId);
   }
+};
+
+// 월별 테두리 클래스를 반환하는 함수 수정
+const getBorderClasses = (row, col) => {
+  const index = col * 7 + row;
+  const dateString = yearDates.value[index];
+  if (!dateString || !isCurrentYear(dateString)) return "";
+
+  const date = new Date(dateString);
+  const classes = [];
+
+  // 일요일인 경우 (row가 0일 때)
+  if (row === 0) {
+    classes.push("border-t-2 border-t-gray-800");
+  }
+
+  // 토요일인 경우 (row가 6일 때)
+  if (row === 6) {
+    classes.push("border-b-2 border-b-gray-800");
+  }
+
+  // 해당 날짜가 그 달의 첫 주에 속하는지 확인
+  if (isFirstWeekOfMonth(dateString)) {
+    classes.push("border-l-2 border-l-gray-800");
+  }
+
+  // 해당 날짜가 그 달의 마지막 주에 속하는지 확인
+  if (isLastWeekOfMonth(dateString)) {
+    classes.push("border-r-2 border-r-gray-800");
+  }
+
+  // 월의 첫 날짜인 경우
+  if (isFirstDayOfMonth(dateString)) {
+    // 일요일이 아닌 경우에만 상단 테두리 추가 (일요일이면 이미 상단 테두리가 있음)
+    if (date.getDay() !== 0) {
+      classes.push("border-t-2 border-t-gray-800");
+    }
+  }
+
+  // 월의 마지막 날짜인 경우
+  if (isLastDayOfMonth(dateString)) {
+    // 토요일이 아닌 경우에만 하단 테두리 추가 (토요일이면 이미 하단 테두리가 있음)
+    if (date.getDay() !== 6) {
+      classes.push("border-b-2 border-b-gray-800");
+    }
+  }
+
+  return classes.join(" ");
+};
+
+// 월의 첫 날짜인지 확인하는 함수
+const isFirstDayOfMonth = (dateString) => {
+  const date = new Date(dateString);
+  return date.getDate() === 1;
+};
+
+// 월의 마지막 날짜인지 확인하는 함수
+const isLastDayOfMonth = (dateString) => {
+  const date = new Date(dateString);
+  const lastDay = new Date(
+    date.getFullYear(),
+    date.getMonth() + 1,
+    0
+  ).getDate();
+  return date.getDate() === lastDay;
+};
+
+// 월의 첫 주에 속하는지 확인하는 함수
+const isFirstWeekOfMonth = (dateString) => {
+  const date = new Date(dateString);
+  const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+  const firstDayWeek = getWeekNumber(firstDayOfMonth);
+  const currentWeek = getWeekNumber(date);
+  return firstDayWeek === currentWeek;
+};
+
+// 월의 마지막 주에 속하는지 확인하는 함수
+const isLastWeekOfMonth = (dateString) => {
+  const date = new Date(dateString);
+  const lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  const lastDayWeek = getWeekNumber(lastDayOfMonth);
+  const currentWeek = getWeekNumber(date);
+  return lastDayWeek === currentWeek;
+};
+
+// 주차를 계산하는 헬퍼 함수
+const getWeekNumber = (date) => {
+  const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+  const firstDay = firstDayOfMonth.getDay();
+  return Math.ceil((date.getDate() + firstDay) / 7);
 };
 
 onMounted(() => {

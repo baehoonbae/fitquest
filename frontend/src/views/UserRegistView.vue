@@ -50,8 +50,9 @@
             class="w-full px-4 py-3 font-semibold rounded-lg focus:outline-none bg-[#F2F2F2]"
             v-model="user.email"
             @blur="checkEmail"
+            @input="validateEmail"
           />
-          <p v-if="isEmailEmpty && isEmailBlurred" class="text-sm text-red-400 pl-2 pt-1">
+          <p v-if="isEmailEmpty && isEmailBlurred"  class="text-sm text-red-400 pl-2 pt-1">
             이메일을 입력해주세요.
           </p>
           <p
@@ -59,6 +60,12 @@
             class="text-sm text-red-400 pl-2 pt-1"
           >
             사용할 수 없는 이메일입니다.
+          </p>
+          <p
+            v-else-if="!isValidEmail && user.email"
+            class="text-sm text-red-400 pl-2 pt-1"
+          >
+            올바른 이메일 형식이 아닙니다.
           </p>
         </div>
         <div class="relative">
@@ -111,6 +118,9 @@ const router = useRouter();
 const isLoading = ref(false);
 const showPassword = ref(false);
 
+const isValidEmail = ref(true);
+const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
 const user = ref({
   name: "",
   email: "",
@@ -122,15 +132,23 @@ const isNameEmpty = computed(() => user.value.name.trim() === "");
 const isEmailEmpty = computed(() => user.value.email.trim() === "");
 const isPasswordEmpty = computed(() => user.value.password.trim() === "");
 
+// isFormValid computed 속성 수정
 const isFormValid = computed(() => {
   return (
     !isNameEmpty.value &&
     !isEmailEmpty.value &&
     !isPasswordEmpty.value &&
     !isNameDuplicated.value &&
-    !isEmailDuplicated.value
-  );
+    !isEmailDuplicated.value && isValidEmail.value
+  ); // 이메일 유효성 검사 추가
 });
+
+// 이메일 유효성 검사 함수 추가
+const validateEmail = () => {
+  const filteredEmail = user.value.email.replace(/[^A-Za-z0-9@._-]/g, "");
+  user.value.email = filteredEmail;
+  isValidEmail.value = emailPattern.test(user.value.email);
+};
 
 // blur 이벤트가 발생했는지 여부를 체크
 const isNameBlurred = ref(false);
@@ -148,9 +166,10 @@ const checkName = async () => {
   }
 };
 
+// 기존 checkEmail 함수 수정
 const checkEmail = async () => {
   isEmailBlurred.value = true;
-  if (!isEmailEmpty.value) {
+  if (!isEmailEmpty.value && isValidEmail.value) {
     const result = await authStore.checkDuplicateEmail(user.value.email);
     isEmailDuplicated.value = result.isDuplicated;
   }

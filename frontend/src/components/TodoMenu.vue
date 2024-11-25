@@ -1,37 +1,80 @@
 <template>
   <Transition name="backdrop">
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[999]" @click="closeMenu">
+    <div
+      class="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-[999]"
+      @click="closeMenu"
+    >
       <Transition name="todo-menu">
-        <div class="bg-white rounded-lg p-6 w-[480px] origin-center" @click.stop>
+        <div class="bg-white rounded-xl p-6 w-[400px] shadow-xl" @click.stop>
           <template v-if="!showDatePicker">
-            <div class="flex justify-center text-gray-700 font-semibold text-mg mb-4">
-              {{ todoStore.todo.content }}
+            <!-- 헤더 -->
+            <div class="mb-6">
+              <div class="text-gray-400 text-sm mb-2">할 일</div>
+              <div class="text-gray-800 font-medium text-lg">
+                {{ todoStore.todo.content }}
+              </div>
             </div>
-            <div class="flex justify-between mb-6">
-              <button @click="editTodo"
-                class="flex-1 bg-gray-100 hover:bg-gray-200 py-5 px-4 mr-2 rounded-lg flex items-center justify-center">
+
+            <!-- 메인 액션 버튼들 -->
+            <div class="flex gap-2 mb-6">
+              <button
+                @click="editTodo"
+                class="flex-1 py-2.5 px-4 rounded-lg text-sm font-medium flex items-center justify-center gap-2 border border-gray-200 hover:bg-gray-50 transition-colors"
+              >
+                <PencilIcon class="w-4 h-4 text-gray-600" />
                 수정하기
               </button>
-              <button @click="deleteTodo"
-                class="flex-1 bg-gray-100 hover:bg-gray-200 py-5 px-4 ml-2 rounded-lg flex items-center justify-center">
+              <button
+                @click="deleteTodo"
+                class="flex-1 py-2.5 px-4 rounded-lg text-sm font-medium flex items-center justify-center gap-2 text-red-600 border border-red-200 hover:bg-red-50 transition-colors"
+              >
+                <TrashIcon class="w-4 h-4" />
                 삭제하기
               </button>
             </div>
-            <ul class="space-y-[25px]">
-              <button class="flex items-center" @click="moveTomorrow">
-                <span class="bg-blue-400 text-white w-8 h-8 rounded-full flex items-center justify-center mr-4">
-                  <ArrowRightIcon class="w-5 h-5" />
-                </span>
-                내일 하기
+
+            <!-- 날짜 관련 액션들 -->
+            <div class="space-y-3">
+              <button
+                @click="moveTomorrow"
+                class="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors group"
+              >
+                <div class="flex items-center gap-3">
+                  <span
+                    class="bg-blue-100 text-blue-600 w-8 h-8 rounded-lg flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors"
+                  >
+                    <ArrowRightIcon class="w-4 h-4" />
+                  </span>
+                  <span class="text-gray-700 text-sm font-medium"
+                    >내일 하기</span
+                  >
+                </div>
+                <ChevronRightIcon
+                  class="w-4 h-4 text-gray-400 group-hover:text-gray-600"
+                />
               </button>
-              <button class="flex items-center" @click="openDatePicker">
-                <span class="bg-purple-400 text-white w-8 h-8 rounded-full flex items-center justify-center mr-4">
-                  <ArrowPathIcon class="w-5 h-5" />
-                </span>
-                날짜 바꾸기
+
+              <button
+                @click="openDatePicker"
+                class="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors group"
+              >
+                <div class="flex items-center gap-3">
+                  <span
+                    class="bg-purple-100 text-purple-600 w-8 h-8 rounded-lg flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-colors"
+                  >
+                    <CalendarIcon class="w-4 h-4" />
+                  </span>
+                  <span class="text-gray-700 text-sm font-medium"
+                    >날짜 바꾸기</span
+                  >
+                </div>
+                <ChevronRightIcon
+                  class="w-4 h-4 text-gray-400 group-hover:text-gray-600"
+                />
               </button>
-            </ul>
+            </div>
           </template>
+
           <template v-if="showDatePicker">
             <DatePicker @closeDatePicker="closeDatePicker" />
           </template>
@@ -43,7 +86,13 @@
 
 <script setup>
 import { useTodoStore } from "@/stores/todo";
-import { ArrowPathIcon, ArrowRightIcon } from "@heroicons/vue/24/outline";
+import {
+  ArrowRightIcon,
+  CalendarIcon,
+  PencilIcon,
+  TrashIcon,
+  ChevronRightIcon,
+} from "@heroicons/vue/24/outline";
 import { onMounted, ref } from "vue";
 import DatePicker from "./DatePicker.vue";
 
@@ -80,10 +129,9 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 배경 페이드 효과 */
 .backdrop-enter-active,
 .backdrop-leave-active {
-  transition: opacity 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .backdrop-enter-from,
@@ -91,33 +139,25 @@ onMounted(() => {
   opacity: 0;
 }
 
-/* 메뉴 바운스 효과 */
+.backdrop-enter-active .todo-menu-enter-active {
+  transition: all 0.3s ease;
+}
+
 .todo-menu-enter-active {
-  animation: bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  animation: slide-up 0.3s ease forwards;
 }
 
 .todo-menu-leave-active {
-  animation: bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) reverse;
+  animation: slide-up 0.3s ease reverse;
 }
 
-@keyframes bounce-in {
+@keyframes slide-up {
   0% {
-    transform: scale(0) translateY(50px);
+    transform: translateY(20px);
     opacity: 0;
   }
-
-  40% {
-    transform: scale(1.1) translateY(-20px);
-    opacity: 0.7;
-  }
-
-  70% {
-    transform: scale(0.95) translateY(10px);
-    opacity: 0.9;
-  }
-
   100% {
-    transform: scale(1) translateY(0);
+    transform: translateY(0);
     opacity: 1;
   }
 }

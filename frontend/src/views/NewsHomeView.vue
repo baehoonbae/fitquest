@@ -40,7 +40,9 @@
                 v-html="item.title"
               ></h3>
               <div class="flex items-center justify-between mt-1">
-                <span class="text-xs text-gray-600">{{ formatDate(item.postdate) }}</span>
+                <span class="text-xs text-gray-600">{{
+                  formatDate(item.postdate)
+                }}</span>
               </div>
             </div>
           </div>
@@ -156,7 +158,11 @@ const loadMore = async () => {
     const nextPage = currentPage.value + 1;
     const start = (nextPage - 1) * MORE_LOAD_COUNT + 1;
 
-    const blogResponse = await searchBlog(searchQuery.value, start, MORE_LOAD_COUNT);
+    const blogResponse = await searchBlog(
+      searchQuery.value,
+      start,
+      MORE_LOAD_COUNT
+    );
 
     if (!blogResponse.items || blogResponse.items.length === 0) {
       hasMore.value = false;
