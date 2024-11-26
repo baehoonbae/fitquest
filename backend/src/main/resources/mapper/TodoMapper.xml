@@ -52,7 +52,7 @@
         select id, user_id userId, category_id categoryId, is_done isDone, content, date, todo_order todoOrder from todo where user_id = #{userId} AND date LIKE CONCAT(#{date}, '%')
     </select>
 
-    
+
     <select id="getDailyCompletionRatio" resultType="double">
         SELECT COALESCE(
             CAST(SUM(CASE WHEN is_done = 1 THEN 1 ELSE 0 END) AS DECIMAL(5,2)) / 
@@ -62,5 +62,13 @@
         FROM todo
         WHERE user_id = #{userId}
         AND date = #{date}
+    </select>
+
+    <select id="getTodoListByCategoryId">
+        select id, user_id userId, category_id categoryId, is_done isDone, content, date, todo_order todoOrder from todo where category_id = #{categoryId} AND user_id = #{userId}
+    </select>
+
+    <select id="getDoneTodoCount">
+        select count(*) from todo where user_id = #{userId} AND is_done = 1
     </select>
 </mapper>

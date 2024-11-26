@@ -13,10 +13,18 @@ export const useDateStore = defineStore("date", () => {
     currentMonth.value = newDate.getMonth() + 1;
   };
 
+  const resetDate = () => {
+    const today = new Date();
+    selectedDate.value = today.toISOString().split("T")[0];
+    currentYear.value = today.getFullYear();
+    currentMonth.value = today.getMonth() + 1;
+  };
+
   return {
     selectedDate,
     currentYear,
     currentMonth,
     setSelectedDate,
+    resetDate,
   };
 });
