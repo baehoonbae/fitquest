@@ -1,7 +1,7 @@
 <template>
   <div class="max-w-4xl mx-auto px-4 pb-16">
     <CommunitySearch v-model="searchText" @search="handleSearch" />
-    <CommunityTag :tags="tags" :selectedTag="selectedTag" @select-tag="handleTagSelect" />
+    <CommunityTag :tags="tags" v-model="selectedTags" />
     <div class="flex justify-end gap-3 my-2">
       <button
         class="px-3 py-1.5 rounded-md font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200"
@@ -38,15 +38,15 @@ const route = useRoute();
 const boardStore = useBoardStore();
 const authStore = useAuthStore();
 const tags = ref([]);
-const selectedTag = ref(null);
+const selectedTags = ref([]);
 const searchText = ref("");
 const currentPage = ref(1);
-const itemsPerPage = ref(10);
+const itemsPerPage = ref(20);
 const needLoginAlert = ref(false);
 
 const fetchBoards = async (preservePage = true) => {
   try {
-    await boardStore.fetchBoards({ 
+    await boardStore.fetchBoards({
       skipLoading: true,
       preserveSearch: preservePage  // 검색 결과 유지 여부
     });
@@ -79,8 +79,8 @@ watch(
     if (query.page) {
       currentPage.value = Number(query.page);
     }
-    if (query.tag) {
-      selectedTag.value = query.tag;
+    if (query.tags) {
+      selectedTags.value = query.tags.split(',');
     }
   },
   { immediate: true, deep: true }
@@ -98,14 +98,16 @@ const filteredBoards = computed(() => {
   regularPosts.sort((a, b) => b.id - a.id);
 
   // 공지사항을 항상 위에 배치
-  result = [...notices, ...regularPosts];
+  result = [...notices];
 
-  // 태그 필터링 (공지사항은 제외)
-  if (selectedTag.value && selectedTag.value !== "공지") {
-    result = [
-      ...notices,
-      ...regularPosts.filter((board) => board.tag === selectedTag.value),
-    ];
+  // 선택된 태그가 있는 경우 필터링
+  if (selectedTags.value.length > 0) {
+    const filteredPosts = regularPosts.filter((board) => 
+      selectedTags.value.includes(board.tag)
+    );
+    result = [...notices, ...filteredPosts];
+  } else {
+    result = [...notices, ...regularPosts];
   }
 
   return result;
@@ -124,9 +126,9 @@ const totalPages = computed(() => {
 // 검색 처리 함수 수정
 const handleSearch = async (searchCondition) => {
   try {
-    await boardStore.searchBoards({ 
+    await boardStore.searchBoards({
       ...searchCondition,
-      tag: selectedTag.value, // 현재 선택된 태그 정보 추가
+      tags: selectedTags.value, // 선택된 태그들 전달
       skipLoading: true
     });
     currentPage.value = 1;
@@ -138,9 +140,9 @@ const handleSearch = async (searchCondition) => {
 
 // 태그 선택 핸들러 수정
 const handleTagSelect = async (tag) => {
-  selectedTag.value = tag;
+  selectedTags.value = tag;
   currentPage.value = 1;
-  
+
   // 검색어가 있는 경우, 태그와 함께 검색 수행
   if (searchText.value.trim()) {
     await handleSearch({
@@ -165,14 +167,10 @@ const handlePageChange = (page) => {
 // URL 쿼리 업데이트 함수 수정
 const updateUrlQuery = (page) => {
   const query = { page };
-  if (selectedTag.value) {
-    query.tag = selectedTag.value;
+  if (selectedTags.value.length > 0) {
+    query.tags = selectedTags.value.join(',');
   }
-  router
-    .push({
-      query,
-    })
-    .catch(() => { });
+  router.push({ query }).catch(() => {});
 };
 
 // URL 쿼리 감시 로직 강화
@@ -191,9 +189,8 @@ watch(
 
 // 전체 보기 메서드 수정
 const viewAllPosts = () => {
-  selectedTag.value = null;
   searchText.value = "";
-  router.push({ query: { page: 1 } }).catch(() => { });
+  router.push({ query: { page: 1 } }).catch(() => {});
   fetchBoards(false);
 };
 
@@ -216,7 +213,7 @@ onMounted(async () => {
   const tagFromQuery = route.query.tag;
   currentPage.value = pageFromQuery;
   if (tagFromQuery) {
-    selectedTag.value = tagFromQuery;
+    selectedTags.value = tagFromQuery;
   }
   await fetchBoards(true);
 });
@@ -229,7 +226,7 @@ watch(
       const pageFromQuery = Number(route.query.page) || currentPage.value;
       const tagFromQuery = route.query.tag;
       if (tagFromQuery) {
-        selectedTag.value = tagFromQuery;
+        selectedTags.value = tagFromQuery;
       }
       await fetchBoards(true);
       currentPage.value = pageFromQuery;

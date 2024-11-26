@@ -1,12 +1,13 @@
 <template>
   <div class="py-4 relative search-container">
-    <div class="flex items-center gap-2 mb-5">
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
       <!-- 검색 필터 선택 -->
-      <div class="relative">
+      <div class="relative w-full sm:w-[120px]">
         <button @click="toggleDropdown"
-          class="flex items-center justify-between gap-2 px-4 py-1.5 w-[120px] bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition-all duration-200 shadow-sm">
+          class="flex items-center justify-between gap-2 px-4 py-1.5 w-full sm:w-[120px] bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition-all duration-200 shadow-sm">
           <span class="text-gray-700">{{ selectedLabel }}</span>
-          <span class="material-icons text-gray-500 text-lg transition-transform duration-200" :class="{ 'rotate-180': isOpen }">
+          <span class="material-icons text-gray-500 text-lg transition-transform duration-200"
+            :class="{ 'rotate-180': isOpen }">
             expand_more
           </span>
         </button>
@@ -21,7 +22,7 @@
           leave-to-class="transform scale-95 opacity-0"
         >
           <div v-if="isOpen"
-            class="absolute top-full left-0 mt-1 w-[120px] bg-white border border-gray-200 rounded-lg shadow-xl z-20">
+            class="absolute top-full left-0 mt-1 w-full sm:w-[120px] bg-white border border-gray-200 rounded-lg shadow-xl z-20">
             <div v-for="option in searchOptions" :key="option.value" @click="selectOption(option.value)"
               class="px-4 py-2 hover:bg-gray-50 cursor-pointer text-gray-700 first:rounded-t-lg last:rounded-b-lg transition-all duration-200 hover:pl-6">
               {{ option.label }}
