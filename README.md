@@ -22,8 +22,37 @@ FitQuest는 나만의 운동 플래너를 만들어 활동 기록을 채우고 �
 
 <br />
 
-### 화면 구성
+### 기능 소개
 
+#### 방명록, 팔로워, 팔로잉 목록
+
+#### 카테고리 추가
+
+#### todo 추가
+
+#### todo 날짜 옮기기
+
+#### todo 옮기기, 수정, 삭제
+
+#### todo 추가
+<img src="frontend/src/assets/images/할일 추가.gif" alt="할일 추가" width="100%">
+
+#### 사용자 설정 페이지
+
+#### 일반글 작성
+
+#### 공지글 작성
+
+#### 게시글 수정, 삭제
+
+#### 댓글
+
+#### 검색
+<img src="frontend/src/assets/images/검색테스트.gif" alt="검색 테스트" width="100%">
+
+#### 유저 검색
+
+#### 비디오 홈
 
 
 
@@ -228,21 +257,7 @@ FitQuest는 나만의 운동 플래너를 만들어 활동 기록을 채우고 �
 
 <br />
 
-## 🛠️ 프로젝트 아키텍쳐
-![no-image](https://user-images.githubusercontent.com/80824750/208294567-738dd273-e137-4bbf-8307-aff64258fe03.png)
-
-
-
 <br />
-
-## 🤔 기술적 이슈와 해결 과정
-- Stream 써야할까?
-    - [Stream API에 대하여](https://velog.io/@yewo2nn16/Java-Stream-API)
-- Gmail STMP 이용하여 이메일 전송하기
-    - [gmail 보내기](https://velog.io/@yewo2nn16/Email-이메일-전송하기with-첨부파일)
-- AWS EC2에 배포하기
-    - [서버 배포하기-1](https://velog.io/@yewo2nn16/SpringBoot-서버-배포)
-    - [서버 배포하기-2](https://velog.io/@yewo2nn16/SpringBoot-서버-배포-인텔리제이에서-jar-파일-빌드해서-배포하기)
 
 
 <br />
