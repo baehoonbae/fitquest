@@ -133,4 +133,20 @@ textarea {
 button {
   outline: none !important;
 }
+
+/* 모든 요소의 outline 제거 */
+*:focus {
+  outline: none !important;
+}
+
+/* 모든 버튼의 포커스 아웃라인 제거 */
+button:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* 접근성을 위해 키보드 탐색 시에만 포커스 표시 (선택사항) */
+*:focus-visible {
+  outline: none !important;
+}
 </style>
