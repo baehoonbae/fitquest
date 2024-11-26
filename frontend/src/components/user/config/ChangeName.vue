@@ -20,8 +20,10 @@
           @compositionstart="onCompositionStart"
           @compositionend="onCompositionEnd"
           @input="handleInput"
+          maxlength="16"
         />
         <p v-if="error" class="mt-2 text-sm text-red-500">{{ error }}</p>
+        <p class="mt-2 text-sm text-gray-500">{{ newName.length }}/16자</p>
       </div>
       <!-- 버튼 -->
       <div class="flex justify-center gap-3">
@@ -34,7 +36,7 @@
         <button
           @click="changeUserName"
           class="w-full px-4 py-2 bg-black font-semibold text-white rounded-lg hover:bg-gray-800"
-          :disabled="!isValid"
+          :disabled="!isValid || newName.length > 16"
         >
           {{ loading ? "변경 중..." : "변경하기" }}
         </button>
@@ -62,7 +64,7 @@ const inputRef = ref(null);
 const authStore = useAuthStore();
 
 const isValid = computed(() => {
-  return newName.value && !loading.value && !error.value && isDuplicateChecked.value;
+  return newName.value && !loading.value && !error.value && isDuplicateChecked.value && newName.value.length <= 16;
 });
 
 const onCompositionStart = () => {
@@ -76,6 +78,11 @@ const onCompositionEnd = () => {
 
 const handleInput = (e) => {
   newName.value = e.target.value;
+  if (newName.value.length > 16) {
+    error.value = "닉네임은 16자를 초과할 수 없습니다.";
+    isDuplicateChecked.value = false;
+    return;
+  }
   if (!isComposing.value) {
     debouncedCheckUserName();
   }
@@ -97,6 +104,12 @@ const debouncedCheckUserName = () => {
 const checkUserNameDuplicate = async () => {
   if (!newName.value) {
     error.value = "닉네임을 입력해주세요.";
+    isDuplicateChecked.value = false;
+    return;
+  }
+
+  if (newName.value.length > 16) {
+    error.value = "닉네임은 16자를 초과할 수 없습니다.";
     isDuplicateChecked.value = false;
     return;
   }
@@ -124,6 +137,11 @@ const checkUserNameDuplicate = async () => {
 const changeUserName = async () => {
   if (!newName.value) {
     error.value = "닉네임을 입력해주세요.";
+    return;
+  }
+
+  if (newName.value.length > 16) {
+    error.value = "닉네임은 16자를 초과할 수 없습니다.";
     return;
   }
 
