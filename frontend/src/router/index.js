@@ -13,7 +13,6 @@ import CommunityUpdate from "@/views/community/CommunityUpdate.vue";
 import CategoryRegistView from "@/views/category/CategoryRegistView.vue";
 import CategoryManageView from "@/views/category/CategoryManageView.vue";
 import CategoryUpdateView from "@/views/category/CategoryUpdateView.vue";
-import CommunitySearch from "@/components/community/CommunitySearch.vue";
 import OtherUserHomeView from "@/views/user/OtherUserHomeView.vue";
 import { useLoadingStore } from "@/stores/loading";
 import VideoHomeView from "@/views/video/VideoHomeView.vue";

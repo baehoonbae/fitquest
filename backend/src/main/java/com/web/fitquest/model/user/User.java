@@ -1,5 +1,7 @@
 package com.web.fitquest.model.user;
 
+import java.util.List;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,4 +26,5 @@ public class User {
     private String profileImage;
     private Integer isAdmin;
     private String description;
+    private List<String> categories;
 }
