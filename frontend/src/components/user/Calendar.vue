@@ -8,16 +8,10 @@
         </span>
       </div>
       <div class="flex gap-2">
-        <button
-          @click="previousMonth"
-          class="text-gray-400 hover:text-gray-600 transition-colors text-lg"
-        >
+        <button @click="previousMonth" class="text-gray-400 hover:text-gray-600 transition-colors text-lg">
           &lt;
         </button>
-        <button
-          @click="nextMonth"
-          class="text-gray-400 hover:text-gray-600 transition-colors text-lg"
-        >
+        <button @click="nextMonth" class="text-gray-400 hover:text-gray-600 transition-colors text-lg">
           &gt;
         </button>
       </div>
@@ -28,14 +22,10 @@
       <!-- 전체 높이에서 헤더 높이 뺌 -->
       <!-- Weekdays -->
       <div class="grid grid-cols-7 mb-1 font-semibold gap-1">
-        <div
-          v-for="{ day, color } in weekdays"
-          :key="day"
-          :class="[
-            'text-center text-[0.8rem] w-full h-6 flex items-center justify-center',
-            color,
-          ]"
-        >
+        <div v-for="{ day, color } in weekdays" :key="day" :class="[
+          'text-center text-[0.8rem] w-full h-6 flex items-center justify-center',
+          color,
+        ]">
           {{ day }}
         </div>
       </div>
@@ -51,34 +41,27 @@
         <template v-for="day in daysInMonth" :key="day">
           <div
             class="w-full flex flex-col items-center justify-center rounded-lg text-[0.8rem] cursor-pointer relative hover:bg-gray-50 transition-all duration-200"
-            @click="selectDate(day)"
-          >
+            @click="selectDate(day)">
             <div
-              class="w-5 h-5 text-center text-gray-600 border border-[#e5e7e9] bg-[#f8f9fa] hover:bg-[#e9ecef] transition-colors rounded-[0.3rem] mb-0.5 shadow-sm"
-            >
+              class="w-5 h-5 text-center text-gray-600 border border-[#e5e7e9] bg-[#f8f9fa] hover:bg-[#e9ecef] transition-colors rounded-[0.3rem] mb-0.5 shadow-sm">
               <div v-if="todoStore.getUndoneTodoCount(formatDate(day)) > 0">
                 {{ todoStore.getUndoneTodoCount(formatDate(day)) }}
               </div>
             </div>
-            <div
-              class="text-center rounded-full px-1.5 py-0.5 transition-all duration-200"
-              :class="[
-                {
-                  'bg-black text-white shadow-md transform scale-105':
-                    isSelectedDate(day),
-                },
-              ]"
-            >
+            <div class="text-center w-6 h-6 flex items-center justify-center transition-all duration-200" :class="[
+              {
+                'bg-black text-white shadow-md transform scale-105 rounded-full':
+                  isSelectedDate(day) || (isToday(day) && isSelectedDate(day)),
+                'bg-gray-200 rounded-full': isToday(day) && !isSelectedDate(day),
+              },
+            ]">
               {{ day }}
             </div>
           </div>
         </template>
 
         <!-- 나머지 빈 칸 채우기 -->
-        <template
-          v-for="empty in remainingEmptyCells"
-          :key="'remaining-' + empty"
-        >
+        <template v-for="empty in remainingEmptyCells" :key="'remaining-' + empty">
           <div class="w-full"></div>
         </template>
       </div>
@@ -147,6 +130,16 @@ const isSelectedDate = (day) => {
     new Date(currentYear.value, currentMonth.value - 1, day + 1)
       .toISOString()
       .split("T")[0]
+  );
+};
+
+// 현재 날짜인지 체크
+const isToday = (day) => {
+  const today = new Date();
+  return (
+    today.getFullYear() === currentYear.value &&
+    today.getMonth() === currentMonth.value - 1 &&
+    today.getDate() === day
   );
 };
 
