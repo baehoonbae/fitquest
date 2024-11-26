@@ -21,7 +21,7 @@
                 <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center bg-white/80">
                     <div class="w-10 h-10 border-4 border-gray-200 border-t-gray-600 rounded-full animate-spin"></div>
                 </div>
-
+                
                 <!-- 실제 컨텐츠 -->
                 <div v-else>
                     <!-- 팔로워가 없는 경우 -->
