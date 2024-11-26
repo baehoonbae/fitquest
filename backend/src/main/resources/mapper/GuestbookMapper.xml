@@ -51,6 +51,6 @@
 
     <delete id="deleteGuestbook">
         DELETE FROM guestbook 
-        WHERE id = #{id} AND user_id = #{userId}
+        WHERE id = #{id}
     </delete>
 </mapper>

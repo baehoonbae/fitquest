@@ -30,7 +30,14 @@
                                 <img :src="g.user.profileImage" :alt="g.user.name" class="w-8 h-8 rounded-full object-cover">
                                 <span class="font-medium text-gray-900">{{ g.user.name }}</span>
                             </RouterLink>
-                            <span class="text-sm text-gray-500">{{ formatDate(g.date) }}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm text-gray-500">{{ formatDate(g.date) }}</span>
+                                <button v-if="g.user.id === authStore.user.id" 
+                                    @click="deleteGuestbook(g.id)"
+                                    class="text-gray-400 hover:text-red-500 transition-colors cursor-pointer flex items-center">
+                                    <span class="material-icons text-sm">delete</span>
+                                </button>
+                            </div>
                         </div>
                         <p class="text-gray-700">{{ g.content }}</p>
                     </div>
@@ -63,6 +70,24 @@
         </div>
     </div>
     <ConflictedGuestbookAlert v-if="conflictAlert" @close="conflictAlert = false" />
+    <div v-if="showDeleteConfirm" 
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[102]"
+        @click="showDeleteConfirm = false">
+        <div class="bg-white rounded-2xl p-6 w-80" @click.stop>
+            <h3 class="text-lg font-semibold mb-4">방명록 삭제</h3>
+            <p class="text-gray-600 mb-6">정말 삭제하시겠습니까?</p>
+            <div class="flex justify-end gap-2">
+                <button @click="showDeleteConfirm = false"
+                    class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                    취소
+                </button>
+                <button @click="confirmDelete"
+                    class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                    삭제
+                </button>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script setup>
@@ -80,6 +105,8 @@ const guestbooks = ref([]);
 const guestbook = ref({});
 const conflictAlert = ref(false);
 const showError = ref(false);
+const showDeleteConfirm = ref(false);
+const deleteTargetId = ref(null);
 
 const isOverLimit = computed(() => {
     return (guestbook.value.content?.length || 0) > 50;
@@ -131,9 +158,19 @@ const submitGuestbook = async () => {
     }
 };
 
-const deleteGuestbook = async (guestbookId) => {
-    await guestbookStore.fetchDeleteGuestbook(Number(guestbookId));
-    guestbooks.value = await guestbookStore.fetchGuestbook(Number(props.userId));
+const deleteGuestbook = (guestbookId) => {
+    deleteTargetId.value = guestbookId;
+    showDeleteConfirm.value = true;
+};
+
+const confirmDelete = async () => {
+    try {
+        await guestbookStore.fetchDeleteGuestbook(deleteTargetId.value);
+        guestbooks.value = await guestbookStore.fetchGuestbook(props.userId);
+        showDeleteConfirm.value = false;
+    } catch (error) {
+        console.error('방명록 삭제 실패:', error);
+    }
 };
 
 onMounted(async () => {
