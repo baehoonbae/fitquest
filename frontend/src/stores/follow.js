@@ -6,6 +6,11 @@ import http from "@/api/http";
 export const useFollowStore = defineStore("follow", () => {
     const isFollowing = ref(false);
     const authStore = useAuthStore();
+    const needsRefresh = ref(false);
+
+    function setNeedsRefresh(value) {
+        needsRefresh.value = value;
+    }
 
     const fetchIsFollowing = async (userId) => {
         const isAuth = await authStore.checkAuth();
@@ -89,6 +94,8 @@ export const useFollowStore = defineStore("follow", () => {
     };
 
     return {
+        needsRefresh,
+        setNeedsRefresh,
         isFollowing,
         fetchIsFollowing,
         fetchFollowers,

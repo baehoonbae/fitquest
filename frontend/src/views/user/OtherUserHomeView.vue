@@ -232,7 +232,12 @@ const handleImageError = (e) => {
   e.target.onerror = null;
 };
 
-
+watch(() => followStore.needsRefresh, async () => {
+  if (followStore.needsRefresh) {
+    await fetchFollowData();
+    followStore.setNeedsRefresh(false);
+  }
+});
 </script>
 
 <style scoped>

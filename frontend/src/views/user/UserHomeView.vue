@@ -19,9 +19,10 @@
                 <div class="flex items-center gap-4">
                   <div class="flex items-center gap-2 font-bold text-gray-800 text-lg mb-2">
                     {{ authStore.user.name }}
-                    <button @click="showGuestbook = true" class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-200 transition-colors">
+                    <button @click="showGuestbook = true"
+                      class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-200 transition-colors">
                       <span class="material-icons text-gray-600 text-sm">chat</span>
-                    </button> 
+                    </button>
                   </div>
                 </div>
                 <div class="text-gray-600 text-sm">
@@ -110,13 +111,14 @@ import Calendar from "@/components/user/Calendar.vue";
 import CategoryList from "@/components/user/category/CategoryList.vue";
 import CategoryHeader from "@/components/user/category/CategoryHeader.vue";
 import GrassGraph from "@/components/user/grass/GrassGraph.vue";
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watchEffect, watch } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import http from "@/api/http";
 import Followers from "@/components/user/Followers.vue";
 import Followings from "@/components/user/Followings.vue";
 import { useFollowStore } from "@/stores/follow";
 import Guestbook from "@/components/user/Guestbook.vue";
+import { defineExpose } from 'vue'
 
 const authStore = useAuthStore();
 const selectedDate = ref(null);
@@ -208,6 +210,19 @@ const closeAllModals = () => {
   showFollowers.value = false;
   showFollowings.value = false;
 };
+
+// needsRefresh 상태 감시
+watch(() => followStore.needsRefresh, async () => {
+  if (followStore.needsRefresh) {
+    await fetchFollowData();
+    followStore.setNeedsRefresh(false);
+  }
+});
+
+// fetchFollowData를 명시적으로 expose
+defineExpose({
+  fetchFollowData
+});
 </script>
 
 <style scoped>

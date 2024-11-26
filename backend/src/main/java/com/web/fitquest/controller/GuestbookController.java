@@ -62,13 +62,10 @@ public class GuestbookController {
     public ResponseEntity<Integer> postGuestbook(@RequestBody Guestbook guestbook) {
         try {
             Optional<Integer> result = guestbookService.insertGuestbook(guestbook);
-            if (result.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            if (result.isPresent() && result.get() == 0) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(0);
             }
-            return ResponseEntity.ok(result.get());
-        } catch (DataIntegrityViolationException e) {
-            log.info("오늘 이미 등록함: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            return ResponseEntity.ok(result.orElse(0));
         } catch (Exception e) {
             log.error("방명록 등록 실패:", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

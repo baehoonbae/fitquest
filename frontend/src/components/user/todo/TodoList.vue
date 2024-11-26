@@ -1,35 +1,24 @@
 <template>
-  <draggable v-model="filteredTodos" 
-    :group="isOwner ? { name: props.group, pull: true, put: true } : false"
-    item-key="id"
-    @end="handleDragEnd" 
-    @start="handleDragStart" 
-    @change="handleChange" 
-    :animation="300" 
-    :delay="50"
-    :delayOnTouchOnly="true" 
-    :force-fallback="true"
-    :disabled="!isOwner">
+  <draggable v-model="filteredTodos" :group="isOwner ? { name: props.group, pull: true, put: true } : false"
+    item-key="id" @end="handleDragEnd" @start="handleDragStart" @change="handleChange" :animation="300" :delay="50"
+    :delayOnTouchOnly="true" :force-fallback="true" :disabled="!isOwner">
     <template #item="{ element: todo }">
       <div class="flex items-center gap-1.5 pt-3.5">
-        <div class="relative w-[19px] h-[19px]" 
-          :class="{ 'cursor-pointer': isOwner }"
+        <div class="relative w-[19px] h-[19px]" :class="{ 'cursor-pointer': isOwner }"
           @click="isOwner && handleDone(todo.id)">
           <svg v-if="todo.isDone" class="w-[19px] h-[19px] text-black" viewBox="0 0 20 20" fill="currentColor">
             <rect width="18" height="18" x="1" y="1" rx="4" fill="currentColor" />
-            <path fill="white" d="M13.293 7.293a1 1 0 0 1 1.414 1.414l-5 5a1 1 0 0 1-1.414 0l-2.5-2.5a1 1 0 0 1 1.414-1.414L9 11.586l4.293-4.293z" />
+            <path fill="white"
+              d="M13.293 7.293a1 1 0 0 1 1.414 1.414l-5 5a1 1 0 0 1-1.414 0l-2.5-2.5a1 1 0 0 1 1.414-1.414L9 11.586l4.293-4.293z" />
           </svg>
           <div v-else class="w-[19px] h-[19px] rounded border bg-[#dadddf] border-gray-300"></div>
         </div>
         <div v-if="isOwner && contentUpdateMode && todo.id === selectedTodoId" class="flex-1">
           <div class="flex" @click.stop>
-            <input type="text" placeholder="할 일 입력" 
-              class="pb-1.5 w-full text-sm outline-none caret-blue-500"
-              v-model="newTodoContent" 
-              @compositionstart="isComposing = true"
-              @compositionend="isComposing = false; handleCompositionEnd($event)"
-              :style="{
-                borderImage: categoryStore.category.color.includes('gradient') ? 
+            <input type="text" placeholder="할 일 입력" class="pb-1.5 w-full text-sm outline-none caret-blue-500"
+              v-model="newTodoContent" @compositionstart="isComposing = true"
+              @compositionend="isComposing = false; handleCompositionEnd($event)" :style="{
+                borderImage: categoryStore.category.color.includes('gradient') ?
                   `${categoryStore.category.color} 1` : 'none',
                 borderBottom: categoryStore.category.color.includes('gradient') ?
                   '2px solid transparent' : `2px solid ${categoryStore.category.color}`,
@@ -50,14 +39,8 @@
     </template>
   </draggable>
   <Transition name="menu">
-    <TodoMenu 
-      v-if="isOwner && !contentUpdateMode && selectedTodoId !== null" 
-      :selectedTodoId="selectedTodoId" 
-      @close="closeMenu"
-      @edit="handleContent" 
-      @delete="goDelete" 
-      @moveTomorrow="handleMoveTomorrow" 
-    />
+    <TodoMenu v-if="isOwner && !contentUpdateMode && selectedTodoId !== null" :selectedTodoId="selectedTodoId"
+      @close="closeMenu" @edit="handleContent" @delete="goDelete" @moveTomorrow="handleMoveTomorrow" />
   </Transition>
 </template>
 
@@ -169,6 +152,7 @@ const goDelete = async (id) => {
   try {
     await todoStore.fetchDeleteTodo(id);
     await activityStore.fetchUpdateDailyActivity(todo.date, todo.userId);
+    emit("doneTodoCountUpdate", todo.userId);
     closeMenu();
   } catch (error) {
     console.error("할 일 삭제 실패:", error);
@@ -229,7 +213,12 @@ const handleMoveTomorrow = async (id) => {
       activityStore.fetchUpdateDailyActivity(oldDate, todo.userId),
       activityStore.fetchUpdateDailyActivity(newDate, todo.userId),
     ]);
-    dateStore.selectedDate = newDate;
+    dateStore.setSelectedDate(newDate);
+    await todoStore.fetchMonthlyTodos(
+      tomorrow.getFullYear(),
+      tomorrow.getMonth() + 1,
+      props.userId
+    );
     closeMenu();
   } catch (error) {
     console.error("할 일 내일로 이동 실패:", error);
@@ -253,6 +242,10 @@ const handleDragEnd = async (event) => {
       (t) => t.id === dragStore.dragState.todoId
     );
     if (!draggedTodo) return;
+
+    if (dragStore.dragState.endIndex === null) {
+      return;
+    }
 
     const finalTodos = [...todoStore.dailyTodos];
 
@@ -303,8 +296,8 @@ const handleDragEnd = async (event) => {
     todoStore.updateLocalTodos(finalTodos);
 
     const updates = finalTodos
-      .filter(t => 
-        t.categoryId === dragStore.dragState.startCategoryId || 
+      .filter(t =>
+        t.categoryId === dragStore.dragState.startCategoryId ||
         t.categoryId === dragStore.dragState.endCategoryId
       )
       .map(todo => todoStore.fetchTodoUpdate(todo));

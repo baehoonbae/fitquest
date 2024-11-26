@@ -34,12 +34,23 @@
     </select>
 
     <insert id="insertGuestbook" parameterType="Guestbook" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO guestbook (target_id, user_id, content)
-        VALUES (#{targetId}, #{userId}, #{content})
+        INSERT INTO guestbook (target_id, user_id, content, date)
+        SELECT 
+            #{targetId}, 
+            #{userId}, 
+            #{content},
+            DATE(NOW())
+        WHERE NOT EXISTS (
+            SELECT 1 
+            FROM guestbook 
+            WHERE target_id = #{targetId} 
+            AND user_id = #{userId}
+            AND DATE(date) = DATE(NOW())
+        )
     </insert>
 
     <delete id="deleteGuestbook">
         DELETE FROM guestbook 
-        WHERE id = #{id} AND user_id = #{userId}
+        WHERE id = #{id}
     </delete>
 </mapper>
