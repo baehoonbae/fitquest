@@ -44,18 +44,21 @@ const currentPage = ref(1);
 const itemsPerPage = ref(20);
 const needLoginAlert = ref(false);
 
-const fetchBoards = async (preservePage = true) => {
+const fetchBoards = async (preserveSearch = false) => {
   try {
+    if (!preserveSearch) {
+      boardStore.lastSearchCondition = null;
+    }
     await boardStore.fetchBoards({
       skipLoading: true,
-      preserveSearch: preservePage  // 검색 결과 유지 여부
+      preserveSearch: preserveSearch
     });
     const dynamicTags = [
       ...new Set(boardStore.boards.map((board) => board.tag)),
     ];
     tags.value = [...new Set([...COMMUNITY_TAGS, ...dynamicTags])];
 
-    if (!preservePage) {
+    if (!preserveSearch) {
       currentPage.value = 1;
       updateUrlQuery(1);
     } else {
@@ -93,7 +96,7 @@ const filteredBoards = computed(() => {
   const notices = result.filter((board) => board.tag === "공지");
   const regularPosts = result.filter((board) => board.tag !== "공지");
 
-  // 각각 ID 기준으로 내림차순 정렬
+  // ���각 ID 기준으로 내림차순 정렬
   notices.sort((a, b) => b.id - a.id);
   regularPosts.sort((a, b) => b.id - a.id);
 
@@ -209,6 +212,7 @@ const goToWrite = async () => {
 
 // 컴포넌트 마운트 시 실행
 onMounted(async () => {
+  boardStore.lastSearchCondition = null;
   const pageFromQuery = Number(route.query.page) || 1;
   const tagFromQuery = route.query.tag;
   currentPage.value = pageFromQuery;
@@ -223,13 +227,23 @@ watch(
   () => route.path,
   async (newPath, oldPath) => {
     if (newPath === "/community" && oldPath !== "/community") {
-      const pageFromQuery = Number(route.query.page) || currentPage.value;
+      // 검색어와 검색 결과 초기화
+      searchText.value = "";
+      selectedTags.value = [];
+      boardStore.lastSearchCondition = null;
+      
+      // URL의 태그 파라미터 확인
       const tagFromQuery = route.query.tag;
       if (tagFromQuery) {
         selectedTags.value = tagFromQuery;
       }
-      await fetchBoards(true);
+
+      // 페이지 정보 유지
+      const pageFromQuery = Number(route.query.page) || 1;
       currentPage.value = pageFromQuery;
+
+      // 전체 게시글 새로 불러오기
+      await fetchBoards(false);
     }
   }
 );

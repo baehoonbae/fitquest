@@ -6,16 +6,17 @@
       <div class="mb-6">
         <label for="tag" class="block font-semibold text-gray-700 mb-2">태그</label>
         <div class="relative">
-          <button type="button" @click.stop="toggleDropdown"
+          <button type="button" @click.stop="toggleDropdown" :disabled="post.tag === '공지'"
             class="w-full px-3 py-2.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-600 flex justify-between items-center"
             :class="[
               { 'border-red-500': showTagError },
+              { 'bg-gray-50 cursor-not-allowed': post.tag === '공지' },
               'border-gray-300'
             ]">
             <span class="text-gray-700">{{
               post.tag || "태그를 선택하세요"
             }}</span>
-            <ChevronDownIcon class="h-5 w-5 text-gray-400" />
+            <ChevronDownIcon v-if="post.tag !== '공지'" class="h-5 w-5 text-gray-400" />
           </button>
           <div v-if="showTagError" class="mt-1 text-sm text-red-500 transition-all duration-200">
             태그를 선택해주세요.
@@ -67,14 +68,12 @@
           @click="router.go(-1)">
           취소
         </button>
-        <button type="submit"
-          :disabled="isSubmitting"
-          :class="[
-            'px-5 py-2.5 rounded-md font-medium transition-all duration-200',
-            isSubmitting 
-              ? 'bg-gray-400 cursor-not-allowed' 
-              : 'bg-blue-600 hover:bg-blue-700 text-white'
-          ]">
+        <button type="submit" :disabled="isSubmitting" :class="[
+          'px-5 py-2.5 rounded-md font-medium transition-all duration-200',
+          isSubmitting
+            ? 'bg-gray-400 cursor-not-allowed'
+            : 'bg-blue-600 hover:bg-blue-700 text-white'
+        ]">
           {{ isSubmitting ? '수정 중...' : '수정 완료' }}
         </button>
       </div>
@@ -126,10 +125,12 @@ const post = ref({
 const showDropdown = ref(false);
 
 const toggleDropdown = () => {
+  if (post.value.tag === '공지') return;
   showDropdown.value = !showDropdown.value;
 };
 
 const selectTag = (tag) => {
+  if (post.value.tag === '공지') return;
   post.value.tag = tag;
   showDropdown.value = false;
   showTagError.value = false;
@@ -183,7 +184,7 @@ watch(() => post.value.content, () => {
 // 수정 완료 후 처리하는 함수
 const handleUpdateSuccess = () => {
   if (isSubmitting.value) return;
-  
+
   showUpdateSuccessAlert.value = false;
   router.push({
     path: `/community/detail/${route.params.id}`,
@@ -206,17 +207,17 @@ const submitPost = async () => {
 
     // 유효성 검사
     let hasError = false;
-    
+
     if (!post.value.tag) {
       showTagError.value = true;
       hasError = true;
     }
-    
+
     if (!post.value.title.trim()) {
       showTitleError.value = true;
       hasError = true;
     }
-    
+
     if (!post.value.content.trim()) {
       showContentError.value = true;
       hasError = true;
@@ -333,6 +334,7 @@ onMounted(async () => {
     opacity: 0;
     transform: translateY(-5px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

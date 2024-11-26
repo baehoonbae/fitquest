@@ -8,6 +8,10 @@ export const useBoardStore = defineStore("board", () => {
 
   const fetchBoards = async (options = {}) => {
     try {
+      if (!options.preserveSearch) {
+        lastSearchCondition.value = null;
+      }
+      
       if (lastSearchCondition.value && options.preserveSearch) {
         return await searchBoards(lastSearchCondition.value);
       }
@@ -21,7 +25,6 @@ export const useBoardStore = defineStore("board", () => {
           const dateB = new Date(b.date).getTime();
           return dateB - dateA;
         });
-        lastSearchCondition.value = null;
       }
     } catch (error) {
       console.error("Error fetching boards:", error);
