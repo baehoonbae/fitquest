@@ -26,10 +26,11 @@
                 class="mt-3.5 mb-7">
                 <div class="flex items-center gap-1.5">
                   <input class="w-[19px] h-[19px] rounded border bg-[#dddfe0] border-[#dddfe0]" />
-                  <input type="text" placeholder="할 일 입력" class="pb-1.5 w-full text-sm outline-none caret-blue-500" :ref="(el) => {
-                    if (selectedCategory?.id === category.id) todoInput = el;
-                  }
-                    " :style="{
+                  <input type="text" placeholder="할 일 입력" class="pb-1.5 w-full text-sm outline-none caret-blue-500"
+                    :ref="(el) => {
+                      if (selectedCategory?.id === category.id) todoInput = el;
+                    }
+                      " :style="{
                       borderImage: selectedCategory.color.includes('gradient') ?
                         `${selectedCategory.color} 1` :
                         'none',
@@ -55,18 +56,14 @@
         추가하러 가기
       </RouterLink>
     </div>
-    <button 
-      @click="toggleChatbot"
-      class="fixed bottom-4 right-4 bg-blue-500 text-white rounded-full p-3 shadow-lg hover:bg-blue-600 transition-colors"
-    >
+    <button @click="toggleChatbot"
+      class="fixed bottom-4 right-4 bg-black text-white rounded-full p-3 shadow-lg hover:bg-gray-800 transition-colors">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
       </svg>
     </button>
-    <ChatbotDialog 
-      :isOpen="isChatbotOpen" 
-      @close="isChatbotOpen = false"
-    />
+    <ChatbotDialog :isOpen="isChatbotOpen" @close="isChatbotOpen = false" />
   </div>
 </template>
 
@@ -141,14 +138,13 @@ const handleCompositionEnd = (event, todo) => {
 
 const handleAddTodo = async (todoData) => {
   if (isComposing.value) return;
-  
   if (todoData.content.trim()) {
     try {
       const currentTodo = {
         ...todoData,
         date: dateStore.selectedDate
       };
-      
+
       const result = await todoStore.fetchAddTodo(currentTodo);
       if (result?.success) {
         await todoStore.fetchTodos(currentTodo.date, props.userId);
