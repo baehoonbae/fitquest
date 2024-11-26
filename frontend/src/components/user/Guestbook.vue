@@ -62,7 +62,7 @@
             </div>
         </div>
     </div>
-    <ConflictedGuestbookAlert v-if="conflicAlert" @close="conflicAlert = false" />
+    <ConflictedGuestbookAlert v-if="conflictAlert" @close="conflictAlert = false" />
 </template>
 
 <script setup>
@@ -78,7 +78,7 @@ const authStore = useAuthStore();
 const guestbookStore = useGuestbookStore();
 const guestbooks = ref([]);
 const guestbook = ref({});
-const conflicAlert = ref(false);
+const conflictAlert = ref(false);
 const showError = ref(false);
 
 const isOverLimit = computed(() => {
@@ -112,12 +112,19 @@ const submitGuestbook = async () => {
             userId: authStore.user.id,
             content: guestbook.value.content.slice(0, 50)
         };
-        await guestbookStore.fetchInsertGuestbook(guestbookData);
+        const response = await guestbookStore.fetchInsertGuestbook(guestbookData);
+        
+        // 응답 상태가 409(Conflict)인 경우
+        if (response.status === 409) {
+            conflictAlert.value = true;
+            return;
+        }
+        
         guestbooks.value = await guestbookStore.fetchGuestbook(props.userId);
         guestbook.value.content = '';
     } catch (error) {
         if (error.response?.status === 409) {
-            conflicAlert.value = true;
+            conflictAlert.value = true;
         } else {
             console.error('방명록 등록 실패:', error);
         }
