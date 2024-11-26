@@ -1,9 +1,9 @@
 <template>
-  <div class="w-full md:w-[27rem]">
+  <div class="w-full md:w-[21.5rem]">
     <!-- Date and Stats -->
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center gap-3">
-        <span class="text-[1.1rem] font-bold pl-3">
+        <span class="text-[1.1rem] font-bold pl-3 w-[8rem]">
           {{ currentYear }}년 {{ currentMonth }}월
         </span>
       </div>
@@ -25,7 +25,7 @@
         </div>
       </div>
       <!-- Days -->
-      <div class="grid grid-cols-7 gap-2">
+      <div class="grid grid-cols-7 gap-2 min-h-[18rem]">
         <!-- 빈 칸들 (월요일부터 시작) -->
         <template v-for="empty in firstDayOfMonth" :key="'empty-' + empty">
           <div class="aspect-square w-full sm:w-12 h-auto sm:h-12"></div>
@@ -34,14 +34,18 @@
         <!-- 1일부터 말일까지 -->
         <template v-for="day in daysInMonth" :key="day">
           <div
-            class="aspect-square font-semibold w-full sm:w-12 h-auto sm:h-[3.3rem] flex flex-col items-center justify-center rounded-lg text-[0.85rem] cursor-pointer relative"
+            class="aspect-square font-semibold w-full sm:w-12 h-auto sm:h-12 flex flex-col items-center justify-center rounded-lg text-[0.85rem] cursor-pointer relative"
             @click="selectDate(day)">
             <div class="w-6 h-6 text-center text-gray-600 border border-gray-200 bg-gray-200 rounded-[0.3rem] mb-0.5">
               <div v-if="todoStore.getUndoneTodoCount(formatDate(day)) > 0">
                 {{ todoStore.getUndoneTodoCount(formatDate(day)) }}
               </div>
             </div>
-            <div class="text-center rounded-full px-2 py-1" :class="[{ 'bg-black text-white': isSelectedDate(day) }]">
+            <div class="text-center rounded-full w-6 h-6 flex items-center justify-center" 
+              :class="[
+                { 'bg-black text-white': isSelectedDate(day) },
+                { 'bg-gray-200': isToday(day) && !isSelectedDate(day) }
+              ]">
               {{ day }}
             </div>
           </div>
@@ -50,7 +54,7 @@
     </div>
     <div class="flex justify-center">
       <button
-        class="w-[7rem] py-4 rounded-full text-center text-base font-semibold cursor-pointer transition-all duration-300 ease-in-out bg-black text-white hover:bg-gray-800"
+        class="w-[4rem] py-4 rounded-2xl text-center text-base font-semibold cursor-pointer transition-all duration-300 ease-in-out bg-black text-white hover:bg-gray-800"
         @click="confirmDate">
         확인
       </button>
@@ -78,12 +82,20 @@ onMounted(async () => {
   if (authStore.user.id) {
     await categoryStore.fetchCategories(authStore.user.id);
   }
-  await todoStore.fetchMonthlyTodos(currentYear.value, currentMonth.value);
+  
+  // 현재 선택된 날짜 기준으로 초기화
+  const selectedDate = new Date(dateStore.selectedDate);
+  currentDate.value = selectedDate;
   localSelectedDate.value = dateStore.selectedDate;
+  
+  await todoStore.fetchMonthlyTodos(
+    selectedDate.getFullYear(),
+    selectedDate.getMonth() + 1
+  );
 });
 
 // 현재 날짜 상태 관리
-const currentDate = ref(new Date());
+const currentDate = ref(new Date(dateStore.selectedDate));
 const currentYear = computed(() => currentDate.value.getFullYear());
 const currentMonth = computed(() => currentDate.value.getMonth() + 1);
 const weekdays = [
@@ -105,6 +117,16 @@ const isSelectedDate = (day) => {
     .toISOString()
     .split("T")[0];
   return localSelectedDate.value === dateString;
+};
+
+// 오늘 날짜인지 확인
+const isToday = (day) => {
+  const today = new Date();
+  return (
+    today.getDate() === day &&
+    today.getMonth() === currentMonth.value - 1 &&
+    today.getFullYear() === currentYear.value
+  );
 };
 
 // 선택한 날짜 포맷팅
@@ -132,7 +154,18 @@ const confirmDate = async () => {
       activityStore.fetchUpdateDailyActivity(oldDate, todo.userId),
       activityStore.fetchUpdateDailyActivity(newDate, todo.userId)
     ]);
-    dateStore.selectedDate = newDate;
+
+    // 달력 날짜 업데이트
+    dateStore.setSelectedDate(newDate);
+    
+    // 월별 투두 목록 갱신
+    const newDateObj = new Date(newDate);
+    await todoStore.fetchMonthlyTodos(
+      newDateObj.getFullYear(),
+      newDateObj.getMonth() + 1,
+      todo.userId
+    );
+
     emit("closeDatePicker");
   } catch (error) {
     console.error("날짜 수정 실패:", error);
@@ -153,13 +186,21 @@ const daysInMonth = computed(() => {
 // 이전 달로 이동
 const previousMonth = async () => {
   currentDate.value = new Date(currentYear.value, currentMonth.value - 2, 1);
-  await todoStore.fetchMonthlyTodos(currentYear.value, currentMonth.value);
+  await todoStore.fetchMonthlyTodos(
+    currentYear.value,
+    currentMonth.value,
+    todoStore.todo.userId
+  );
 };
 
 // 다음 달로 이동
 const nextMonth = async () => {
   currentDate.value = new Date(currentYear.value, currentMonth.value, 1);
-  await todoStore.fetchMonthlyTodos(currentYear.value, currentMonth.value);
+  await todoStore.fetchMonthlyTodos(
+    currentYear.value,
+    currentMonth.value,
+    todoStore.todo.userId
+  );
 };
 
 // YYYY-MM-DD 형식으로 날짜 변환

@@ -91,12 +91,12 @@ const filteredCategories = computed(() => {
     category.isPublic === 1 || props.userId === authStore.user.id
   );
 });
-const todo = ref({
+const todo = computed(() => ({
   userId: props.userId || authStore.user.id,
   categoryId: null,
   content: "",
-  date: props.selectedDate || dateStore.selectedDate,
-});
+  date: dateStore.selectedDate,
+}));
 const todoInput = ref(null);
 const isComposing = ref(false);
 
@@ -108,7 +108,7 @@ const closeAddTodo = () => {
 const openTodoForm = (category) => {
   selectedCategory.value = category;
   todo.value.categoryId = category.id;
-  todo.value.date = props.selectedDate || dateStore.selectedDate;
+  todo.value.date = dateStore.selectedDate;
 
   setTimeout(() => {
     if (todoInput.value) {
@@ -123,16 +123,21 @@ const handleCompositionEnd = (event, todo) => {
   }
 };
 
-const handleAddTodo = async (todo) => {
+const handleAddTodo = async (todoData) => {
   if (isComposing.value) return;
   
-  if (todo.content.trim()) {
+  if (todoData.content.trim()) {
     try {
-      const result = await todoStore.fetchAddTodo(todo);
+      const currentTodo = {
+        ...todoData,
+        date: dateStore.selectedDate
+      };
+      
+      const result = await todoStore.fetchAddTodo(currentTodo);
       if (result?.success) {
-        await todoStore.fetchTodos(todo.date, props.userId);
-        todo.content = "";
-        await activityStore.fetchUpdateDailyActivity(todo.date, todo.userId);
+        await todoStore.fetchTodos(currentTodo.date, props.userId);
+        currentTodo.content = "";
+        await activityStore.fetchUpdateDailyActivity(currentTodo.date, currentTodo.userId);
       }
     } catch (error) {
       console.error("할 일 추가 실패:", error);
