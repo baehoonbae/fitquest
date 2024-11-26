@@ -37,9 +37,13 @@
                             최근 본 영상
                         </button>
                         <div class="h-[1px] bg-gray-100"></div>
-                        <button @click="authStore.logout()"
+                        <button v-if="isLogin" @click="authStore.logout()"
                             class="rounded-xl block w-full text-left px-4 py-2 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900 active:bg-gray-100">
                             로그아웃
+                        </button>
+                        <button v-else @click="router.push('/login')"
+                            class="rounded-xl block w-full text-left px-4 py-2 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900 active:bg-gray-100">
+                            로그인
                         </button>
                     </div>
                 </Transition>
@@ -54,7 +58,7 @@
 
 <script setup>
 import { useRouter } from "vue-router";
-import { onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import RecentPostsModal from "@/components/recent/RecentBoard.vue";
 import RecentNewsModal from "@/components/recent/RecentNews.vue";
@@ -67,6 +71,7 @@ const isRecentPostsModalOpen = ref(false);
 const isRecentNewsModalOpen = ref(false);
 const isRecentVideoModalOpen = ref(false);
 const searchQuery = ref("");
+const isLogin = computed(() => authStore.user.isAuthenticated);
 
 // 최근 본 게시물 모달 표시
 const showRecentPosts = () => {
