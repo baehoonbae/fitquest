@@ -131,12 +131,20 @@ const goUpdate = async () => {
   if (isComposing.value) return; // IME 입력 중에는 업데이트하지 않음
 
   if (contentUpdateMode.value && selectedTodoId.value) {
+    // 빈 문자열이거나 공백만 있는 경우 early return
+    if (!newTodoContent.value || !newTodoContent.value.trim()) {
+      contentUpdateMode.value = false;
+      selectedTodoId.value = null;
+      return;
+    }
+
     const todoToUpdate = todoStore.dailyTodos.find(
       (todo) => todo.id === selectedTodoId.value
     );
-    if (todoToUpdate && newTodoContent.value.trim()) {
+    
+    if (todoToUpdate) {
       try {
-        const updatedTodo = { ...todoToUpdate, content: newTodoContent.value };
+        const updatedTodo = { ...todoToUpdate, content: newTodoContent.value.trim() };
         await todoStore.fetchTodoUpdate(updatedTodo);
         contentUpdateMode.value = false;
         selectedTodoId.value = null;
@@ -187,7 +195,7 @@ const handleDone = async (id) => {
 const handleContent = async (id) => {
   if (!isOwner.value) return;
   const todo = todoStore.dailyTodos.find((t) => t.id === id);
-  if (todo) {
+  if (todo && todo.content.trim()) {
     await categoryStore.fetchCategory(todo.categoryId);
     contentUpdateMode.value = true;
     newTodoContent.value = todo.content;
