@@ -1,6 +1,5 @@
-# FinalPJT_FitQuest_shcj
-
-
+# fitquest
+나만의 운동 커뮤니티
 
 
 ## 시작하기
@@ -23,3 +22,5 @@
 `test`: 테스트 코드
 
 `chore`: 빌드 업무 수정
+
+
