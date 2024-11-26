@@ -13,15 +13,19 @@
     ]" tabindex="0" @click="openUserSearchModal = false" @keyup.esc="openUserSearchModal = false">
       <div v-if="route.name === 'news'" class="max-w-[1600px] h-full mx-auto px-5 md:px-4">
         <div v-if="openUserSearchModal" class="fixed top-0 left-0 right-0 bottom-0 z-[105]">
-          <UserSearchModal @closeModal="openUserSearchModal = false" />
+          <UserSearchModal 
+            @closeModal="openUserSearchModal = false" 
+          />
         </div>
-        <RouterView />
+        <RouterView ref="homeViewRef" />
       </div>
       <div v-else class="max-w-7xl h-full mx-auto px-5 md:px-4">
         <div v-if="openUserSearchModal" class="fixed top-0 left-0 right-0 bottom-0 z-[105]">
-          <UserSearchModal @closeModal="openUserSearchModal = false" />
+          <UserSearchModal 
+            @closeModal="openUserSearchModal = false" 
+          />
         </div>
-        <RouterView />
+        <RouterView ref="homeViewRef" />
       </div>
     </main>
 
@@ -35,7 +39,7 @@
           </div>
         </div>
         <!-- Footer 컨텐츠 -->
-        <div class="bg-white rounded-t-xl w-[650px] mx-auto px-5 md:px-4 shadow-[0_-2px_2px_rgba(0,0,0,0.1)]">
+        <div class="bg-white rounded-t-xl w-full sm:w-[550px] mx-auto px-2 sm:px-4 shadow-[0_-2px_2px_rgba(0,0,0,0.1)]">
           <Footer @openUserSearchModal="openUserSearchModal = true" @needLoginAlert="needLoginAlert = true" />
         </div>
       </div>
@@ -73,6 +77,8 @@ const showFooter = () => {
 const hideFooter = () => {
   isFooterVisible.value = false;
 };
+
+const homeViewRef = ref(null);
 
 onMounted(async () => {
   const loadingStore = useLoadingStore();
@@ -128,4 +134,3 @@ button {
   outline: none !important;
 }
 </style>
-

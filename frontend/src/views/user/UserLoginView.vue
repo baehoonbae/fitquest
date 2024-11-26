@@ -44,16 +44,16 @@
           회원가입
         </button>
         <span class="text-gray-300 hidden sm:inline">|</span>
-        <button class="text-sm text-gray-400 hover:text-gray-600">
-          비밀번호를 잊으셨나요?
-        </button>
+        <RouterLink to="/community" class="text-sm text-gray-400 hover:text-gray-600">
+          게스트로 시작하기
+        </RouterLink>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { useRouter } from "vue-router";
+import { RouterLink, useRouter } from "vue-router";
 import { ref, computed } from "vue";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/vue/24/outline";
 import { useAuthStore } from "@/stores/auth";

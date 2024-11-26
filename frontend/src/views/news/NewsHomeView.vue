@@ -112,14 +112,16 @@ const handleSearch = async (query) => {
 
     const [blogResponse, imageResponse] = await Promise.all([
       searchBlog(query, 1, INITIAL_LOAD_COUNT),
-      searchImage("Cross Fit Exercises"),
+      searchImage("Cross Fit Calisthenics"),
     ]);
 
-    imageItems.value = imageResponse.items.map((item) => ({
-      thumbnail: item.link,
-      width: item.sizewidth || 400,
-      height: item.sizeheight || 300,
-    }));
+    imageItems.value = imageResponse.items
+      .filter(item => !item.link.includes('istockphoto'))
+      .map((item) => ({
+        thumbnail: item.link,
+        width: item.sizewidth || 400,
+        height: item.sizeheight || 300,
+      }));
 
     usedImageIndices.value.clear();
 
@@ -230,13 +232,17 @@ const formatDate = (dateStr) => {
 };
 
 const handleImageError = (event, item) => {
+  const fallbackImage = "https://placehold.co/400x300/e2e8f0/475569?text=No+Image";
+  
+  if (item.thumbnail === fallbackImage) return;
+  
   const uniqueImage = getUniqueRandomImage();
-  if (uniqueImage) {
+  if (uniqueImage && !uniqueImage.thumbnail.includes('istockphoto')) {
     item.thumbnail = uniqueImage.thumbnail;
     item.imageWidth = uniqueImage.width;
     item.imageHeight = uniqueImage.height;
   } else {
-    item.thumbnail = `https://picsum.photos/400/300?random=${Date.now()}`;
+    item.thumbnail = fallbackImage;
     item.imageWidth = 400;
     item.imageHeight = 300;
   }

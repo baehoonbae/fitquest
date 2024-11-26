@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-4xl mx-auto px-5 my-1 md:my-2 pb-16">
+  <div class="max-w-4xl mx-auto px-5 my-1 md:my-2 pb-16" @dblclick="handleDoubleClick">
     <!-- 게시글 헤더 -->
     <div class="mb-10 pb-5 border-b-2 border-gray-200">
       <div class="flex justify-between items-center mb-4">
@@ -46,12 +46,21 @@
     </div>
 
     <!-- 게시글 내용 -->
-    <div class="min-h-[300px] text-lg md:text-base text-gray-700 leading-relaxed mb-10">
-      <div v-if="board.postImage !== null" class="mb-6">
+    <div class="min-h-[300px] text-lg md:text-base text-gray-700 leading-relaxed mb-10 relative">
+      <div v-if="board.postImage !== null" class="mb-6 select-none">
         <img :src="board.postImage" alt="게시글 이미지"
           class="max-w-full max-h-[600px] object-contain rounded-lg shadow-md" />
       </div>
-      <p>{{ board.content }}</p>
+      <p class="select-none">{{ board.content }}</p>
+
+      <!-- 하트 애니메이션 -->
+      <Transition enter-active-class="transition-all duration-300 ease-out" enter-from-class="opacity-0 scale-95"
+        enter-to-class="opacity-1 scale-100" leave-active-class="transition-all duration-300 ease-in"
+        leave-from-class="opacity-1 scale-100" leave-to-class="opacity-0 scale-95">
+        <div v-if="showHeart" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+          <i class="fas fa-heart text-red-500 text-4xl animate-heart opacity-90"></i>
+        </div>
+      </Transition>
     </div>
 
     <!-- 댓글 섹션 -->
@@ -68,7 +77,7 @@
       <CommentForm v-if="authStore.user.isAuthenticated" :boardId="Number(route.params.id)"
         @comment-added="refreshComments" class="mb-4" ref="commentForm" />
       <div v-else class="mb-4 p-4 bg-gray-50 rounded text-center">
-        <p class="text-gray-600">댓글을 작성하려면 로그인이 필요합니다.</p>
+        <RouterLink to="/login" class="text-gray-600">댓글을 작성하려면 로그인이 필요합니다.</RouterLink>
       </div>
 
       <!-- 댓글 목록 -->
@@ -400,4 +409,81 @@ onMounted(async () => {
     authStore.user.isAuthenticated ? checkHitStatus() : Promise.resolve(),
   ]);
 });
+
+// 더블클릭으로 좋아요만 추가하는 함수
+const addHitByDoubleClick = async () => {
+  if (!authStore.checkAuth()) {
+    needLoginAlert.value = true;
+    return;
+  }
+
+  // 이미 좋아요 상태면 무시
+  if (isHit.value) return;
+
+  try {
+    const token = authStore.getToken();
+    const response = await http.post(
+      `/hit/${route.params.id}/${authStore.user.id}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.status === 200) {
+      isHit.value = true;
+      hitCount.value = response.data.hitCount;
+    }
+  } catch (error) {
+    console.error("Error adding hit:", error);
+  }
+};
+
+const showHeart = ref(false);
+
+const handleDoubleClick = async (event) => {
+  if (!authStore.checkAuth()) {
+    needLoginAlert.value = true;
+    return;
+  }
+
+  if (isHit.value) return;
+
+  showHeart.value = true;
+  setTimeout(() => {
+    showHeart.value = false;
+  }, 1500);
+
+  await addHitByDoubleClick();
+};
 </script>
+
+<style scoped>
+@keyframes heart-animation {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  10% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+
+  85% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+.animate-heart {
+  animation: heart-animation 1.5s ease-in-out forwards;
+}
+</style>
