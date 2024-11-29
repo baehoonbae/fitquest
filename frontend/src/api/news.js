@@ -28,6 +28,14 @@ export const searchImage = async (query) => {
     }
 };
 
+export const searchBlogWithImages = async (query, start, display) => {
+  const response = await http.get(`/article/search/blog-with-images`, {
+    params: { query, start, display }
+  });
+  return response.data;
+};
+
+
 export const searchVideo = async (query, maxResults = 10) => {
   try {
     const response = await http.get(`/article/search/video`, {
