@@ -4,6 +4,7 @@ import java.util.List;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -18,6 +19,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @RequiredArgsConstructor
 @Schema(description = "사용자 DTO")
+@Builder
 public class User {
     private int id;
     @NonNull private String email;

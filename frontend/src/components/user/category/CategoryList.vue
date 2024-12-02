@@ -19,7 +19,10 @@
             <span v-if="props.userId === authStore.user.id" class="text-gray-400">+</span>
           </div>
           <div class="mb-7">
-            <TodoList :categoryId="category.id" :group="'todos'" :userId="Number(props.userId)"
+            <TodoList 
+              :categoryId="category.id" 
+              :group="'todos'"
+              :userId="Number(props.userId)"
               @doneTodoCountUpdate="emit('doneTodoCountUpdate', props.userId)" />
             <Transition name="todo-form">
               <div v-if="selectedCategory && selectedCategory.id === category.id && props.userId === authStore.user.id"
@@ -27,10 +30,8 @@
                 <div class="flex items-center gap-1.5">
                   <input class="w-[19px] h-[19px] rounded border bg-[#dddfe0] border-[#dddfe0]" />
                   <input type="text" placeholder="할 일 입력" class="pb-1.5 w-full text-sm outline-none caret-blue-500"
-                    :ref="(el) => {
-                      if (selectedCategory?.id === category.id) todoInput = el;
-                    }
-                      " :style="{
+                    :ref="(el) => {if (selectedCategory?.id === category.id) todoInput = el;}"
+                    :style="{
                       borderImage: selectedCategory.color.includes('gradient') ?
                         `${selectedCategory.color} 1` :
                         'none',
@@ -38,7 +39,8 @@
                         '2px solid transparent' :
                         `2px solid ${selectedCategory.color}`,
                       borderImageSlice: selectedCategory.color.includes('gradient') ? 1 : 'none'
-                    }" v-model="todo.content" @click.stop @keyup.enter="handleAddTodo(todo)"
+                    }"
+                    v-model="todo.content" @click.stop @keyup.enter="handleAddTodo(todo)"
                     @compositionstart="isComposing = true"
                     @compositionend="isComposing = false; handleCompositionEnd($event, todo)" />
                 </div>

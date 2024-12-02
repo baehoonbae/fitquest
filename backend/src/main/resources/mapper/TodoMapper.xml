@@ -71,4 +71,9 @@
     <select id="getDoneTodoCount">
         select count(*) from todo where user_id = #{userId} AND is_done = 1
     </select>
+
+    <delete id="deleteTestTodos">
+        DELETE FROM todo 
+        WHERE id>0
+    </delete>
 </mapper>

@@ -1,7 +1,16 @@
 <template>
-  <draggable v-model="filteredTodos" :group="isOwner ? { name: props.group, pull: true, put: true } : false"
-    item-key="id" @end="handleDragEnd" @start="handleDragStart" @change="handleChange" :animation="300" :delay="50"
-    :delayOnTouchOnly="true" :force-fallback="true" :disabled="!isOwner">
+  <draggable 
+    v-model="filteredTodos" 
+    :group="isOwner ? { name: props.group, pull: true, put: true } : false"
+    item-key="id" 
+    @end="handleDragEnd" 
+    @start="handleDragStart" 
+    @change="handleChange" 
+    :animation="300" 
+    :delay="50"
+    :delayOnTouchOnly="true" 
+    :force-fallback="true" 
+    :disabled="!isOwner">
     <template #item="{ element: todo }">
       <div class="flex items-center gap-1.5 pt-3.5">
         <div class="relative w-[19px] h-[19px]" :class="{ 'cursor-pointer': isOwner }"
@@ -15,9 +24,13 @@
         </div>
         <div v-if="isOwner && contentUpdateMode && todo.id === selectedTodoId" class="flex-1">
           <div class="flex" @click.stop>
-            <input type="text" placeholder="할 일 입력" class="pb-1.5 w-full text-sm outline-none caret-blue-500"
-              v-model="newTodoContent" @compositionstart="isComposing = true"
-              @compositionend="isComposing = false; handleCompositionEnd($event)" :style="{
+            <input type="text"
+              placeholder="할 일 입력"
+              class="pb-1.5 w-full text-sm outline-none caret-blue-500"
+              v-model="newTodoContent"
+              @compositionstart="isComposing = true"
+              @compositionend="isComposing = false; handleCompositionEnd($event)"
+              :style="{
                 borderImage: categoryStore.category.color.includes('gradient') ?
                   `${categoryStore.category.color} 1` : 'none',
                 borderBottom: categoryStore.category.color.includes('gradient') ?
@@ -28,7 +41,9 @@
           </div>
         </div>
         <div v-else class="flex-1">
-          <button @click="isOwner && toggleMenu(todo.id)" class="flex w-full">
+          <button 
+            @click="isOwner && toggleMenu(todo.id)" 
+            class="flex w-full">
             <div class="w-full text-[14.3px] text-left">
               {{ truncateText(todo.content) }}
             </div>
@@ -39,8 +54,12 @@
     </template>
   </draggable>
   <Transition name="menu">
-    <TodoMenu v-if="isOwner && !contentUpdateMode && selectedTodoId !== null" :selectedTodoId="selectedTodoId"
-      @close="closeMenu" @edit="handleContent" @delete="goDelete" @moveTomorrow="handleMoveTomorrow" />
+    <TodoMenu v-if="isOwner && !contentUpdateMode && selectedTodoId !== null" 
+      :selectedTodoId="selectedTodoId"
+      @close="closeMenu" 
+      @edit="handleContent" 
+      @delete="goDelete" 
+      @moveTomorrow="handleMoveTomorrow" />
   </Transition>
 </template>
 

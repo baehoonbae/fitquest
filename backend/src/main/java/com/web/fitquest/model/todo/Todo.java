@@ -2,6 +2,7 @@ package com.web.fitquest.model.todo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -16,6 +17,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @RequiredArgsConstructor
 @Schema(description = "오늘 할 일 DTO")
+@Builder
 public class Todo {
     private int id;
     private int userId;
