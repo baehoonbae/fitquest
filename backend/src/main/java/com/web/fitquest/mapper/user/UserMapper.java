@@ -33,4 +33,6 @@ public interface UserMapper {
     UserChoseong selectUserChoseong(Integer userId);
 
     boolean isAdmin(Integer userId);
+
+    void deleteTestUsers();
 }

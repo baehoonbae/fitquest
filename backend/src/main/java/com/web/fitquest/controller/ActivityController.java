@@ -1,7 +1,9 @@
 package com.web.fitquest.controller;
 
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,7 +11,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.web.fitquest.exception.ResourceNotFoundException;
 import com.web.fitquest.model.activity.Activity;
 import com.web.fitquest.service.activity.ActivityService;
 
@@ -44,9 +45,15 @@ public class ActivityController {
                 .userId(userId)
                 .date(year + "-01-01")
                 .build();
-        return ResponseEntity.ok(activityService.getActivityRatios(activity)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        String.format("%d년도 사용자 ID %d의 활동 데이터를 찾을 수 없습니다.", year, userId))));
+        try {
+            return ResponseEntity.ok(activityService.getActivityRatios(activity).get());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @Operation(summary = "일일 활동 데이터 갱신", description = "특정 날짜의 사용자 활동 데이터를 갱신합니다.")

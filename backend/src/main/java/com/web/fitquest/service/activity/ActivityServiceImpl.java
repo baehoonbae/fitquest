@@ -4,8 +4,9 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +26,8 @@ public class ActivityServiceImpl implements ActivityService {
     private final TodoMapper todoMapper;
 
     @Override
-    public Optional<Map<String, Double>> getActivityRatios(Activity activity) {
+    @Async
+    public CompletableFuture<Map<String, Double>> getActivityRatios(Activity activity) {
         List<Activity> activities = activityMapper.getActivityRatios(activity);
         int year = Integer.parseInt(activity.getDate().split("-")[0]);
         LocalDate startDate = LocalDate.of(year, 1, 1);
@@ -38,12 +40,11 @@ public class ActivityServiceImpl implements ActivityService {
             result.put(currentDate.toString(), 0.0);
             currentDate = currentDate.plusDays(1);
         }
-        
-        activities.forEach(act -> {
-            result.put(act.getDate(), act.getRatio());
-        });
 
-        return Optional.of(result);
+        // 활동 데이터를 Map에 저장
+        activities.forEach(act -> result.put(act.getDate(), act.getRatio()));
+
+        return CompletableFuture.completedFuture(result);
     }
 
     @Override

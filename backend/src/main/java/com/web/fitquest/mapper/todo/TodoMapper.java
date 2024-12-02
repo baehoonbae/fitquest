@@ -28,4 +28,6 @@ public interface TodoMapper {
     List<Todo> getTodoListByCategoryId(@Param("categoryId") int categoryId, @Param("userId") int userId);
 
     int getDoneTodoCount(int userId);
+
+    void deleteTestTodos();
 }
