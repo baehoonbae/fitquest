@@ -47,10 +47,7 @@ public class ActivityController {
                 .build();
         try {
             return ResponseEntity.ok(activityService.getActivityRatios(activity).get());
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        } catch (ExecutionException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -63,7 +60,11 @@ public class ActivityController {
     })
     @PutMapping("/daily/{date}/{userId}")
     public ResponseEntity<Double> updateDailyActivity(@PathVariable String date, @PathVariable int userId) {
-        double ratio = activityService.updateDailyActivity(userId, date);
-        return ResponseEntity.ok(ratio);
+        try {
+            return ResponseEntity.ok(activityService.updateDailyActivity(userId, date).get());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }
