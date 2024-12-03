@@ -27,7 +27,7 @@ const router = createRouter({
       meta: { hideLayout: true },
       beforeEnter: (to, from, next) => {
         const authStore = useAuthStore();
-        if (authStore.user.isAuthenticated) {
+        if (authStore.checkAuth()) {
           next({ name: "userHome" });
         } else {
           next();
