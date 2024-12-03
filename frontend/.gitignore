@@ -29,9 +29,9 @@ coverage
 
 *.tsbuildinfo
 
-# API 설정 파일
-src/api/http.js
-
 uploads/*
 uploads
 /uploads
+
+# 프로덕션 환경 변수만 ignore
+.env.production
