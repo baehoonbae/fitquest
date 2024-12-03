@@ -43,7 +43,7 @@ public class TodoServiceImpl implements TodoService {
             try {
                 double ratio = todoMapper.getDailyCompletionRatio(currentTodo.getUserId(), currentTodo.getDate());
                 Activity activity = new Activity(0, currentTodo.getUserId(), currentTodo.getDate(), ratio);
-                boolean success = activityService.updateActivityRatio(activity);
+                boolean success = activityService.updateActivityRatio(activity).get();
                 
                 if (!success && retryCount < MAX_RETRIES) {
                     todoQueue.offer(currentTodo);

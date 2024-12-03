@@ -8,7 +8,6 @@ import java.util.concurrent.CompletableFuture;
 
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.web.fitquest.mapper.activity.ActivityMapper;
 import com.web.fitquest.mapper.todo.TodoMapper;
@@ -19,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 @Slf4j
 public class ActivityServiceImpl implements ActivityService {
     private final ActivityMapper activityMapper;
@@ -48,22 +46,24 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
-    public boolean updateActivityRatio(Activity activity) {
+    @Async
+    public CompletableFuture<Boolean> updateActivityRatio(Activity activity) {
         try {
-            // 해당 날짜의 activity가 없으면 새로 생성, 있으면 업데이트
-            return activityMapper.insertOrUpdateActivity(activity) > 0;
+            boolean result = activityMapper.insertOrUpdateActivity(activity) > 0;
+            return CompletableFuture.completedFuture(result);
         } catch (Exception e) {
-            log.error("Activity ratio 업데이트 실패: {}", e.getMessage());
-            return false;
+            log.error("Activity ratio update failed: {}", e.getMessage());
+            return CompletableFuture.completedFuture(false);
         }
     }
 
     @Override
-    public double updateDailyActivity(int userId, String date) {
+    @Async
+    public CompletableFuture<Double> updateDailyActivity(int userId, String date) {
         double ratio = todoMapper.getDailyCompletionRatio(userId, date);
         Activity activity = new Activity(0, userId, date, ratio);
         activityMapper.insertOrUpdateActivity(activity);
         
-        return ratio;
+        return CompletableFuture.completedFuture(ratio);
     }
 }

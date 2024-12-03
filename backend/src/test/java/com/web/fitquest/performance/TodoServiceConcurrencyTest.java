@@ -52,7 +52,7 @@ public class TodoServiceConcurrencyTest {
     @Autowired
     private CategoryMapper categoryMapper;
 
-    private static final int USER_COUNT = 1250;
+    private static final int USER_COUNT = 1500;
     private List<User> testUsers;
     private List<Todo> testTodos;
 
