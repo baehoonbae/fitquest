@@ -33,5 +33,5 @@ uploads/*
 uploads
 /uploads
 
-# 프로덕션 환경 변수만 ignore
-.env.production
+# 개발 환경 변수만 ignore
+.env.development

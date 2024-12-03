@@ -1,6 +1,5 @@
 SET FOREIGN_KEY_CHECKS = 0;
-DROP DATABASE IF EXISTS fitquest_test;
-CREATE DATABASE fitquest_test;
+CREATE DATABASE IF NOT EXISTS fitquest_test;
 USE fitquest_test;
 
 DROP TABLE IF EXISTS guestbook;
@@ -16,9 +15,5 @@ DROP TABLE IF EXISTS board;
 DROP TABLE IF EXISTS todo;
 DROP TABLE IF EXISTS category;
 DROP TABLE IF EXISTS `user`;
-
-DROP DATABASE IF EXISTS fitquest_test;
-CREATE DATABASE fitquest_test;
-USE fitquest_test;
 
 SET FOREIGN_KEY_CHECKS = 1; 
