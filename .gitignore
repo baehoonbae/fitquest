@@ -76,9 +76,6 @@ coverage
 
 *.tsbuildinfo
 
-# API 설정 파일
-src/api/http.js
-
 uploads/*
 uploads
 /uploads
