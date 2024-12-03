@@ -13,16 +13,54 @@
 ## 📝 소개
 FitQuest는 나만의 운동 플래너를 만들어 활동 기록을 채우고 다른 사람들과 운동 관련 소통을 할 수 있는 종합 운동 커뮤니티 플랫폼입니다.
 
-- 프로젝트 소개
-- 프로젝트 화면 구성 또는 프로토 타입
-- 프로젝트 API 설계
-- 사용한 기술 스택
-- 프로젝트 팀원
-
+## 💁‍♂️ 프로젝트 팀원
+| <img src="https://github.com/baehoonbae.png" width="180" height="180"> | <img src="https://github.com/dlacowns21.png" width="180" height="180"> |
+|:---:|:---:|
+|[배성훈](https://github.com/baehoonbae)|[임채준](https://github.com/dlacowns21)
+|유저, 투두, 카테고리, 팔로우, 활동, 외부 API 관련 기능|게시판, 댓글, 조회수, 좋아요, 검색 관련 기능, 기술 문서 작성|
 
 <br />
+<br/>
 
-### 기능 소개
+## ⚙ 기술 스택
+### Back-end
+<div>
+<img src="https://img.shields.io/badge/Java-007396?style=for-the-badge&logo=Java&logoColor=white">
+<img src="https://img.shields.io/badge/SpringBoot-6DB33D?style=for-the-badge&logo=SpringBoot&logoColor=white">
+<img src="https://img.shields.io/badge/SpringSecurity-6DB33D?style=for-the-badge&logo=SpringSecurity&logoColor=white">
+<img src="https://img.shields.io/badge/JWT-F7DF1E?style=for-the-badge&logo=JSONWebTokens&logoColor=white">
+<img src="https://img.shields.io/badge/Mysql-4479A1?style=for-the-badge&logo=Mysql&logoColor=white">
+<img src="https://img.shields.io/badge/MyBatis-59666C?style=for-the-badge&logo=MyBatis&logoColor=white">
+<img src="https://img.shields.io/badge/SpringAI-6DB33D?style=for-the-badge&logo=SpringAI&logoColor=white">
+<img src="https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=Swagger&logoColor=white">
+</div>
+
+### Front-end
+<div>
+<img src="https://img.shields.io/badge/Vue.js-4FC08D?style=for-the-badge&logo=Vue.js&logoColor=white">
+<img src="https://img.shields.io/badge/Pinia-FFE135?style=for-the-badge&logo=Pinia&logoColor=white">
+<img src="https://img.shields.io/badge/TailwindCSS-06B6D4?style=for-the-badge&logo=TailwindCSS&logoColor=white">
+<img src="https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=Axios&logoColor=white">
+</div>
+
+### Library
+<div>
+<img src="https://img.shields.io/badge/eshangul-0000FF?style=for-the-badge&logo=eshangul&logoColor=white">
+<img src="https://img.shields.io/badge/lodash-568421?style=for-the-badge&logo=lodash&logoColor=white">
+<img src="https://img.shields.io/badge/@heroicons/vue-4FC08D?style=for-the-badge&logo=@heroicons/vue&logoColor=white">
+</div>
+
+### Tools
+<div>
+<img src="https://img.shields.io/badge/Github-181717?style=for-the-badge&logo=Github&logoColor=white">
+<img src="https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=Notion&logoColor=white">
+<img src="https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=Figma&logoColor=white">
+</div>
+
+<br/>
+<br/>
+
+## 기능 소개
 
 <details>
 <summary>방명록, 팔로워, 팔로잉 목록</summary>
@@ -255,56 +293,15 @@ FitQuest는 나만의 운동 플래너를 만들어 활동 기록을 채우고 �
 
 </details>
 
+## 핵심 성과
 
-<br />
+- [네이버 블로그 및 이미지 검색 API 배치 및 병렬 처리로 성능 최적화](https://github.com/baehoonbae/fitquest/blob/main/backend/src/main/java/com/web/fitquest/controller/ArticleController.java)
+- [Todo 및 Activity 업데이트 대량 트래픽 테스트를 통해 서버 성능 향상 및 확장성 검증](https://github.com/baehoonbae/fitquest/blob/main/backend/src/test/performance-test-results.md)
 
-## ⚙ 기술 스택
-### Back-end
-<div>
-<img src="https://img.shields.io/badge/Java-007396?style=for-the-badge&logo=Java&logoColor=white">
-<img src="https://img.shields.io/badge/SpringBoot-6DB33D?style=for-the-badge&logo=SpringBoot&logoColor=white">
-<img src="https://img.shields.io/badge/SpringSecurity-6DB33D?style=for-the-badge&logo=SpringSecurity&logoColor=white">
-<img src="https://img.shields.io/badge/JWT-F7DF1E?style=for-the-badge&logo=JSONWebTokens&logoColor=white">
-<img src="https://img.shields.io/badge/Mysql-4479A1?style=for-the-badge&logo=Mysql&logoColor=white">
-<img src="https://img.shields.io/badge/MyBatis-59666C?style=for-the-badge&logo=MyBatis&logoColor=white">
-<img src="https://img.shields.io/badge/SpringAI-6DB33D?style=for-the-badge&logo=SpringAI&logoColor=white">
-<img src="https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=Swagger&logoColor=white">
-</div>
-
-### Front-end
-<div>
-<img src="https://img.shields.io/badge/Vue.js-4FC08D?style=for-the-badge&logo=Vue.js&logoColor=white">
-<img src="https://img.shields.io/badge/Pinia-FFE135?style=for-the-badge&logo=Pinia&logoColor=white">
-<img src="https://img.shields.io/badge/TailwindCSS-06B6D4?style=for-the-badge&logo=TailwindCSS&logoColor=white">
-<img src="https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=Axios&logoColor=white">
-</div>
-
-### Library
-<div>
-<img src="https://img.shields.io/badge/eshangul-0000FF?style=for-the-badge&logo=eshangul&logoColor=white">
-<img src="https://img.shields.io/badge/lodash-568421?style=for-the-badge&logo=lodash&logoColor=white">
-<img src="https://img.shields.io/badge/@heroicons/vue-4FC08D?style=for-the-badge&logo=@heroicons/vue&logoColor=white">
-</div>
-
-### Tools
-<div>
-<img src="https://img.shields.io/badge/Github-181717?style=for-the-badge&logo=Github&logoColor=white">
-<img src="https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=Notion&logoColor=white">
-<img src="https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=Figma&logoColor=white">
-</div>
-
-<br />
-
-<br />
 
 
 <br />
-
-## 💁‍♂️ 프로젝트 팀원
-| <img src="https://github.com/baehoonbae.png" width="180" height="180"> | <img src="https://github.com/dlacowns21.png" width="180" height="180"> |
-|:---:|:---:|
-|[배성훈](https://github.com/baehoonbae)|[임채준](https://github.com/dlacowns21)
-|유저, 투두, 카테고리, 팔로우, 활동, 외부 API 관련 기능|게시판, 댓글, 조회수, 좋아요, 검색 관련 기능, 기술 문서 작성|
+<br />
 
 
 
