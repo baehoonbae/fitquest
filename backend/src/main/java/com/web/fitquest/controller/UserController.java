@@ -118,11 +118,11 @@ public class UserController {
                         ResponseCookie refreshTokenCookie = ResponseCookie
                                 .from("refreshToken", tokens.getRefreshToken())
                                 .httpOnly(true)
-                                .secure(false) // 개발환경 대응
+                                .secure(true)
                                 .path("/")
                                 .maxAge(60 * 60 * 24 * 14) // 2주
                                 .sameSite("Lax") // 모바일 대응
-                                .domain("fqdashboard.duckdns.org") // 도메인 설정
+                                .domain("") // 도메인 설정
                                 .build();
 
                         return ResponseEntity.ok()
