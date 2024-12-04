@@ -70,10 +70,9 @@ public class SecurityConfig {
         public CorsConfigurationSource corsConfigurationSource() {
                 CorsConfiguration configuration = new CorsConfiguration();
                 
-                // 특정 출처만 허용
-                configuration.setAllowedOrigins(Arrays.asList(
-                        "https://fqdashboard.netlify.app",
-                        "https://3.24.232.172"
+                // 특정 패턴으로 시작하는 도메인 허용
+                configuration.setAllowedOriginPatterns(Arrays.asList(
+                        "https://fqdashboard.netlify.app*"
                 ));
                 
                 // 허용할 HTTP 메서드 설정
