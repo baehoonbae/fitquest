@@ -256,6 +256,9 @@ export const useAuthStore = defineStore(
             skipLoading: true,
           }
         );
+        if (!response.data.exists) {
+          alert("리프레시 토큰 없다고 뜨네용");
+        }
         return response.data.exists;
       } catch (error) {
         console.error("리프레시 토큰 확인 실패:", error);
