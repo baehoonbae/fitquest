@@ -17,15 +17,15 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/uploads/**").addResourceLocations("file:" + uploadPath);
     }
 
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry
-            .addMapping("/**")
-            .allowedOrigins("https://elaborate-jelly-ef12f0.netlify.app")
-            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-            .allowedHeaders("*")
-            .exposedHeaders("*")
-            .allowCredentials(true)
-            .maxAge(3600);
-    }
+    // @Override
+    // public void addCorsMappings(CorsRegistry registry) {
+    //     registry
+    //         .addMapping("/**")
+    //         .allowedOrigins("https://elaborate-jelly-ef12f0.netlify.app")
+    //         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+    //         .allowedHeaders("*")
+    //         .exposedHeaders("*")
+    //         .allowCredentials(true)
+    //         .maxAge(3600);
+    // }
 }
