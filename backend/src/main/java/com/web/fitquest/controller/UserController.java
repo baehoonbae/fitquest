@@ -122,7 +122,7 @@ public class UserController {
                                 .path("/") // 모든 경로에서 접근 가능
                                 .maxAge(60 * 60 * 24 * 14) // 2주
                                 .sameSite("Lax") // CSRF 방지
-                                .domain("") // 도메인 설정
+                                .domain("3.24.232.172") // 도메인 설정
                                 .build();
 
                         return ResponseEntity.ok()

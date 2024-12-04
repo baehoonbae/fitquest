@@ -23,7 +23,8 @@ public class WebConfig implements WebMvcConfigurer {
             .addMapping("/**")
             .allowedOrigins(
                 "http://localhost:5173",
-                "https://elaborate-jelly-ef12f0.netlify.app"
+                "https://elaborate-jelly-ef12f0.netlify.app",
+                "https://3.24.232.172"
             )
             .allowedMethods("*")
             .allowedHeaders("*")
@@ -35,7 +36,8 @@ public class WebConfig implements WebMvcConfigurer {
             .addMapping("/fitquest/api/**")
             .allowedOrigins(
                 "http://localhost:5173",
-                "https://elaborate-jelly-ef12f0.netlify.app"
+                "https://elaborate-jelly-ef12f0.netlify.app",
+                "https://3.24.232.172"
             )
             .allowedMethods("*")
             .allowedHeaders("*")
