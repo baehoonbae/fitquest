@@ -72,7 +72,8 @@ public class SecurityConfig {
                 
                 // 특정 출처만 허용
                 configuration.setAllowedOrigins(Arrays.asList(
-                        "https://elaborate-jelly-ef12f0.netlify.app"
+                        "https://fqdashboard.netlify.app",
+                        "https://3.24.232.172"
                 ));
                 
                 // 허용할 HTTP 메서드 설정
