@@ -27,7 +27,7 @@ const router = createRouter({
       meta: { hideLayout: true },
       beforeEnter: (to, from, next) => {
         const authStore = useAuthStore();
-        if (authStore.checkAuth()) {
+        if (authStore.user.isAuthenticated) {
           next({ name: "userHome" });
         } else {
           next();
@@ -175,26 +175,30 @@ router.beforeEach(async (to, from, next) => {
   const loadingStore = useLoadingStore();
   const authStore = useAuthStore();
 
-  loadingStore.show(true);
-  
-  if (authStore.user.isAuthenticated) {
-    if (to.name === "login" || to.name === "signup") {
-      next({ name: "userHome" });
-      return;
-    }
-    next();
-    return;
-  }
-
-  if (to.meta.requiresAuth) {
-    const isAuth = await authStore.checkAuth();
-    if (!isAuth) {
+  loadingStore.show(true); // 라우트 전환임을 표시
+  const isAuth = await authStore.checkAuth();
+  if ((to.name === "login" || to.name === "signup") && isAuth) {
+    next({ name: "userHome" });
+  } else if (to.meta.requiresAuth) {
+    try {
+      if (!isAuth) {
+        authStore.logout();
+        next({ name: "login" });
+        return;
+      } else {
+        if (to.path === "/login" || to.path === "/signup") {
+          next({ name: "userHome" });
+        }
+      }
+      next();
+    } catch (error) {
+      console.error("Auth check failed:", error);
+      authStore.logout();
       next({ name: "login" });
-      return;
     }
+  } else {
+    next();
   }
-  
-  next();
 });
 
 router.afterEach(() => {
