@@ -69,16 +69,26 @@ public class SecurityConfig {
         @Bean
         public CorsConfigurationSource corsConfigurationSource() {
                 CorsConfiguration configuration = new CorsConfiguration();
+                
+                // 특정 출처만 허용
                 configuration.setAllowedOrigins(Arrays.asList(
-                        "http://localhost:5173",
-                        "http://localhost:8097",
-                        "https://elaborate-jelly-ef12f0.netlify.app",
-                        "https://3.24.232.172"
+                        "https://elaborate-jelly-ef12f0.netlify.app"
                 ));
-                configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                
+                // 허용할 HTTP 메서드 설정
+                configuration.setAllowedMethods(Arrays.asList(
+                        "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
+                ));
+                
+                // 모든 헤더 허용
                 configuration.setAllowedHeaders(Arrays.asList("*"));
+                
+                // 인증 정보 허용
                 configuration.setAllowCredentials(true);
-
+                
+                // preflight 요청 캐시 시간
+                configuration.setMaxAge(3600L);
+                
                 UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
                 source.registerCorsConfiguration("/**", configuration);
                 return source;
