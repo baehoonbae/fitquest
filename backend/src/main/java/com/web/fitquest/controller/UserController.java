@@ -118,7 +118,7 @@ public class UserController {
                         ResponseCookie refreshTokenCookie = ResponseCookie
                                 .from("refreshToken", tokens.getRefreshToken())
                                 .httpOnly(true) // 자바스크립트 접근 불가
-                                .secure(false) // https 프로토콜에서만 전송(개발 단계에서는 주석 처리)
+                                .secure(true) // https 프로토콜에서만 전송(개발 단계에서는 주석 처리)
                                 .path("/") // 모든 경로에서 접근 가능
                                 .maxAge(60 * 60 * 24 * 14) // 2주
                                 .sameSite("Lax") // CSRF 방지
