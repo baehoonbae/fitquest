@@ -201,7 +201,7 @@ const fetchDoneTodoCount = async () => {
 
 // 이미지 에러 핸들러 추가
 const handleImageError = (e) => {
-  e.target.src = "/default-profile.png";
+  e.target.src = `${http.defaults.baseURL}/user/uploads/profiles/default_profile.png`;
   e.target.onerror = null; // 무한 루프 방지
 };
 
