@@ -40,58 +40,42 @@ public class SecurityConfig {
 
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 활성화
-                .httpBasic(AbstractHttpConfigurer::disable) // 기본 인증 로그인 비활성화
-                .formLogin(AbstractHttpConfigurer::disable) // 기본 login form 비활성화
-                .logout(AbstractHttpConfigurer::disable) // 기본 logout 비활성화
-                .headers(c -> c.frameOptions(
-                                HeadersConfigurer.FrameOptionsConfig::disable))
-                .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용하지 않음
-                .authorizeHttpRequests(
-                        request -> request
-                                // Swagger UI 관련 경로 추가
-                                .requestMatchers(
-                                        "/swagger-ui/**",
-                                        "/swagger-ui.html",
-                                        "/v3/api-docs/**",
-                                        "/swagger-resources/**",
-                                        "/api/**", 
-                                        "/fitquest/api/**"
-                                )
-                                .permitAll()
-                                .anyRequest().authenticated());
-                                                
-        return http.build();
+                http
+                                .csrf(AbstractHttpConfigurer::disable)
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                                .httpBasic(AbstractHttpConfigurer::disable)
+                                .formLogin(AbstractHttpConfigurer::disable)
+                                .logout(AbstractHttpConfigurer::disable)
+                                .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .authorizeHttpRequests(request -> request.requestMatchers("/**").permitAll());
+
+                return http.build();
         }
 
         @Bean
         public CorsConfigurationSource corsConfigurationSource() {
                 CorsConfiguration configuration = new CorsConfiguration();
-                
+
                 // 특정 패턴으로 시작하는 도메인 허용
                 configuration.setAllowedOriginPatterns(Arrays.asList(
-                        "https://fqdashboard.netlify.app",
-                        "https://3.24.232.172",
-                        "http://localhost:5173",
-                        "http://localhost:8097"
-                ));
-                
+                                "https://fqdashboard.netlify.app",
+                                "https://3.24.232.172",
+                                "http://localhost:5173",
+                                "http://localhost:8097"));
+
                 // 허용할 HTTP 메서드 설정
                 configuration.setAllowedMethods(Arrays.asList(
-                        "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
-                ));
-                
+                                "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+
                 // 모든 헤더 허용
                 configuration.setAllowedHeaders(Arrays.asList("*"));
-                
+
                 // 인증 정보 허용
                 configuration.setAllowCredentials(true);
-                
+
                 // preflight 요청 캐시 시간
                 configuration.setMaxAge(3600L);
-                
+
                 UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
                 source.registerCorsConfiguration("/**", configuration);
                 return source;
