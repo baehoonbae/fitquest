@@ -78,8 +78,7 @@ const todoStore = useTodoStore();
 const activityStore = useActivityStore();
 
 onMounted(async () => {
-  await authStore.fetchUserInfo();
-  if (authStore.user.id) {
+  if (authStore.user?.id) {
     await categoryStore.fetchCategories(authStore.user.id);
   }
   
@@ -143,30 +142,35 @@ const confirmDate = async () => {
   const newDate = localSelectedDate.value;
 
   try {
+    // 1. Todo 업데이트
     await todoStore.fetchTodoUpdate({
       ...todo,
       date: newDate,
     });
 
-    await Promise.all([
+    // 2. 필요한 데이터만 병렬로 가져오기
+    const [oldTodos, newTodos] = await Promise.all([
       todoStore.fetchTodos(oldDate),
-      todoStore.fetchTodos(newDate),
-      activityStore.fetchUpdateDailyActivity(oldDate, todo.userId),
-      activityStore.fetchUpdateDailyActivity(newDate, todo.userId)
+      todoStore.fetchTodos(newDate)
     ]);
 
-    // 달력 날짜 업데이트
-    dateStore.setSelectedDate(newDate);
-    
-    // 월별 투두 목록 갱신
-    const newDateObj = new Date(newDate);
-    await todoStore.fetchMonthlyTodos(
-      newDateObj.getFullYear(),
-      newDateObj.getMonth() + 1,
-      todo.userId
-    );
+    // 3. Activity 업데이트는 백그라운드로 처리
+    activityStore.fetchUpdateDailyActivity(oldDate, todo.userId)
+      .catch(error => console.error('Activity update failed:', error));
+    activityStore.fetchUpdateDailyActivity(newDate, todo.userId)
+      .catch(error => console.error('Activity update failed:', error));
 
+    // 4. UI 업데이트
+    dateStore.setSelectedDate(newDate);
     emit("closeDatePicker");
+
+    // 5. 월별 데이터는 비동기로 업데이트
+    todoStore.fetchMonthlyTodos(
+      new Date(newDate).getFullYear(),
+      new Date(newDate).getMonth() + 1,
+      todo.userId
+    ).catch(error => console.error('Monthly todos update failed:', error));
+
   } catch (error) {
     console.error("날짜 수정 실패:", error);
   }

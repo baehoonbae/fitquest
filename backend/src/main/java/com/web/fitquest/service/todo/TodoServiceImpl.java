@@ -31,7 +31,7 @@ public class TodoServiceImpl implements TodoService {
     private final TodoMapper todoMapper;
     private final ActivityService activityService;
 
-    @Scheduled(fixedRate = 5000) // 5초마다 실행
+    @Scheduled(fixedRate = 2000) // 2초마다 실행
     @Transactional
     public void processActivityUpdates() {
         Todo todo;

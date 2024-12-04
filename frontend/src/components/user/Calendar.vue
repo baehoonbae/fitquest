@@ -83,13 +83,11 @@ const props = defineProps({
   },
 });
 
-const authStore = useAuthStore();
 const categoryStore = useCategoryStore();
 const dateStore = useDateStore();
 const todoStore = useTodoStore();
 
 onMounted(async () => {
-  await authStore.fetchUserInfo();
   if (props.userId) {
     await categoryStore.fetchCategories(props.userId);
   }

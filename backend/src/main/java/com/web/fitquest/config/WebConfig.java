@@ -21,11 +21,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry
             .addMapping("/**")
-            .allowedOrigins(
-                "http://localhost:5173",
-                "https://elaborate-jelly-ef12f0.netlify.app",
-                "https://3.24.232.172"
-            )
+            .allowedOriginPatterns("*")
             .allowedMethods("*")
             .allowedHeaders("*")
             .allowCredentials(true)
@@ -34,11 +30,7 @@ public class WebConfig implements WebMvcConfigurer {
         // fitquest 전용 엔드포인트에 대한 설정
         registry
             .addMapping("/fitquest/api/**")
-            .allowedOrigins(
-                "http://localhost:5173",
-                "https://elaborate-jelly-ef12f0.netlify.app",
-                "https://3.24.232.172"
-            )
+            .allowedOriginPatterns("*")
             .allowedMethods("*")
             .allowedHeaders("*")
             .allowCredentials(true)
