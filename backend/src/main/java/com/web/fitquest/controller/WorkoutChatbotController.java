@@ -40,7 +40,7 @@ public class WorkoutChatbotController {
         @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @GetMapping("/ai/generate")
-    public Map generate(@RequestParam(value = "message", defaultValue = "안녕하세요") String message) {
+    public Map<String, String> generate(@RequestParam(value = "message", defaultValue = "안녕하세요") String message) {
         return Map.of("generation", openAiService.generateResponse(message));
     }
 

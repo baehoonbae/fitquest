@@ -1,7 +1,6 @@
 package com.web.fitquest.controller;
 
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
