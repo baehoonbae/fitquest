@@ -21,18 +21,10 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry
             .addMapping("/**")
-            .allowedOriginPatterns("*")
-            .allowedMethods("*")
+            .allowedOrigins("https://elaborate-jelly-ef12f0.netlify.app")
+            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
             .allowedHeaders("*")
-            .allowCredentials(true)
-            .maxAge(3600);
-
-        // fitquest 전용 엔드포인트에 대한 설정
-        registry
-            .addMapping("/fitquest/api/**")
-            .allowedOriginPatterns("*")
-            .allowedMethods("*")
-            .allowedHeaders("*")
+            .exposedHeaders("*")
             .allowCredentials(true)
             .maxAge(3600);
     }
