@@ -35,3 +35,4 @@ uploads
 
 # 개발 환경 변수만 ignore
 .env.development
+frontend/.env.development
