@@ -143,12 +143,12 @@ const getUserProfileImage = (profileImage) => {
   if (profileImage) {
     return `${http.defaults.baseURL}/user${profileImage}`;
   }
-  return "/default-profile.png";
+  return `${http.defaults.baseURL}/user/uploads/profiles/default_profile.png`;
 };
 
 // 이미지 로드 실패시 기본 이미지로 대체
 const handleImageError = (e) => {
-  e.target.src = "/default-profile.png";
+  e.target.src = `${http.defaults.baseURL}/user/uploads/profiles/default_profile.png`;
 };
 
 // 디바운스된 검색 함수

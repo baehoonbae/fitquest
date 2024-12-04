@@ -106,7 +106,7 @@ const computedProfileImage = computed(() => {
   if (authStore.user?.profileImage) {
     return `${http.defaults.baseURL}/user${authStore.user.profileImage}`;
   }
-  return "/default-profile.png";
+  return `${http.defaults.baseURL}/user/uploads/profiles/default_profile.png`;
 });
 
 // 이미지 업로드 처리 함수 수정

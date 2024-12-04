@@ -72,7 +72,10 @@ public class SecurityConfig {
                 
                 // 특정 패턴으로 시작하는 도메인 허용
                 configuration.setAllowedOriginPatterns(Arrays.asList(
-                        "https://fqdashboard.netlify.app*"
+                        "https://fqdashboard.netlify.app",
+                        "https://3.24.232.172",
+                        "http://localhost:5173",
+                        "http://localhost:8097"
                 ));
                 
                 // 허용할 HTTP 메서드 설정
