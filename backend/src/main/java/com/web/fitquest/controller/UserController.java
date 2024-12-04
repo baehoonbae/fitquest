@@ -122,7 +122,7 @@ public class UserController {
                                 .path("/") // 모든 경로에서 접근 가능
                                 .maxAge(60 * 60 * 24 * 14) // 2주
                                 .sameSite("Lax") // https 필수
-                                .domain("fqdashboard.duckdns.org") // 도메인 설정
+                                .domain(".fqdashboard.duckdns.org") // 도메인 설정
                                 .build();
 
                         return ResponseEntity.ok()
