@@ -218,7 +218,7 @@ const navigateToList = () => {
 
 // handleDelete 함수 수정
 const handleDelete = () => {
-  if (!authStore.checkAuth()) {
+  if (!authStore.user.isAuthenticated) {
     needLoginAlert.value = true;
     return;
   }
@@ -326,7 +326,7 @@ const fetchHitCount = async () => {
 };
 
 const toggleHit = async () => {
-  if (!authStore.checkAuth()) {
+  if (!authStore.user.isAuthenticated) {
     needLoginAlert.value = true;
     return;
   }
@@ -412,12 +412,11 @@ onMounted(async () => {
 
 // 더블클릭으로 좋아요만 추가하는 함수
 const addHitByDoubleClick = async () => {
-  if (!authStore.checkAuth()) {
+  if (!authStore.user.isAuthenticated) {
     needLoginAlert.value = true;
     return;
   }
 
-  // 이미 좋아요 상태면 무시
   if (isHit.value) return;
 
   try {
@@ -437,6 +436,9 @@ const addHitByDoubleClick = async () => {
       hitCount.value = response.data.hitCount;
     }
   } catch (error) {
+    if (error.response?.status === 401) {
+      needLoginAlert.value = true;
+    }
     console.error("Error adding hit:", error);
   }
 };
@@ -444,7 +446,7 @@ const addHitByDoubleClick = async () => {
 const showHeart = ref(false);
 
 const handleDoubleClick = async (event) => {
-  if (!authStore.checkAuth()) {
+  if (!authStore.user.isAuthenticated) {
     needLoginAlert.value = true;
     return;
   }

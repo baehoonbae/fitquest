@@ -221,12 +221,24 @@ export const useAuthStore = defineStore(
         if (error.response.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
 
-          const refreshed = await refreshToken();
-          if (refreshed) {
-            originalRequest.headers[
-              "Authorization"
-            ] = `Bearer ${sessionStorage.getItem("accessToken")}`;
-            return http(originalRequest);
+          try {
+            // 리프레시 토큰으로 직접 새 액세스 토큰 요청
+            const response = await http.post("/user/refresh", {
+              refreshToken: document.cookie
+                .split("; ")
+                .find(row => row.startsWith("refreshToken="))
+                ?.split("=")[1]
+            });
+
+            if (response.data.accessToken) {
+              sessionStorage.setItem("accessToken", response.data.accessToken);
+              originalRequest.headers["Authorization"] = `Bearer ${response.data.accessToken}`;
+              return http(originalRequest);
+            }
+          } catch (refreshError) {
+            // 리프레시 토큰도 만료된 경우
+            logout();
+            return Promise.reject(error);
           }
         }
         return Promise.reject(error);
@@ -252,7 +264,7 @@ export const useAuthStore = defineStore(
           withCredentials: true,
           skipLoading: true
         });
-        alert("토큰 체크 응답: " + JSON.stringify(response.data));
+        // alert("토큰 체크 응답: " + JSON.stringify(response.data));
         return response.data.exists;
       } catch (error) {
         console.error('토큰 체크 에러:', error);

@@ -174,8 +174,7 @@ const fetchFollowData = async () => {
 
 // 팔로우/언팔로우 핸들러
 const handleFollow = async () => {
-  const isAuth = await authStore.checkAuth();
-  if (!isAuth) {
+  if (!authStore.user.isAuthenticated) {
     needLoginAlert.value = true;
     return;
   }
@@ -184,8 +183,7 @@ const handleFollow = async () => {
 };
 
 const handleUnfollow = async () => {
-  const isAuth = await authStore.checkAuth();
-  if (!isAuth) {
+  if (!authStore.user.isAuthenticated) {
     needLoginAlert.value = true;
     return;
   }

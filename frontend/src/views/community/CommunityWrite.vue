@@ -173,8 +173,7 @@ const submitPost = async () => {
   try {
     isSubmitting.value = true; // 제출 시작
 
-    const isAuth = await authStore.checkAuth();
-    if (!isAuth) {
+    if (!authStore.user.isAuthenticated) {
       needLoginAlert.value = true;
       return;
     }

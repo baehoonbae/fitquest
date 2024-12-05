@@ -116,25 +116,35 @@ const goToUserHome = (userId) => {
 };
 
 const handleFollow = async (userId) => {
-    const isAuth = await authStore.checkAuth();
-    if (!isAuth) {
+    if (!authStore.user.isAuthenticated) {
         needLoginAlert.value = true;
         return;
     }
-    await followStore.fetchFollow(userId);
-    followStatus.value[userId] = true;
-    emit('updateFollowList');
+    try {
+        await followStore.fetchFollow(userId);
+        followStatus.value[userId] = true;
+        emit('updateFollowList');
+    } catch (error) {
+        if (error.response?.status === 401) {
+            needLoginAlert.value = true;
+        }
+    }
 };
 
 const handleUnfollow = async (userId) => {
-    const isAuth = await authStore.checkAuth();
-    if (!isAuth) {
+    if (!authStore.user.isAuthenticated) {
         needLoginAlert.value = true;
         return;
     }
-    await followStore.fetchUnfollow(userId);
-    followStatus.value[userId] = false;
-    emit('updateFollowList');
+    try {
+        await followStore.fetchUnfollow(userId);
+        followStatus.value[userId] = false;
+        emit('updateFollowList');
+    } catch (error) {
+        if (error.response?.status === 401) {
+            needLoginAlert.value = true;
+        }
+    }
 };
 
 const handleKeydown = (e) => {

@@ -175,27 +175,23 @@ router.beforeEach(async (to, from, next) => {
   const loadingStore = useLoadingStore();
   const authStore = useAuthStore();
 
-  loadingStore.show(true); // 라우트 전환임을 표시
-  const isAuth = await authStore.checkAuth();
-  if ((to.name === "login" || to.name === "signup") && isAuth) {
+  loadingStore.show(true);
+
+  if ((to.name === "login" || to.name === "signup") && authStore.user.isAuthenticated) {
     next({ name: "userHome" });
   } else if (to.meta.requiresAuth) {
-    try {
-      if (!isAuth) {
-        authStore.logout();
-        next({ name: "login" });
-        return;
-      } else {
-        if (to.path === "/login" || to.path === "/signup") {
-          next({ name: "userHome" });
-        }
-      }
-      next();
-    } catch (error) {
-      console.error("Auth check failed:", error);
+    if (!authStore.user.isAuthenticated) {
       authStore.logout();
       next({ name: "login" });
+      return;
     }
+    
+    if (to.path === "/login" || to.path === "/signup") {
+      next({ name: "userHome" });
+      return;
+    }
+    
+    next();
   } else {
     next();
   }
