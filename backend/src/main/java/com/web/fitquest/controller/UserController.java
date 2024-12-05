@@ -293,16 +293,16 @@ public class UserController {
             @CookieValue(name = "refreshToken", required = false) String refreshToken,
             HttpServletRequest request) {
         
-        log.error("=== 리프레시 토큰 체크 시작 ===");
-        log.error("User-Agent: {}", request.getHeader("User-Agent"));
-        log.error("모든 쿠키: {}", request.getCookies() != null ? 
+        log.info("=== 리프레시 토큰 체크 시작 ===");
+        log.info("User-Agent: {}", request.getHeader("User-Agent"));
+        log.info("모든 쿠키: {}", request.getCookies() != null ? 
             Arrays.toString(request.getCookies()) : "쿠키 없음");
-        log.error("요청 헤더 [Cookie]: {}", request.getHeader("Cookie"));
-        log.error("리프레시 토큰 존재 여부: {}", refreshToken != null);
+        log.info("요청 헤더 [Cookie]: {}", request.getHeader("Cookie"));
+        log.info("리프레시 토큰 존재 여부: {}", refreshToken != null);
         if (refreshToken != null) {
-            log.error("리프레시 토큰 길이: {}", refreshToken.length());
+            log.info("리프레시 토큰 길이: {}", refreshToken.length());
         }
-        log.error("=== 리프레시 토큰 체크 종료 ===");
+        log.info("=== 리프레시 토큰 체크 종료 ===");
         
         return ResponseEntity.ok()
                 .body(Map.of("exists", refreshToken != null));
