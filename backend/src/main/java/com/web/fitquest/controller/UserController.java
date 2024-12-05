@@ -121,8 +121,8 @@ public class UserController {
                                 .secure(true) // https 프로토콜에서만 전송(개발 단계에서는 주석 처리)
                                 .path("/") // 모든 경로에서 접근 가능
                                 .maxAge(60 * 60 * 24 * 14) // 2주
-                                .sameSite("None") // https 필수
-                                .domain(".fqdashboard.duckdns.org") // 도메인 설정
+                                .sameSite("Lax") // https 필수
+                                .domain("fqdashboard.duckdns.org") // 도메인 설정
                                 .build();
 
                         return ResponseEntity.ok()
