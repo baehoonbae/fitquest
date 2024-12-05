@@ -247,21 +247,18 @@ export const useAuthStore = defineStore(
 
     const checkRefreshTokenExists = async () => {
       try {
-        const response = await http.get(
-          "/user/check-refresh-token",
-          {
-            withCredentials: true,
-          },
-          {
-            skipLoading: true,
-          }
-        );
+        console.log('토큰 체크 API 호출 시작');
+        const response = await http.get("/user/check-refresh-token", {
+          withCredentials: true,
+          skipLoading: true
+        });
+        console.log('토큰 체크 응답:', response);
         if (!response.data.exists) {
-          alert("리프레시 토큰 없다고 뜨네용");
+          console.log('리프레시 토큰 없음');
         }
         return response.data.exists;
       } catch (error) {
-        console.error("리프레시 토큰 확인 실패:", error);
+        console.error('토큰 체크 에러:', error);
         return false;
       }
     };
