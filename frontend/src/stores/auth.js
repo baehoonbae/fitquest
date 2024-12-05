@@ -252,10 +252,7 @@ export const useAuthStore = defineStore(
           withCredentials: true,
           skipLoading: true
         });
-        alert("토큰 체크 응답: " + response);
-        if (!response.data.exists) {
-          alert("리프레시 토큰 없음");
-        }
+        alert("토큰 체크 응답: " + JSON.stringify(response.data));
         return response.data.exists;
       } catch (error) {
         console.error('토큰 체크 에러:', error);
