@@ -2,6 +2,7 @@ package com.web.fitquest.controller;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,6 +43,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -121,7 +123,7 @@ public class UserController {
                                 .secure(true) // https 프로토콜에서만 전송(개발 단계에서는 주석 처리)
                                 .path("/") // 모든 경로에서 접근 가능
                                 .maxAge(60 * 60 * 24 * 14) // 2주
-                                .sameSite("Lax") // https 필수
+                                .sameSite("None") // https 필수
                                 .domain("fqdashboard.duckdns.org") // 도메인 설정
                                 .build();
 
@@ -213,7 +215,7 @@ public class UserController {
 
     @Operation(summary = "이메일 중복 확인", description = "이메일 사용 가능 여부를 확인합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "사용 가능한 이메일"),
+            @ApiResponse(responseCode = "200", description = "사용 가능한 ��메일"),
             @ApiResponse(responseCode = "409", description = "중복된 이메일"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
@@ -288,7 +290,21 @@ public class UserController {
     })
     @GetMapping("/check-refresh-token")
     public ResponseEntity<?> checkRefreshToken(
-            @CookieValue(name = "refreshToken", required = false) String refreshToken) {
+            @CookieValue(name = "refreshToken", required = false) String refreshToken,
+            HttpServletRequest request) {
+        
+        // 요청 관련 상세 정보 로깅
+        log.info("=== 리프레시 토큰 체크 시작 ===");
+        log.info("User-Agent: {}", request.getHeader("User-Agent"));
+        log.info("모든 쿠키: {}", request.getCookies() != null ? 
+            Arrays.toString(request.getCookies()) : "쿠키 없음");
+        log.info("요청 헤더 [Cookie]: {}", request.getHeader("Cookie"));
+        log.info("리프레시 토큰 존재 여부: {}", refreshToken != null);
+        if (refreshToken != null) {
+            log.info("리프레시 토큰 길이: {}", refreshToken.length());
+        }
+        log.info("=== 리프레시 토큰 체크 종료 ===");
+        
         return ResponseEntity.ok()
                 .body(Map.of("exists", refreshToken != null));
     }
