@@ -13,8 +13,7 @@ export const useFollowStore = defineStore("follow", () => {
     }
 
     const fetchIsFollowing = async (userId) => {
-        const isAuth = await authStore.checkAuth();
-        if(!isAuth) {
+        if (!authStore.user.isAuthenticated) {
             return;
         }
         const accessToken = authStore.getToken();

@@ -96,7 +96,7 @@ const filteredBoards = computed(() => {
   const notices = result.filter((board) => board.tag === "공지");
   const regularPosts = result.filter((board) => board.tag !== "공지");
 
-  // ���각 ID 기준으로 내림차순 정렬
+  // 각 ID 기준으로 내림차순 정렬
   notices.sort((a, b) => b.id - a.id);
   regularPosts.sort((a, b) => b.id - a.id);
 
@@ -199,7 +199,7 @@ const viewAllPosts = () => {
 
 // 글쓰기 페이지로 이동하는 메서드
 const goToWrite = async () => {
-  if (!(await authStore.checkAuth())) {
+  if (!authStore.user.isAuthenticated) {
     needLoginAlert.value = true;
     return;
   }

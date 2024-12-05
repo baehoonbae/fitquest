@@ -140,7 +140,7 @@ const showGuestbook = ref(false);
 const fetchFollowData = async () => {
   try {
     // 사용자가 로그인되어 있지 않으면 early return
-    if (!authStore.checkAuth()) {
+    if (!authStore.user.isAuthenticated) {
       followerList.value = [];
       followingList.value = [];
       return;
@@ -160,7 +160,7 @@ const fetchFollowData = async () => {
 };
 
 onMounted(async () => {
-  if (authStore.checkAuth()) {
+  if (authStore.user.isAuthenticated) {
     try {
       await Promise.all([fetchFollowData(), fetchDoneTodoCount()]);
     } catch (error) {
@@ -187,7 +187,7 @@ const handleDateSelected = (date) => {
 // 투두 수 가져오기
 const fetchDoneTodoCount = async () => {
   try {
-    if (!authStore.checkAuth()) {
+    if (!authStore.user.isAuthenticated) {
       doneTodoCount.value = 0;
       return;
     }

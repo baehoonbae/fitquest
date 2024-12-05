@@ -69,13 +69,27 @@ public class SecurityConfig {
                                 "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
 
                 // 모든 헤더 허용
-                configuration.setAllowedHeaders(Arrays.asList("*"));
+                configuration.setAllowedHeaders(Arrays.asList(
+                                "Authorization", 
+                                "Content-Type",
+                                "X-Requested-With",
+                                "Accept",
+                                "Origin",
+                                "Access-Control-Request-Method",
+                                "Access-Control-Request-Headers"
+                ));
 
                 // 인증 정보 허용
                 configuration.setAllowCredentials(true);
 
                 // preflight 요청 캐시 시간
                 configuration.setMaxAge(3600L);
+
+                // 노출할 헤더 설정
+                configuration.setExposedHeaders(Arrays.asList(
+                                "Access-Control-Allow-Origin",
+                                "Access-Control-Allow-Credentials"
+                ));
 
                 UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
                 source.registerCorsConfiguration("/**", configuration);

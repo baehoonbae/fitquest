@@ -191,7 +191,9 @@ const handleEnter = () => {
 
 const search = async () => {
   if (!searchText.value.trim()) return;
-  if (authStore.checkAuth()) {
+  
+  // 인증된 사용자인 경우에만 검색 기록 저장
+  if (authStore.user.isAuthenticated) {
     try {
       await http.post(`/board/history`, {
         userId: authStore.user.id,

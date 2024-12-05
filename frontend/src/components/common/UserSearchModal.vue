@@ -112,7 +112,7 @@ const initFollowStatus = async () => {
 
 const handleFollow = async (userId) => {
   try {
-    if (!authStore.checkAuth()) {
+    if (!authStore.user.isAuthenticated) {
       needLoginAlert.value = true;
       return;
     }
@@ -126,7 +126,7 @@ const handleFollow = async (userId) => {
 
 const handleUnfollow = async (userId) => {
   try {
-    if (!authStore.checkAuth()) {
+    if (!authStore.user.isAuthenticated) {
       needLoginAlert.value = true;
       return;
     }

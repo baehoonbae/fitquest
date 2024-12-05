@@ -188,7 +188,7 @@ public class UserController {
             return ResponseEntity.ok().body("로그아웃 성공");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("로���아웃 실패");
+                    .body("로그아웃 실패");
         }
     }
 
@@ -267,7 +267,7 @@ public class UserController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "수정 성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-            @ApiResponse(responseCode = "500", description = "서버 ���류")
+            @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @PutMapping("/{userId}")
     public ResponseEntity<?> updateUserInfo(@PathVariable Integer userId, @RequestBody User user) {
