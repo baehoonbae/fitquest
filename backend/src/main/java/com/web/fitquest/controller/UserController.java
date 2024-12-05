@@ -188,7 +188,7 @@ public class UserController {
             return ResponseEntity.ok().body("로그아웃 성공");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("로그아웃 실패");
+                    .body("로���아웃 실패");
         }
     }
 
@@ -215,7 +215,7 @@ public class UserController {
 
     @Operation(summary = "이메일 중복 확인", description = "이메일 사용 가능 여부를 확인합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "사용 가능한 ��메일"),
+            @ApiResponse(responseCode = "200", description = "사용 가능한 메일"),
             @ApiResponse(responseCode = "409", description = "중복된 이메일"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
@@ -267,7 +267,7 @@ public class UserController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "수정 성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-            @ApiResponse(responseCode = "500", description = "서버 오류")
+            @ApiResponse(responseCode = "500", description = "서버 ���류")
     })
     @PutMapping("/{userId}")
     public ResponseEntity<?> updateUserInfo(@PathVariable Integer userId, @RequestBody User user) {
@@ -293,17 +293,16 @@ public class UserController {
             @CookieValue(name = "refreshToken", required = false) String refreshToken,
             HttpServletRequest request) {
         
-        // 요청 관련 상세 정보 로깅
-        log.info("=== 리프레시 토큰 체크 시작 ===");
-        log.info("User-Agent: {}", request.getHeader("User-Agent"));
-        log.info("모든 쿠키: {}", request.getCookies() != null ? 
+        log.error("=== 리프레시 토큰 체크 시작 ===");
+        log.error("User-Agent: {}", request.getHeader("User-Agent"));
+        log.error("모든 쿠키: {}", request.getCookies() != null ? 
             Arrays.toString(request.getCookies()) : "쿠키 없음");
-        log.info("요청 헤더 [Cookie]: {}", request.getHeader("Cookie"));
-        log.info("리프레시 토큰 존재 여부: {}", refreshToken != null);
+        log.error("요청 헤더 [Cookie]: {}", request.getHeader("Cookie"));
+        log.error("리프레시 토큰 존재 여부: {}", refreshToken != null);
         if (refreshToken != null) {
-            log.info("리프레시 토큰 길이: {}", refreshToken.length());
+            log.error("리프레시 토큰 길이: {}", refreshToken.length());
         }
-        log.info("=== 리프레시 토큰 체크 종료 ===");
+        log.error("=== 리프레시 토큰 체크 종료 ===");
         
         return ResponseEntity.ok()
                 .body(Map.of("exists", refreshToken != null));
