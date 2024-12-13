@@ -24,6 +24,12 @@ FitQuest는 나만의 운동 플래너를 만들어 활동 기록을 채우고 �
 <br />
 <br/>
 
+## 🗂️ 프로젝트 구조
+
+<img src="frontend/src/assets/images/프로젝트 구조.jpg" alt="프로젝트 구조" width="100%">
+
+<br/><br/>
+
 ## 🛠️ 기술 스택
 ### Back-end
 <div>
@@ -75,11 +81,17 @@ FitQuest는 나만의 운동 플래너를 만들어 활동 기록을 채우고 �
 ## 📁 프로젝트 아키텍처
 
 ### 백엔드
-<img src="frontend/src/assets/images/백엔드_아키텍처.png" alt="백엔드 아키텍처" width="100%">
+<img src="frontend/src/assets/images/BE 아키텍처.jpg" alt="백엔드 아키텍처" width="100%">
 <br/>
 
 ### 프론트엔드  
-<img src="frontend/src/assets/images/프론트엔드_아키텍처.png" alt="프론트엔드 아키텍처" width="100%">
+<img src="frontend/src/assets/images/FE 아키텍처.jpg" alt="프론트엔드 아키텍처" width="100%">
+
+<br/>
+<br/>
+
+## 📊 데이터베이스 구조 
+<img src="frontend/src/assets/images/erd.jpg" alt="데이터베이스 구조" width="100%">
 
 <br/>
 <br/>
@@ -157,7 +169,8 @@ FitQuest는 나만의 운동 플래너를 만들어 활동 기록을 채우고 �
 </details>
 
 
-<br />
+<br/>
+<br/>
 
 ## 📚 APIs
 <details>
@@ -314,6 +327,8 @@ FitQuest는 나만의 운동 플래너를 만들어 활동 기록을 채우고 �
 </details>
 </details>
 
+<br/>
+<br/>
 
 </details>
 
@@ -321,8 +336,6 @@ FitQuest는 나만의 운동 플래너를 만들어 활동 기록을 채우고 �
 
 - [네이버 블로그 및 이미지 검색 API 배치 및 병렬 처리로 성능 최적화](https://github.com/baehoonbae/fitquest/blob/main/backend/src/main/java/com/web/fitquest/controller/ArticleController.java)
 - [Todo 및 Activity 업데이트 대량 트래픽 테스트를 통해 서버 성능 향상 및 확장성 검증](https://github.com/baehoonbae/fitquest/blob/main/backend/src/test/performance-test-results.md)
-
-
 
 <br />
 <br />
