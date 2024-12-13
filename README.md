@@ -2,16 +2,18 @@
 
 
 <div align="center">
+<img src="frontend/src/assets/images/kettlebell.png" alt="FitQuest Logo" width="100">
 
-### FitQuest Git README.md ✅
-
-[<img src="https://img.shields.io/badge/-readme.md-important?style=flat&logo=google-chrome&logoColor=white" />]() 
-<br/> [<img src="https://img.shields.io/badge/프로젝트 기간-2024.11.19~2024.11.27-green?style=flat&logo=&logoColor=white" />]()
-
-</div> 
+# FitQuest
+</div>
 
 ## 📝 소개
 FitQuest는 나만의 운동 플래너를 만들어 활동 기록을 채우고 다른 사람들과 운동 관련 소통을 할 수 있는 종합 운동 커뮤니티 플랫폼입니다.
+
+프로젝트 기간: 2024.11.19 ~ 2024.12.05
+
+## 🌐 배포 URL
+[FitQuest](https://fqdashboard.netlify.app)
 
 ## 💁‍♂️ 프로젝트 팀원
 | <img src="https://github.com/baehoonbae.png" width="180" height="180"> | <img src="https://github.com/dlacowns21.png" width="180" height="180"> |
@@ -22,7 +24,13 @@ FitQuest는 나만의 운동 플래너를 만들어 활동 기록을 채우고 �
 <br />
 <br/>
 
-## ⚙ 기술 스택
+## 🗂️ 프로젝트 구조
+
+<img src="frontend/src/assets/images/프로젝트 구조.jpg" alt="프로젝트 구조" width="100%">
+
+<br/><br/>
+
+## 🛠️ 기술 스택
 ### Back-end
 <div>
 <img src="https://img.shields.io/badge/Java-007396?style=for-the-badge&logo=Java&logoColor=white">
@@ -50,6 +58,15 @@ FitQuest는 나만의 운동 플래너를 만들어 활동 기록을 채우고 �
 <img src="https://img.shields.io/badge/@heroicons/vue-4FC08D?style=for-the-badge&logo=@heroicons/vue&logoColor=white">
 </div>
 
+### Infra
+<div>
+<img src="https://img.shields.io/badge/Netlify-00C7B7?style=for-the-badge&logo=netlify&logoColor=white">
+<img src="https://img.shields.io/badge/AWS EC2-FF9900?style=for-the-badge&logo=amazonec2&logoColor=white">
+<img src="https://img.shields.io/badge/AWS RDS-527FFF?style=for-the-badge&logo=amazonrds&logoColor=white">
+<img src="https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white">
+<img src="https://img.shields.io/badge/Github Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white">
+</div>
+
 ### Tools
 <div>
 <img src="https://img.shields.io/badge/Github-181717?style=for-the-badge&logo=Github&logoColor=white">
@@ -57,10 +74,29 @@ FitQuest는 나만의 운동 플래너를 만들어 활동 기록을 채우고 �
 <img src="https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=Figma&logoColor=white">
 </div>
 
+
 <br/>
 <br/>
 
-## 기능 소개
+## 📁 프로젝트 아키텍처
+
+### 백엔드
+<img src="frontend/src/assets/images/BE 아키텍처.jpg" alt="백엔드 아키텍처" width="100%">
+<br/>
+
+### 프론트엔드  
+<img src="frontend/src/assets/images/FE 아키텍처.jpg" alt="프론트엔드 아키텍처" width="100%">
+
+<br/>
+<br/>
+
+## 📊 데이터베이스 구조 
+<img src="frontend/src/assets/images/erd.jpg" alt="데이터베이스 구조" width="100%">
+
+<br/>
+<br/>
+
+## 🎥 기능 소개
 
 <details>
 <summary>방명록, 팔로워, 팔로잉 목록</summary>
@@ -133,9 +169,10 @@ FitQuest는 나만의 운동 플래너를 만들어 활동 기록을 채우고 �
 </details>
 
 
-<br />
+<br/>
+<br/>
 
-## 🗂️ APIs
+## 📚 APIs
 <details>
 <summary>👉🏻 API 바로보기</summary>
 <br/>
@@ -290,22 +327,22 @@ FitQuest는 나만의 운동 플래너를 만들어 활동 기록을 채우고 �
 </details>
 </details>
 
+<br/>
+<br/>
 
 </details>
 
-## 핵심 성과
+## 🌟 핵심 성과
 
 - [네이버 블로그 및 이미지 검색 API 배치 및 병렬 처리로 성능 최적화](https://github.com/baehoonbae/fitquest/blob/main/backend/src/main/java/com/web/fitquest/controller/ArticleController.java)
 - [Todo 및 Activity 업데이트 대량 트래픽 테스트를 통해 서버 성능 향상 및 확장성 검증](https://github.com/baehoonbae/fitquest/blob/main/backend/src/test/performance-test-results.md)
 
-
-
 <br />
 <br />
 
 
 
-## 커밋 메시지
+## 📝 커밋 메시지
 
 `feat`: 새로운 기능 추가
 
